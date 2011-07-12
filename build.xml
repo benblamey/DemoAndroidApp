@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="sign_in" default="help">
+<!-- 
+'name' is the project name used throughout the build process. Not to be confused with the name in the app manifest XML file.
+'default' the default target to use when no target is supplied. Presumably shows help if a target such as 'debug' or 'release' is omitted.
+-->
+<project name="OHOW-Android" default="help">
 
 <!-- The local.properties file is created and updated by the 'android'
      tool.
