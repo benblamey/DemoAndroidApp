@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Strings for the OHOW API Errors. -->
+<resources>
+
+	<!-- The strings here should be user friendly descriptions of the exceptions thrown by the API. -->
+
+	<!-- 400 - Bad Request -->
+	<string name="api_error_400_1">A parameter was missing or invalid. Please report this error (and a description of what you were doing at the time) to technical support.</string>
+	<string name="api_error_400_2">A user with this username and/or email address already exists. If you have already registered, try resetting your password. Otherwise, choose a different username.</string>
+	
+	<!-- 401 - Unauthorized -->
+	<string name="api_error_401_1">Your session key has expired. Sign out and sign in again.</string>
+	<string name="api_error_401_2">The wrong protocol was used to access a resource on the OHOW servers. Please report this error (and a description of what you were doing at the time)) to technical support.</string>
+	<string name="api_error_401_3">The password was incorrect. Please double-check and try again. Note that your OHOW password is case-sensitive. If you are still having problems, reset your password.</string>
+	<string name="api_error_401_4">Your account has been locked out for some reason. Please contact technical support.</string>
+	
+	<!-- 404 - Not Found -->
+	<string name="api_error_404_1">The specified resource was not found. It may have been removed.</string>
+	
+	<!-- 405 - Method not allowed -->
+	<string name="api_error_405_1">The wrong method was used to access a resource on the OHOW servers. Please report this error (and a description of what you were doing at the time)) to technical support.</string>
+	
+	<!-- 406 - Not Acceptable -->
+	<string name="api_error_406_1">The client did not request a suitable format for the resource. Please report this error to technical support along with a description of what you were doing.</string>	
+
+</resources>

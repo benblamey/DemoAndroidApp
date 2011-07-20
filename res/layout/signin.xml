@@ -15,5 +15,12 @@
 		    android:layout_height="wrap_content" 
 		    android:gravity="center"
 		    android:text="@string/sign_in_welcome"/>
+		<Button
+			android:layout_marginTop="20dip"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/sign_in_register_label"
+			android:id="@+id/sign_in_register_button">
+		</Button>
 	</LinearLayout>
 </LinearLayout>

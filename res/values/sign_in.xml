@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- sign_in.xml -->
+<resources>
+
+	<string name="sign_in_activity_label">Our History of the World - Sign In</string>
+	
+	<!-- The welcome text -->
+    <string name="sign_in_welcome">Welcome to the Our History of the World!</string>
+    
+    <!-- The label for the register button -->
+    <string name="sign_in_register_label">Register</string>
+    
+</resources>

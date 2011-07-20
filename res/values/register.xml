@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Resources for the register activity - excluding those defined by the OHOW API. -->
+<resources>
+
+	<string name="register_activity_label">Our History of the World - Register</string>
+
+    <!-- Hint text for the various fields -->
+    <string name="register_hint_first_name">First Name</string>
+    <string name="register_hint_last_name">Last Name</string>
+    <string name="register_hint_email">Email</string>
+    <string name="register_hint_username">Username</string>
+    <string name="register_hint_password">Password</string>
+    <string name="register_button_label">Register</string>
+    
+    <!-- Messages regarding invalid registration fields -->
+    <string name="register_first_name_too_short">Please enter your first name.</string>
+    <string name="register_first_name_too_long">Your first name cannot be longer than $1%d characters.</string>
+    <string name="register_last_name_too_short">Please enter your last name.</string>
+    <string name="register_last_name_too_long">Your last name cannot be longer than $1%d characters.</string>
+    <string name="register_invalid_email_address">Please enter a valid email address.</string>
+    <string name="register_invalid_username">
+    	Please enter a valid username. Usernames may contain letters (a-z), numbers (0-9), dashes (-), underscores (_), periods (.), and apostrophes (\').
+    </string>
+    <string name="register_invalid_password">
+    	Please enter a valid password. A password must be at least 6 characters in length, and must contain at least one upper case letter, one lower case letter and one digit.
+    </string>
+    
+    <!-- Dialog messages -->
+    <string name="register_waiting_dialog_title">Registering...</string>
+    <string name="register_waiting_dialog_body">Please wait while you are registered...</string>
+    
+    <string name="register_success_dialog_title">Registration</string>
+    <string name="register_success_dialog_body">Congratulations, you have successfully registered with Our History of the World!</string>
+    <string name="register_error_dialog_title">Error!</string>
+    
+    <string name="register_unfriendly_error_prefix">Error: </string>
+    <string name="register_error_rotate_when_busy">Please do not rotate the phone whilst registration is active.</string>
+    
+</resources>
