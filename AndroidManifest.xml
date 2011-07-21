@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ml4d.ohow"
       android:versionCode="1"
-      android:versionName="1.0.0.0">
+      android:versionName="1.0.0.DEV">
     <uses-sdk android:minSdkVersion="7" />
 
 	<!-- The 'android:debuggable' attribute no longer needs to be set, 

@@ -43,9 +43,33 @@
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
-<!--
-    <target name="-pre-build">
+	 
+	 <!-- todo: 
+	 - only enable on a release build
+	 - use cdata to express regex.
+	 - specify android:version="..." to make more specific.
+	 - hook into teamcity version number
+	 -->
+    <target name="-pre-build" depends="ml4d-updatemanifest">
     </target>
+	
+	<target name="ml4d-updatemanifest" depends="-ml4d-updatemanifest-debug, -ml4d-updatemanifest-release">
+		<replaceregexp file="${basedir}/AndroidManifest.xml"
+               match="android:versionName=&quot;([0-9]+)\.([0-9]+)\.([0-9]+)\.[^&quot;]*&quot;"
+               replace="android:versionName=&quot;\1\.\2\.\3\.${build.number} (${build.tag}) (${ml4d-updatemanifest-build-quality})&quot;"
+               byline="true"/>	
+	</target>
+
+	<target name="-ml4d-updatemanifest-debug" if="build.mode.debug">
+		<property name="ml4d-updatemanifest-build-quality" value="Debug" />
+	</target>
+
+	<target name="-ml4d-updatemanifest-release" if="build.mode.release">
+		<property name="ml4d-updatemanifest-build-quality" value="Release" />
+	</target>	
+	
+<!--
+
     <target name="-pre-compile">
     </target>
 
