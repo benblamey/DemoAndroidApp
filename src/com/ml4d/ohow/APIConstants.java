@@ -12,7 +12,7 @@ public class APIConstants
 	public static final int sessionKeyLength = sha1HashLength;
 
 	// Unfortunately, Java is lacking a verbatim string operators (like '@' in C#), so these strings are in a sense double-escaped - edit with caution!
-	public static final String usernameRegex = "^[a-zA-Z0-9-_\\.\']{3,20}$";
+	public static final String usernameRegex = "^[a-zA-Z0-9-_\\.]{3,20}$";
 	public static final String emailRegex = "^[a-zA-Z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&\'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$";
 	
 	// The maximum and minimum lengths of some of the fields used in registration.

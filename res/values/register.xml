@@ -20,10 +20,10 @@
     <string name="register_last_name_too_long">Your last name cannot be longer than $1%d characters.</string>
     <string name="register_invalid_email_address">Please enter a valid email address.</string>
     <string name="register_invalid_username">
-    	Please enter a valid username. Usernames may contain letters (a-z), numbers (0-9), dashes (-), underscores (_), periods (.), and apostrophes (\').
+    	Please enter a valid username. Usernames must be at least 3 characters long, and may contain only letters, numbers, dashes (-), underscores (_), periods (.).
     </string>
     <string name="register_invalid_password">
-    	Please enter a valid password. A password must be at least 6 characters in length, and must contain at least one upper case letter, one lower case letter and one digit.
+    	Please enter a valid password. A password must be at least 6 characters long, and must contain at least one upper case letter, one lower case letter and one digit.
     </string>
     
     <!-- Dialog messages -->
