@@ -1,6 +1,7 @@
 package com.ml4d.ohow;
 
 import java.io.*;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.*;
@@ -376,17 +377,18 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	 * Asynchronously performs a HTTP request.
 	 */
 	private class RegisterApiTask extends AsyncTask<HttpPost, Void, HttpResponse> {
-		private Register _parent;
+		private WeakReference<Register> _parent;
 		private String _userAgent;
 
 		public RegisterApiTask(Register parent) {
-			_parent = parent;
+			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
+			_parent = new WeakReference<Register>(parent);
 
 			// Whilst we are on the UI thread, build a user-agent string from
 			// the package details.
 			PackageInfo packageInfo;
 			try {
-				packageInfo = _parent.getPackageManager().getPackageInfo(_parent.getPackageName(), 0);
+				packageInfo = parent.getPackageManager().getPackageInfo(parent.getPackageName(), 0);
 			} catch (NameNotFoundException e1) {
 				throw new ImprobableCheckedExceptionException(e1);
 			}
@@ -409,22 +411,26 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 		}
 
 		protected void onPostExecute(HttpResponse result) {
-			if (_parent._registerTask == this) {
+			
+			Register parent = _parent.get();
+			
+			// 'parent' will be null if it has already been garbage collected.
+			if (parent._registerTask == this) {
 
 				try {
 					// ProcessJSONResponse() appropriately handles a null
 					// result.
 					APIResponseHandler.ProcessJSONResponse(result, getResources());
-					_parent._state = State.SUCCESS;
+					parent._state = State.SUCCESS;
 				} catch (OHOWAPIException e) {
-					_parent._state = State.FAILED;
-					_parent._errorMessage = e.getLocalizedMessage();
+					parent._state = State.FAILED;
+					parent._errorMessage = e.getLocalizedMessage();
 				} catch (NoResponseAPIException e) {
-					_parent._state = State.FAILED;
-					_parent._errorMessage = _parent.getResources().getString(R.string.comms_error);
+					parent._state = State.FAILED;
+					parent._errorMessage = parent.getResources().getString(R.string.comms_error);
 				}
 
-				_parent.showState();
+				parent.showState();
 			}
 		}
 
