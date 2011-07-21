@@ -76,9 +76,31 @@
     [This is typically used for code obfuscation.
      Compiled code location: ${out.classes.absolute.dir}
      If this is not done in place, override ${out.dex.input.absolute.dir}]
-    <target name="-post-compile">
-    </target>
 -->
+
+    <target name="-post-compile" depends="ml4dpublishbuild"/>
+	
+	<target name="ml4dpublishbuild" if="ml4d.ohow.publish">
+
+		<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
+                output="ml4d-packageversion"/>
+	
+		<copy file="${out.release.file}" 
+			 tofile="${out.absolute.dir}\${ant.project.name}-${ml4d-packageversion}.apk"/>
+			 
+		<ftp 
+			server="89.145.116.4"
+			port="21"
+			remotedir="/android"
+			userid="${ml4d.ohow.ftp.username}"
+			password="${ml4d.ohow.ftp.password}"
+			passive="yes"
+			depends="yes"
+			binary="no">
+			<fileset file="${out.absolute.dir}\${ant.project.name}-${ml4d-packageversion}.apk"/>
+		</ftp>
+
+	</target>
 
     <!-- Execute the Android Setup task that will setup some properties
          specific to the target, and import the build rules files.
