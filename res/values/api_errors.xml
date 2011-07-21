@@ -3,6 +3,9 @@
 <!-- Strings for the OHOW API Errors. -->
 <resources>
 
+	<string name="comms_error">Could not communicate with the OHOW servers. Please check your internet connection and try again.</string>
+
+
 	<!-- The strings here should be user friendly descriptions of the exceptions thrown by the API. -->
 
 	<!-- 400 - Bad Request -->

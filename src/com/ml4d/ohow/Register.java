@@ -421,7 +421,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 					_parent._errorMessage = e.getLocalizedMessage();
 				} catch (NoResponseAPIException e) {
 					_parent._state = State.FAILED;
-					_parent._errorMessage = e.getLocalizedMessage();
+					_parent._errorMessage = _parent.getResources().getString(R.string.comms_error);
 				}
 
 				_parent.showState();
