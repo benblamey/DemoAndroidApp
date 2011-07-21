@@ -91,7 +91,7 @@
 		<ftp 
 			server="89.145.116.4"
 			port="21"
-			remotedir="/android"
+			remotedir="/ei95hc83hs84hfgh59wj2iaoclr496uhshx/android"
 			userid="${ml4d.ohow.ftp.username}"
 			password="${ml4d.ohow.ftp.password}"
 			passive="yes"
