@@ -76,11 +76,11 @@
     [This is typically used for code obfuscation.
      Compiled code location: ${out.classes.absolute.dir}
      If this is not done in place, override ${out.dex.input.absolute.dir}]
--->
 
-    <target name="-post-compile" depends="ml4dpublishbuild"/>
+    <target name="-post-compile"/>
+-->
 	
-	<target name="ml4dpublishbuild" if="ml4d.ohow.publish">
+	<target name="ml4dpublishbuild" if="ml4d.ohow.publish" depends="release">
 
 		<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
                 output="ml4d-packageversion"/>
