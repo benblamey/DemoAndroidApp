@@ -43,9 +43,22 @@
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
-<!--
+	 
+	 <!-- todo: 
+	 - only enable on a release build
+	 - use cdata to express regex.
+	 - specify android:version="..." to make more specific.
+	 - hook into teamcity version number
+	 -->
     <target name="-pre-build">
+		<replaceregexp file="${basedir}/AndroidManifest2.xml"
+               match="1.0.0.0"
+               replace="1.0.0.36"
+               byline="true"
+/>
     </target>
+<!--
+
     <target name="-pre-compile">
     </target>
 
