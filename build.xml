@@ -44,7 +44,7 @@
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->
 	 
-	 <!-- todo: 
+	 <!-- todo:  
 	 - only enable on a release build
 	 - use cdata to express regex.
 	 - specify android:version="..." to make more specific.
