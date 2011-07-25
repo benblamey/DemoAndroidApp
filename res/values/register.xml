@@ -11,7 +11,11 @@
     <string name="register_hint_email">Email</string>
     <string name="register_hint_username">Username</string>
     <string name="register_hint_password">Password</string>
+    
+    <string name="register_checkbox_terms_label">I accept the terms &amp; conditions</string>
     <string name="register_button_label">Register</string>
+    <string name="register_view_terms_and_conditions_button_label">View Terms and Conditions</string>
+    <string name="register_view_terms_and_conditions_button_label_land">View T\'s &amp; C\'s</string>
     
     <!-- Messages regarding invalid registration fields -->
     <string name="register_first_name_too_short">Please enter your first name.</string>
@@ -24,6 +28,9 @@
     </string>
     <string name="register_invalid_password">
     	Please enter a valid password. A password must be at least 6 characters long, and must contain at least one upper case letter, one lower case letter and one digit.
+    </string>
+    <string name="register_must_accept_terms">
+    	You must read &amp; accept the terms and conditions in order to register with Our History of the World.
     </string>
     
     <!-- Dialog messages -->

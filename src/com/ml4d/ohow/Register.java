@@ -24,11 +24,13 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.regex.Pattern;
@@ -110,6 +112,9 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 		View registerButton = findViewById(R.id.register_register_button);
 		registerButton.setOnClickListener(this);
 
+		View viewTermsAndConditionsButton = findViewById(R.id.register_view_terms_and_conditions_button);
+		viewTermsAndConditionsButton.setOnClickListener(this);
+
 		if (savedInstanceState != null) {
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
@@ -122,6 +127,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_email);
 			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_username);
 			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_password);
+			restoreTextViewInstanceState(savedInstanceState, R.id.register_checkbox_terms);
 
 			// Restore the focused view.
 			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
@@ -163,6 +169,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 		saveTextViewInstanceState(outState, R.id.register_edittext_email);
 		saveTextViewInstanceState(outState, R.id.register_edittext_username);
 		saveTextViewInstanceState(outState, R.id.register_edittext_password);
+		saveTextViewInstanceState(outState, R.id.register_checkbox_terms);
 
 		// Save which view is focused.
 		View v = getCurrentFocus();
@@ -260,47 +267,50 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 		Pattern usernameRegex = Pattern.compile(APIConstants.usernameRegex);
 		Matcher usernameRegexMatcher = usernameRegex.matcher(username);
 
-		String validatonMessage = "";
+		String validationMessage = "";
 
 		// First name.
 		if (firstName.length() < APIConstants.firstNameMinLength) {
-			validatonMessage = resources.getString(R.string.register_first_name_too_short);
+			validationMessage = resources.getString(R.string.register_first_name_too_short);
 		} else if (firstName.length() > APIConstants.firstNameMaxLength) {
-			validatonMessage = String.format(resources.getString(R.string.register_first_name_too_long),
+			validationMessage = String.format(resources.getString(R.string.register_first_name_too_long),
 					APIConstants.firstNameMaxLength);
 		}
 
 		// Last name.
 		else if (lastName.length() < APIConstants.lastNameMinLength) {
-			validatonMessage = resources.getString(R.string.register_last_name_too_short);
+			validationMessage = resources.getString(R.string.register_last_name_too_short);
 		} else if (lastName.length() > APIConstants.lastNameMaxLength) {
-			validatonMessage = String.format(resources.getString(R.string.register_last_name_too_long),
+			validationMessage = String.format(resources.getString(R.string.register_last_name_too_long),
 					APIConstants.lastNameMaxLength);
 		}
 
 		// Email address.
 		else if (!emailAddressRegexMatcher.matches()) {
-			validatonMessage = resources.getString(R.string.register_invalid_email_address);
+			validationMessage = resources.getString(R.string.register_invalid_email_address);
 		}
 
 		// Username.
 		else if (!usernameRegexMatcher.matches()) {
-			validatonMessage = resources.getString(R.string.register_invalid_username);
+			validationMessage = resources.getString(R.string.register_invalid_username);
 		}
 
 		// Password.
-		else if ("" == validatonMessage) {
-			if (!Pattern.compile("[0-9]").matcher(password).find()
+		else if (!Pattern.compile("[0-9]").matcher(password).find()
 					|| !Pattern.compile("[a-z]").matcher(password).find()
 					|| !Pattern.compile("[A-Z]").matcher(password).find()
 					|| (APIConstants.passwordMinLength > password.length())
 					|| (APIConstants.passwordMaxLength < password.length())) {
-				validatonMessage = resources.getString(R.string.register_invalid_password);
-			}
+				validationMessage = resources.getString(R.string.register_invalid_password);
+		}
+		
+		// Terms and Conditions.
+		else if (false == ((CheckBox) this.findViewById(R.id.register_checkbox_terms)).isChecked()) {
+			validationMessage = resources.getString(R.string.register_must_accept_terms);
 		}
 
-		if (validatonMessage.length() > 0) {
-			Toast.makeText(this, validatonMessage, Toast.LENGTH_LONG).show();
+		if (validationMessage.length() > 0) {
+			Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
 		} else {
 
 			// The HttpClient will verify the certificate is signed by a trusted
@@ -335,9 +345,17 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 		case R.id.register_register_button:
 			registerButtonClicked();
 			break;
+		case R.id.register_view_terms_and_conditions_button:
+			viewTermsAndConditionsClicked();
+			break;
 		default:
 			throw new UnexpectedEnumValueException(_state);
 		}
+	}
+
+	private void viewTermsAndConditionsClicked() {
+		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://cpanel02.lhc.uk.networkeq.net/~soberfun/terms.html"));
+		startActivity(browserIntent);
 	}
 
 	@Override

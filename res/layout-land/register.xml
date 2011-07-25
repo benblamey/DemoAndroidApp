@@ -15,54 +15,78 @@
 	    <EditText
 	    	android:inputType="text|textNoSuggestions|textCapWords|textPersonName"
 	    	android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
+	    	android:layout_height="fill_parent"
 	    	android:id="@+id/register_edittext_first_name"
 	    	android:hint="@string/register_hint_first_name"
-	    	android:freezesText="true">
+	    	android:freezesText="true"
+	    	android:layout_marginBottom="-1dip">
 	    </EditText>
 	    <EditText
 	    	android:inputType="text|textNoSuggestions|textCapWords|textPersonName"
 	    	android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
+	    	android:layout_height="fill_parent"
 	    	android:id="@+id/register_edittext_last_name"
 	    	android:hint="@string/register_hint_last_name"
-	    	android:freezesText="true">
+	    	android:freezesText="true"
+	    	android:layout_marginBottom="-1dip">
 	    </EditText>
 	    <EditText
 	    	android:inputType="text|textNoSuggestions|textEmailAddress"
 	    	android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
+	    	android:layout_height="fill_parent"	    	
 	    	android:id="@+id/register_edittext_email"
 	    	android:hint="@string/register_hint_email"
-	    	android:freezesText="true">
+	    	android:freezesText="true"
+	    	android:layout_marginBottom="-1dip">
 	    </EditText>
-	    <EditText
-	    	android:inputType="text|textNoSuggestions"
+	    <EditText 
+	    	android:hint="@string/register_hint_username" 
+	    	android:layout_height="fill_parent" 
+	    	android:inputType="text|textNoSuggestions" 
+	    	android:id="@+id/register_edittext_username" 
+	    	android:freezesText="true" 
 	    	android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
-	    	android:id="@+id/register_edittext_username"
-	    	android:hint="@string/register_hint_username"
-	    	android:freezesText="true">
+	    	android:layout_marginBottom="-1dip">
 	    </EditText>
 	    <EditText
 	    	android:inputType="text|textNoSuggestions|textVisiblePassword"
 	    	android:layout_width="fill_parent"
-	    	android:layout_height="wrap_content"
+	    	android:layout_height="fill_parent"
 	    	android:id="@+id/register_edittext_password"
 	    	android:hint="@string/register_hint_password"
 	    	android:password="true"
-	    	android:freezesText="true">
+	    	android:freezesText="true"
+	    	android:layout_marginBottom="-1dip">
 	    </EditText>
+
+	    <CheckBox
+	    	android:layout_marginTop="-2dip" 
+			android:id="@+id/register_checkbox_terms"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/register_checkbox_terms_label" />
 
 	</LinearLayout>
 
-	<Button
-		android:layout_gravity="bottom"
-		android:layout_width="wrap_content"
-		android:layout_height="fill_parent"
-		android:text="@string/register_button_label"
-		android:id="@+id/register_register_button"
-		>
-	</Button>
+	<LinearLayout
+	    android:orientation="vertical"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center">
+
+		<Button
+			android:layout_gravity="bottom"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:text="@string/register_button_label"
+			android:id="@+id/register_register_button"/>
+		
+		<Button
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			android:text="@string/register_view_terms_and_conditions_button_label_land"
+			android:id="@+id/register_view_terms_and_conditions_button"/>
+	
+	</LinearLayout>
 	
 </LinearLayout>

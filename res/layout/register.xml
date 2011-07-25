@@ -52,11 +52,22 @@
 	    	android:password="true"
 	    	android:freezesText="true">
 	    </EditText>
+	    
+		<CheckBox 
+			android:id="@+id/register_checkbox_terms"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/register_checkbox_terms_label" />
 		<Button
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/register_button_label"
-			android:id="@+id/register_register_button">
-		</Button>
+			android:id="@+id/register_register_button"/>
+		<Button
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/register_view_terms_and_conditions_button_label"
+			android:id="@+id/register_view_terms_and_conditions_button"/>
+
 	</LinearLayout>
 </LinearLayout>
