@@ -8,7 +8,30 @@
 	<!-- The welcome text -->
     <string name="sign_in_welcome">Welcome to the Our History of the World!</string>
     
-    <!-- The label for the register button -->
+    <!-- The label for the buttons -->
     <string name="sign_in_register_label">Register</string>
+    <string name="sign_in_sign_in_label">Sign In</string>
+    
+    <!-- The hints for the text fields -->
+    <string name="sign_in_hint_username">Username</string>
+    <string name="sign_in_hint_password">Password</string>
+    
+    <!-- Messages regarding invalid registration fields -->
+    <string name="sign_in_invalid_username">
+    	Please enter your username.
+    </string>
+    <string name="sign_in_invalid_password">
+    	Please enter your password.
+    </string>
+    
+    <!-- Dialog messages -->
+    <string name="sign_in_waiting_dialog_title">Signing In...</string>
+    <string name="sign_in_waiting_dialog_body">Please wait while you are signed in...</string>
+    
+    <string name="sign_in_error_dialog_title">Error!</string>
+    
+    <string name="sign_in_unfriendly_error_prefix">Error: </string>
+    <string name="sign_in_error_rotate_when_busy">Please do not rotate the phone whilst sign-in is active.</string>
+    
     
 </resources>

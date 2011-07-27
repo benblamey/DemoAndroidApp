@@ -23,6 +23,10 @@
                   android:label="@string/register_activity_label">
         </activity>
         
+        <activity android:name=".Home"
+                  android:label="@string/home_activity_label">
+        </activity>
+        
     </application>
     
     <uses-permission android:name="android.permission.INTERNET" />

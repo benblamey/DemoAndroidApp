@@ -22,11 +22,15 @@ public final class R {
         public static final int register_edittext_username=0x7f050003;
         public static final int register_register_button=0x7f050006;
         public static final int register_view_terms_and_conditions_button=0x7f050007;
-        public static final int sign_in_register_button=0x7f050008;
+        public static final int sign_in_register_button=0x7f05000b;
+        public static final int sign_in_sign_in_button=0x7f05000a;
+        public static final int signin_edittext_password=0x7f050009;
+        public static final int signin_edittext_username=0x7f050008;
     }
     public static final class layout {
-        public static final int register=0x7f030000;
-        public static final int signin=0x7f030001;
+        public static final int home=0x7f030000;
+        public static final int register=0x7f030001;
+        public static final int signin=0x7f030002;
     }
     public static final class string {
         /**  The strings here should be user friendly descriptions of the exceptions thrown by the API. 
@@ -54,44 +58,61 @@ public final class R {
          */
         public static final int app_name=0x7f04000a;
         public static final int comms_error=0x7f040000;
+        public static final int home_activity_label=0x7f04000c;
         public static final int ok_button_label=0x7f04000b;
-        public static final int register_activity_label=0x7f04000c;
-        public static final int register_button_label=0x7f040013;
-        public static final int register_checkbox_terms_label=0x7f040012;
-        public static final int register_error_dialog_title=0x7f040022;
-        public static final int register_error_rotate_when_busy=0x7f040024;
-        public static final int register_first_name_too_long=0x7f040017;
+        public static final int register_activity_label=0x7f04000d;
+        public static final int register_button_label=0x7f040014;
+        public static final int register_checkbox_terms_label=0x7f040013;
+        public static final int register_error_dialog_title=0x7f040023;
+        public static final int register_error_rotate_when_busy=0x7f040025;
+        public static final int register_first_name_too_long=0x7f040018;
         /**  Messages regarding invalid registration fields 
          */
-        public static final int register_first_name_too_short=0x7f040016;
-        public static final int register_hint_email=0x7f04000f;
+        public static final int register_first_name_too_short=0x7f040017;
+        public static final int register_hint_email=0x7f040010;
         /**  Hint text for the various fields 
          */
-        public static final int register_hint_first_name=0x7f04000d;
-        public static final int register_hint_last_name=0x7f04000e;
-        public static final int register_hint_password=0x7f040011;
-        public static final int register_hint_username=0x7f040010;
-        public static final int register_invalid_email_address=0x7f04001a;
-        public static final int register_invalid_password=0x7f04001c;
-        public static final int register_invalid_username=0x7f04001b;
-        public static final int register_last_name_too_long=0x7f040019;
-        public static final int register_last_name_too_short=0x7f040018;
-        public static final int register_must_accept_terms=0x7f04001d;
-        public static final int register_success_dialog_body=0x7f040021;
-        public static final int register_success_dialog_title=0x7f040020;
-        public static final int register_unfriendly_error_prefix=0x7f040023;
-        public static final int register_view_terms_and_conditions_button_label=0x7f040014;
-        public static final int register_view_terms_and_conditions_button_label_land=0x7f040015;
-        public static final int register_waiting_dialog_body=0x7f04001f;
+        public static final int register_hint_first_name=0x7f04000e;
+        public static final int register_hint_last_name=0x7f04000f;
+        public static final int register_hint_password=0x7f040012;
+        public static final int register_hint_username=0x7f040011;
+        public static final int register_invalid_email_address=0x7f04001b;
+        public static final int register_invalid_password=0x7f04001d;
+        public static final int register_invalid_username=0x7f04001c;
+        public static final int register_last_name_too_long=0x7f04001a;
+        public static final int register_last_name_too_short=0x7f040019;
+        public static final int register_must_accept_terms=0x7f04001e;
+        public static final int register_success_dialog_body=0x7f040022;
+        public static final int register_success_dialog_title=0x7f040021;
+        public static final int register_unfriendly_error_prefix=0x7f040024;
+        public static final int register_view_terms_and_conditions_button_label=0x7f040015;
+        public static final int register_view_terms_and_conditions_button_label_land=0x7f040016;
+        public static final int register_waiting_dialog_body=0x7f040020;
         /**  Dialog messages 
          */
-        public static final int register_waiting_dialog_title=0x7f04001e;
-        public static final int sign_in_activity_label=0x7f040025;
-        /**  The label for the register button 
+        public static final int register_waiting_dialog_title=0x7f04001f;
+        public static final int sign_in_activity_label=0x7f040026;
+        public static final int sign_in_error_dialog_title=0x7f040030;
+        public static final int sign_in_error_rotate_when_busy=0x7f040032;
+        public static final int sign_in_hint_password=0x7f04002b;
+        /**  The hints for the text fields 
          */
-        public static final int sign_in_register_label=0x7f040027;
+        public static final int sign_in_hint_username=0x7f04002a;
+        public static final int sign_in_invalid_password=0x7f04002d;
+        /**  Messages regarding invalid registration fields 
+         */
+        public static final int sign_in_invalid_username=0x7f04002c;
+        /**  The label for the buttons 
+         */
+        public static final int sign_in_register_label=0x7f040028;
+        public static final int sign_in_sign_in_label=0x7f040029;
+        public static final int sign_in_unfriendly_error_prefix=0x7f040031;
+        public static final int sign_in_waiting_dialog_body=0x7f04002f;
+        /**  Dialog messages 
+         */
+        public static final int sign_in_waiting_dialog_title=0x7f04002e;
         /**  The welcome text 
          */
-        public static final int sign_in_welcome=0x7f040026;
+        public static final int sign_in_welcome=0x7f040027;
     }
 }

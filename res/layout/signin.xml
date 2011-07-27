@@ -1,26 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<LinearLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:orientation="vertical"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_gravity="center">
-		<TextView
-			android:textSize="26dip"
-		    android:layout_width="fill_parent" 
-		    android:layout_height="wrap_content" 
-		    android:gravity="center"
-		    android:text="@string/sign_in_welcome"/>
-		<Button
-			android:layout_marginTop="20dip"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:text="@string/sign_in_register_label"
-			android:id="@+id/sign_in_register_button">
-		</Button>
-	</LinearLayout>
+	    
+	<TextView
+		android:textSize="26dip"
+		android:layout_marginBottom="20dip"
+	    android:layout_width="fill_parent" 
+	    android:layout_height="wrap_content" 
+	    android:gravity="center"
+	    android:text="@string/sign_in_welcome"/>
+
+	<EditText
+    	android:inputType="text|textNoSuggestions"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:id="@+id/signin_edittext_username"
+    	android:hint="@string/sign_in_hint_username"
+    	android:freezesText="true">
+	</EditText>
+	
+	<EditText
+    	android:inputType="text|textNoSuggestions|textVisiblePassword"
+    	android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:id="@+id/signin_edittext_password"
+    	android:hint="@string/sign_in_hint_password"
+    	android:password="true"
+    	android:freezesText="true">
+    </EditText>
+	    
+	<Button
+
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/sign_in_sign_in_label"
+		android:id="@+id/sign_in_sign_in_button">
+	</Button>
+
+	<Button
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/sign_in_register_label"
+		android:id="@+id/sign_in_register_button">
+	</Button>
+
 </LinearLayout>
