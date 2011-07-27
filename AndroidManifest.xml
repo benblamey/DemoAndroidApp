@@ -29,6 +29,7 @@
                   android:label="@string/register_activity_label">
         </activity>
         
+        <!-- does this start a new task? or something else so that when we say back we don't go back to the sign in page. -->
         <activity android:name=".Home"
                   android:label="@string/home_activity_label">
         </activity>

@@ -58,9 +58,15 @@ public class Splash extends Activity {
     	super.onDestroy();
     }
 
-	private void startSignInActivity() {
-		Intent signInIntent = new Intent(this, SignIn.class);
-		startActivity(signInIntent);
+	private void proceedToNextActivity() {
+		APIAuthentication auth = new APIAuthentication(this);
+		Intent nextActivityIntent;
+		if (auth.getWhetherCachedDataShouldBeDisplayed()) {
+			nextActivityIntent = new Intent(this, Home.class);	
+		} else {
+			nextActivityIntent = new Intent(this, SignIn.class);
+		}
+		startActivity(nextActivityIntent);
 	}
 	
 	private void ensureTaskIsStopped() {
@@ -107,7 +113,7 @@ public class Splash extends Activity {
 			// 'parent' will be null if it has already been garbage collected.
 			// We want to ensure we only take action if the parent is actually 'using' this instance of the task.
 			if (parent._task == this) {
-				parent.startSignInActivity();
+				parent.proceedToNextActivity();
 			}
 		}
 	}

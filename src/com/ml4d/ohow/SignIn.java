@@ -3,6 +3,8 @@ package com.ml4d.ohow;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
@@ -13,6 +15,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.ml4d.ohow.exceptions.*;
 
@@ -71,8 +75,8 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			break;
 		case WAITING:
 			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.register_waiting_dialog_title),
-					resources.getString(R.string.register_waiting_dialog_body), true, // Indeterminate.
+			_dialog = ProgressDialog.show(this, resources.getString(R.string.sign_in_waiting_dialog_title),
+					resources.getString(R.string.sign_in_waiting_dialog_body), true, // Indeterminate.
 					false); // Not cancellable.
 			break;
 		case SUCCESS:
@@ -83,7 +87,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		case FAILED:
 			// Show a 'failed' dialog.
 			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
-			failedDialog.setTitle(resources.getString(R.string.register_error_dialog_title));
+			failedDialog.setTitle(resources.getString(R.string.sign_in_waiting_dialog_title));
 			failedDialog.setMessage(_errorMessage);
 			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
 			failedDialog.show();
@@ -275,7 +279,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 				url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
 				post.setEntity(url);
 
-				_signInTask = new SignInTask(this);
+				_signInTask = new SignInTask(this, username, password);
 				_signInTask.execute(post);
 			} catch (UnsupportedEncodingException e) {
 				throw new ImprobableCheckedExceptionException(e);
@@ -328,10 +332,14 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	private class SignInTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 		private WeakReference<SignIn> _parent;
 		private String _userAgent;
+		private String _username;
+		private String _password;		 
 
-		public SignInTask(SignIn parent) {
+		public SignInTask(SignIn parent, String username, String password) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<SignIn>(parent);
+			_username = username;
+			_password = password;
 
 			// Whilst we are on the UI thread, build a user-agent string from
 			// the package details.
@@ -359,7 +367,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			return null;
 		}
 
-		protected void onPostExecute(HttpResponse result) {
+		protected void onPostExecute(HttpResponse response) {
 			
 			SignIn parent = _parent.get();
 			
@@ -369,7 +377,22 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 				try {
 					// ProcessJSONResponse() appropriately handles a null
 					// result.
-					APIResponseHandler.ProcessJSONResponse(result, getResources());
+					
+					Object result = APIResponseHandler.ProcessJSONResponse(response, getResources());
+					
+					if (!(result instanceof JSONObject)) {
+						throw new UnexpectedOHOWAPIResponseException("Expecting a JSON Object - ensure you are using the latest version of the app.");
+					}
+					
+					JSONObject resultJson = (JSONObject)result;
+					
+					String sessionKey = resultJson.getString("session_key");
+					final Calendar cal = Calendar.getInstance();
+					cal.setTimeInMillis(resultJson.getInt("expires") * 1000L);
+					Date date = cal.getTime();
+
+					APIAuthentication auth = new APIAuthentication(parent);
+					auth.setKnownGoodSessionKeyAndUsername(_username, _password, sessionKey, date);
 					parent._state = State.SUCCESS;
 				} catch (OHOWAPIException e) {
 					parent._state = State.FAILED;
@@ -377,6 +400,14 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 				} catch (NoResponseAPIException e) {
 					parent._state = State.FAILED;
 					parent._errorMessage = parent.getResources().getString(R.string.comms_error);
+				} catch (UnexpectedOHOWAPIResponseException e) {
+					// This exception is unlikely. We don't localize the message. 
+					parent._state = State.FAILED;
+					parent._errorMessage = e.getLocalizedMessage();
+				} catch (JSONException e) {
+					// This exception is unlikely. We don't localize the message. 
+					parent._state = State.FAILED;
+					parent._errorMessage = e.getLocalizedMessage();
 				}
 
 				parent.showState();
