@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Resources for the splash screen activity. -->
+<resources>
+
+	<string name="splash_activity_label">Our History of the World</string>
+	<string name="splash_text">Our History of the World</string>
+
+</resources>

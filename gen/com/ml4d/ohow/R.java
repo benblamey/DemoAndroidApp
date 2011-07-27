@@ -23,10 +23,12 @@ public final class R {
         public static final int register_register_button=0x7f050006;
         public static final int register_view_terms_and_conditions_button=0x7f050007;
         public static final int sign_in_register_button=0x7f050008;
+        public static final int splash_text_view_version_number=0x7f050009;
     }
     public static final class layout {
         public static final int register=0x7f030000;
         public static final int signin=0x7f030001;
+        public static final int splash=0x7f030002;
     }
     public static final class string {
         /**  The strings here should be user friendly descriptions of the exceptions thrown by the API. 
@@ -93,5 +95,7 @@ public final class R {
         /**  The welcome text 
          */
         public static final int sign_in_welcome=0x7f040026;
+        public static final int splash_activity_label=0x7f040028;
+        public static final int splash_text=0x7f040029;
     }
 }
