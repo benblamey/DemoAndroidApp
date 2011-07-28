@@ -91,7 +91,6 @@
 			password="${ml4d.ohow.ftp.password}"
 			passive="yes"
 			depends="yes"
-			binary="no"
 			remotedir="/ei95hc83hs84hfgh59wj2iaoclr496uhshx/android/${ml4d-packageversion}"/>
 	
 		<!-- Upload the output file to the FTP server. -->
@@ -103,7 +102,7 @@
 			password="${ml4d.ohow.ftp.password}"
 			passive="yes"
 			depends="yes"
-			binary="no">
+			binary="yes">
 			<fileset file="${out.release.file}"/>
 		</ftp>
 
