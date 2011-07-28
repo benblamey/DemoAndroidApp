@@ -5,8 +5,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -102,6 +100,11 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.signin);
+		
+		if (new CredentialStore(this).getHaveVerifiedCredentials()) {
+			// Start the home activity.
+			startActivity(new Intent(this, Home.class));
+		}
 
 		findViewById(R.id.sign_in_sign_in_button).setOnClickListener(this);
 		findViewById(R.id.sign_in_register_button).setOnClickListener(this);
@@ -290,8 +293,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			signInButtonClicked();
 			break;
 		default:
-			Assert.fail("unknown clickable button");
-			break;
+			throw new UnknownClickableItemException(view.getId());
 		}
 	}
 
@@ -367,24 +369,17 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			// 'parent' will be null if it has already been garbage collected.
 			if (parent._signInTask == this) {
 
-				APIAuthentication auth = new APIAuthentication(parent);
+				CredentialStore auth = new CredentialStore(parent);
 				
 				try {
 					// ProcessJSONResponse() appropriately handles a null result.
 					
 					// We don't actually care about the response, we just need to ensure there are no errors.
 					APIResponseHandler.ProcessJSONResponse(response, getResources());
-					
-//					if (!(result instanceof JSONObject)) {
-//						throw new UnexpectedOHOWAPIResultException("Expecting a JSON Object - ensure you are using the latest version of the app.");
-//					}
-//					
-//					JSONObject resultJson = (JSONObject)result;
-//					
+
+					// Store the credentials now that they have been verified.
 					auth.setKnownGoodDetails(_username, _password);
-//					if (!
-					
-	
+
 					// To complete without error is a success.
 					parent._state = State.SUCCESS;
 					
@@ -402,16 +397,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 					parent._state = State.FAILED;
 					parent._errorMessage = parent.getResources().getString(R.string.comms_error);
 				}
-//				} catch (UnexpectedOHOWAPIResultException e) {
-//					// This exception is unlikely. We don't localize the message. 
-//					parent._state = State.FAILED;
-//					parent._errorMessage = e.getLocalizedMessage();
-//				} catch (JSONException e) {
-//					// A JSON property was missing or something similar.
-//					// This exception is unlikely. We don't localize the message. 
-//					parent._state = State.FAILED;
-//					parent._errorMessage = e.getLocalizedMessage();
-//				}
+
 
 				parent.showState();
 			}

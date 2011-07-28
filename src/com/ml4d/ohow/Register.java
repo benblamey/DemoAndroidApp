@@ -349,7 +349,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			viewTermsAndConditionsClicked();
 			break;
 		default:
-			throw new UnexpectedEnumValueException(_state);
+			throw new UnknownClickableItemException(view.getId());
 		}
 	}
 

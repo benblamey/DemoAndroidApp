@@ -13,13 +13,22 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.ml4d.google_import.Base64;
 import com.ml4d.ohow.exceptions.ImprobableCheckedExceptionException;
 
+/**
+ * Performs symmetric encryption/decryption with a fixed key.
+ */
 public class CryptUtility {
 
 	private static final byte[] _keyBytes = new byte[] { 0xA, -0x09, 0x0a, 0x0b, -0x1D, 0x15, 0x29, 0x77, 0x51, 0x21,
 			0x02, -0x03, 0x2C, -0x0D, 0x4E, 0x3D, 0x43, -0x11, 0x7C, 0x63, 0x6A, 0x15, 0x16, 0x17 };
 
+	/**
+	 * Encrypts the specified string and returns the cipher-text, itself Base64 encoded. 
+	 * @param data
+	 * @return
+	 */
 	public static String encrypt(String data) {
 		try {
 			SecretKeySpec key = new SecretKeySpec(_keyBytes, "AES");
@@ -54,6 +63,11 @@ public class CryptUtility {
 		}
 	}
 
+	/**
+	 * Decrypts data that was previously encrypted using this class.
+	 * @param data
+	 * @return
+	 */
 	public static String decrypt(String data) {
 		try {
 			SecretKeySpec key = new SecretKeySpec(_keyBytes, "AES");

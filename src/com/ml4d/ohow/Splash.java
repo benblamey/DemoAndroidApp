@@ -59,7 +59,7 @@ public class Splash extends Activity {
     }
 
 	private void proceedToNextActivity() {
-		APIAuthentication auth = new APIAuthentication(this);
+		CredentialStore auth = new CredentialStore(this);
 		Intent nextActivityIntent;
 		if (auth.getHaveVerifiedCredentials()) {
 			nextActivityIntent = new Intent(this, Home.class);	
