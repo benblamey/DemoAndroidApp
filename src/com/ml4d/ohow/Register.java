@@ -232,7 +232,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 												// are difficult to predict.
 				_registerTask = null;
 			}
-			_errorMessage = getResources().getString(R.string.register_error_rotate_when_busy);
+			_errorMessage = getResources().getString(R.string.register_error_task_cancelled);
 			_state = State.FAILED;
 		}
 	}
@@ -349,7 +349,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			viewTermsAndConditionsClicked();
 			break;
 		default:
-			throw new UnexpectedEnumValueException(_state);
+			throw new UnknownClickableItemException(view.getId());
 		}
 	}
 
