@@ -16,8 +16,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.ml4d.ohow.exceptions.*;
 
@@ -374,20 +372,20 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 				try {
 					// ProcessJSONResponse() appropriately handles a null result.
 					
-					Object result = APIResponseHandler.ProcessJSONResponse(response, getResources());
+					// We don't actually care about the response, we just need to ensure there are no errors.
+					APIResponseHandler.ProcessJSONResponse(response, getResources());
 					
-					if (!(result instanceof JSONObject)) {
-						throw new UnexpectedOHOWAPIResultException("Expecting a JSON Object - ensure you are using the latest version of the app.");
-					}
+//					if (!(result instanceof JSONObject)) {
+//						throw new UnexpectedOHOWAPIResultException("Expecting a JSON Object - ensure you are using the latest version of the app.");
+//					}
+//					
+//					JSONObject resultJson = (JSONObject)result;
+//					
+					auth.setKnownGoodDetails(_username, _password);
+//					if (!
 					
-					JSONObject resultJson = (JSONObject)result;
-					
-					auth.setKnownGoodDetails(
-							_username, 
-							_password, 
-							resultJson.getString("session_key"), 
-							DateTimeUtilities.getTimeFromUnixTime(resultJson.getInt("expires")));
-					
+	
+					// To complete without error is a success.
 					parent._state = State.SUCCESS;
 					
 				} catch (OHOWAPIException e) {
@@ -403,16 +401,17 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 				} catch (NoResponseAPIException e) {
 					parent._state = State.FAILED;
 					parent._errorMessage = parent.getResources().getString(R.string.comms_error);
-				} catch (UnexpectedOHOWAPIResultException e) {
-					// This exception is unlikely. We don't localize the message. 
-					parent._state = State.FAILED;
-					parent._errorMessage = e.getLocalizedMessage();
-				} catch (JSONException e) {
-					// A JSON property was missing or something similar.
-					// This exception is unlikely. We don't localize the message. 
-					parent._state = State.FAILED;
-					parent._errorMessage = e.getLocalizedMessage();
 				}
+//				} catch (UnexpectedOHOWAPIResultException e) {
+//					// This exception is unlikely. We don't localize the message. 
+//					parent._state = State.FAILED;
+//					parent._errorMessage = e.getLocalizedMessage();
+//				} catch (JSONException e) {
+//					// A JSON property was missing or something similar.
+//					// This exception is unlikely. We don't localize the message. 
+//					parent._state = State.FAILED;
+//					parent._errorMessage = e.getLocalizedMessage();
+//				}
 
 				parent.showState();
 			}

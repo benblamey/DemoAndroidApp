@@ -1,26 +1,10 @@
 package com.ml4d.ohow;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.*;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HTTP;
 
-import com.ml4d.ohow.exceptions.*;
+
 
 import android.app.Activity;
-import android.content.ContextWrapper;
-import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.AsyncTask;
+
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -226,7 +210,11 @@ public class Home extends Activity implements OnClickListener { //, DialogInterf
 //		startActivity(new Intent(this, Register.class));
 //	}
 //	
-	private void signInButtonClicked() {
+	private void signOutButtonClicked() {
+		// Clear the saved credentials.
+		APIAuthentication auth = new APIAuthentication(this);
+		auth.Clear();
+		
 
 	//	Resources resources = this.getResources();
 
@@ -252,28 +240,30 @@ public class Home extends Activity implements OnClickListener { //, DialogInterf
 		// The HttpClient will verify the certificate is signed by a trusted
 		// source.
 	
-		APIAuthentication auth = new APIAuthentication(this);
+		
+		
+
 	
-		HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/sign_out.php");
-		post.setHeader("Accept", "application/json");
-
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new BasicNameValuePair("session_key", auth.getSessionKey()));
-		auth.Clear();
-		
-		startActivity(new Intent(this, SignIn.class));
-		
-		UrlEncodedFormEntity url = null;
-		try {
-			url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
-			post.setEntity(url);
-
-			// Don't store the result, we don't care about the outcome.
-			new SignOutTask(this).execute(post);
-			//_signInTask
-		} catch (UnsupportedEncodingException e) {
-			throw new ImprobableCheckedExceptionException(e);
-		}
+//		HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/sign_out.php");
+//		post.setHeader("Accept", "application/json");
+//
+//		List<NameValuePair> params = new ArrayList<NameValuePair>();
+//		params.add(new BasicNameValuePair("session_key", auth.getSessionKey()));
+//		auth.Clear();
+//		
+//		startActivity(new Intent(this, SignIn.class));
+//		
+//		UrlEncodedFormEntity url = null;
+//		try {
+//			url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+//			post.setEntity(url);
+//
+//			// Don't store the result, we don't care about the outcome.
+//			new SignOutTask(this).execute(post);
+//			//_signInTask
+//		} catch (UnsupportedEncodingException e) {
+//			throw new ImprobableCheckedExceptionException(e);
+//		}
 		//_state = State.WAITING;
 		//showState();
 	}
@@ -281,10 +271,10 @@ public class Home extends Activity implements OnClickListener { //, DialogInterf
 	public void onClick(View view) {
 		switch (view.getId()) {
 		case R.id.home_sign_out_button:
-			signInButtonClicked();
+			signOutButtonClicked();
 			break;
 		default:
-			// TODO: throw new UnexpectedEnumValueException();
+			// TODO: throw new something;
 		}
 	}
 
@@ -312,9 +302,7 @@ public class Home extends Activity implements OnClickListener { //, DialogInterf
 //		}
 //	}
 
-	/**
-	 * Asynchronously performs a HTTP request.
-	 */
+	/*
 	private class SignOutTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 //		private WeakReference<SignIn> _parent;
 		private String _userAgent;
@@ -351,7 +339,7 @@ public class Home extends Activity implements OnClickListener { //, DialogInterf
 
 		protected void onPostExecute(HttpResponse response) {
 			// Don't worry about the result.
-		}
+		}*/
 			
 //			SignIn parent = _parent.get();
 //			
@@ -404,4 +392,4 @@ public class Home extends Activity implements OnClickListener { //, DialogInterf
 //		}
 
 	}
-}
+//}

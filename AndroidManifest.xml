@@ -21,8 +21,11 @@
             </intent-filter>
         </activity>
 
+		<!-- We set 'noHistory' true to ensure the splash screen is shown only once,
+			 this ensures it is not shown if the user has already logged in. -->
         <activity android:name=".SignIn"
-                  android:label="@string/sign_in_activity_label">
+                  android:label="@string/sign_in_activity_label"
+                  android:noHistory="TRUE">
         </activity>
 
         <activity android:name=".Register"

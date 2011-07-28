@@ -61,7 +61,7 @@ public class Splash extends Activity {
 	private void proceedToNextActivity() {
 		APIAuthentication auth = new APIAuthentication(this);
 		Intent nextActivityIntent;
-		if (auth.getWhetherCachedDataShouldBeDisplayed()) {
+		if (auth.getHaveVerifiedCredentials()) {
 			nextActivityIntent = new Intent(this, Home.class);	
 		} else {
 			nextActivityIntent = new Intent(this, SignIn.class);
