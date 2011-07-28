@@ -3,7 +3,7 @@ package com.ml4d.ohow.exceptions;
 /*
  * Occurs when the OHOW API returns an object successfully, but the result object is not as expected (e.g. it is missing properties, or is the wrong type etc.)
  */
-public class UnexpectedOHOWAPIResponseException extends Exception {
+public class UnexpectedOHOWAPIResultException extends Exception {
 
 	private String _description;
 
@@ -12,12 +12,12 @@ public class UnexpectedOHOWAPIResponseException extends Exception {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public UnexpectedOHOWAPIResponseException(String description) {
+	public UnexpectedOHOWAPIResultException(String description) {
 		super();
 		_description = description;
 	}
 	
-	public UnexpectedOHOWAPIResponseException(String description, Exception inner) {
+	public UnexpectedOHOWAPIResultException(String description, Exception inner) {
 		super(inner);
 		_description = description;
 	}

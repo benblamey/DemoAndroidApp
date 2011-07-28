@@ -3,9 +3,10 @@ package com.ml4d.ohow;
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
+
+import junit.framework.Assert;
+
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -81,13 +82,13 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			break;
 		case SUCCESS:
 			// Start the 'home' activity.
-			// TODO: store credentials.
+			// Credentials/session key has already been stored.
 			startActivity(new Intent(this, Home.class));
 			break;
 		case FAILED:
 			// Show a 'failed' dialog.
 			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
-			failedDialog.setTitle(resources.getString(R.string.sign_in_waiting_dialog_title));
+			failedDialog.setTitle(resources.getString(R.string.sign_in_error_dialog_title));
 			failedDialog.setMessage(_errorMessage);
 			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
 			failedDialog.show();
@@ -110,6 +111,13 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		if (savedInstanceState != null) {
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
+			
+			// If we have previously successfully logged in, go back to the data-entry state.
+			// Otherwise we will redirect immediately back to the home activity.
+			if (State.SUCCESS == _state) {
+				_state = State.DATA_ENTRY;
+				_errorMessage = "";
+			}
 
 			// Because we have different layouts for portrait and landscape
 			// views, we need to manually save and restore the state of the
@@ -131,24 +139,10 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
-		switch (_state) {
-		case DATA_ENTRY:
-			break;
-		case WAITING:
-			// Cancel the operation.
-			_signInTask.cancel(false); // Don't interrupt the operation if it
-											// has started. The results are
-											// difficult to predict.
-			_signInTask = null;
+		ensureTaskIsStopped();
+		
+		if (State.WAITING == _state) {
 			_state = State.FAILED;
-			break;
-		case SUCCESS:
-			_state = State.DATA_ENTRY;
-			break;
-		case FAILED:
-			break;
-		default:
-			throw new UnexpectedEnumValueException(_state);
 		}
 
 		// Because we have different layouts for portrait and landscape views,
@@ -157,9 +151,9 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		saveTextViewInstanceState(outState, R.id.signin_edittext_password);
 
 		// Save which view is focused.
-		View v = getCurrentFocus();
-		if (null != v) {
-			outState.putInt("focused_view", v.getId());
+		View focusedView = getCurrentFocus();
+		if (null != focusedView) {
+			outState.putInt("focused_view", focusedView.getId());
 		}
 
 		outState.putString("_state", _state.name());
@@ -210,14 +204,15 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	 * Ensures the asynchronous HTTP task is stopped.
 	 */
 	private void ensureTaskIsStopped() {
+		
+		// Don't interrupt the operation if it has started. The results are difficult to predict.
+		if (_signInTask != null) {
+			_signInTask.cancel(false); 
+			_signInTask = null;
+		}
+		
 		if (State.WAITING == _state) {
-			if (this._signInTask != null) {
-				_signInTask.cancel(false); // Don't interrupt the operation if
-												// it has started. The results
-												// are difficult to predict.
-				_signInTask = null;
-			}
-			_errorMessage = getResources().getString(R.string.register_error_rotate_when_busy);
+			_errorMessage = getResources().getString(R.string.register_error_task_cancelled);
 			_state = State.FAILED;
 		}
 	}
@@ -242,12 +237,10 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	}
 	
 	private void signInButtonClicked() {
+		Resources resources = getResources();
 
-		Resources resources = this.getResources();
-
-		String username = ((TextView) this.findViewById(R.id.signin_edittext_username)).getText().toString();
-		String password = ((TextView) this.findViewById(R.id.signin_edittext_password)).getText().toString();
-
+		String username = ((TextView) findViewById(R.id.signin_edittext_username)).getText().toString();
+		String password = ((TextView) findViewById(R.id.signin_edittext_password)).getText().toString();
 
 		String validationMessage = "";
 
@@ -274,18 +267,19 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			params.add(new BasicNameValuePair("username", username));
 			params.add(new BasicNameValuePair("password", password));
 
+			// Update the UI to show that we are waiting.
+			_state = State.WAITING;
+			showState();
+			
 			UrlEncodedFormEntity url = null;
 			try {
 				url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
 				post.setEntity(url);
-
 				_signInTask = new SignInTask(this, username, password);
 				_signInTask.execute(post);
 			} catch (UnsupportedEncodingException e) {
 				throw new ImprobableCheckedExceptionException(e);
 			}
-			_state = State.WAITING;
-			showState();
 		}
 	}
 
@@ -298,7 +292,8 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			signInButtonClicked();
 			break;
 		default:
-			throw new UnexpectedEnumValueException(_state);
+			Assert.fail("unknown clickable button");
+			break;
 		}
 	}
 
@@ -360,51 +355,60 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			try {
 				return client.execute(arg0[0]);
 			} catch (ClientProtocolException e) {
-				e.printStackTrace();
+				return null;
 			} catch (IOException e) {
-				e.printStackTrace();
+				return null;
 			}
-			return null;
 		}
 
 		protected void onPostExecute(HttpResponse response) {
+			// On the main thread.
 			
 			SignIn parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
 			if (parent._signInTask == this) {
 
+				APIAuthentication auth = new APIAuthentication(parent);
+				
 				try {
-					// ProcessJSONResponse() appropriately handles a null
-					// result.
+					// ProcessJSONResponse() appropriately handles a null result.
 					
 					Object result = APIResponseHandler.ProcessJSONResponse(response, getResources());
 					
 					if (!(result instanceof JSONObject)) {
-						throw new UnexpectedOHOWAPIResponseException("Expecting a JSON Object - ensure you are using the latest version of the app.");
+						throw new UnexpectedOHOWAPIResultException("Expecting a JSON Object - ensure you are using the latest version of the app.");
 					}
 					
 					JSONObject resultJson = (JSONObject)result;
 					
-					String sessionKey = resultJson.getString("session_key");
-					final Calendar cal = Calendar.getInstance();
-					cal.setTimeInMillis(resultJson.getInt("expires") * 1000L);
-					Date date = cal.getTime();
-
-					APIAuthentication auth = new APIAuthentication(parent);
-					auth.setKnownGoodSessionKeyAndUsername(_username, _password, sessionKey, date);
+					auth.setKnownGoodDetails(
+							_username, 
+							_password, 
+							resultJson.getString("session_key"), 
+							DateTimeUtilities.getTimeFromUnixTime(resultJson.getInt("expires")));
+					
 					parent._state = State.SUCCESS;
+					
 				} catch (OHOWAPIException e) {
+					
+					if ((401 == e.getHttpCode()) && (3 == e.getExceptionCode())) {
+						// The password was wrong. Clear any saved credentials or session keys.
+						auth.Clear();
+						((TextView) findViewById(R.id.signin_edittext_password)).setText("");
+					}
+					
 					parent._state = State.FAILED;
 					parent._errorMessage = e.getLocalizedMessage();
 				} catch (NoResponseAPIException e) {
 					parent._state = State.FAILED;
 					parent._errorMessage = parent.getResources().getString(R.string.comms_error);
-				} catch (UnexpectedOHOWAPIResponseException e) {
+				} catch (UnexpectedOHOWAPIResultException e) {
 					// This exception is unlikely. We don't localize the message. 
 					parent._state = State.FAILED;
 					parent._errorMessage = e.getLocalizedMessage();
 				} catch (JSONException e) {
+					// A JSON property was missing or something similar.
 					// This exception is unlikely. We don't localize the message. 
 					parent._state = State.FAILED;
 					parent._errorMessage = e.getLocalizedMessage();

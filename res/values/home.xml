@@ -3,5 +3,5 @@
 <!-- Strings for the home activity. -->
 <resources>
 	<string name="home_activity_label">Home</string>
-
+	<string name="home_sign_out_label">Sign Out</string>
 </resources>
