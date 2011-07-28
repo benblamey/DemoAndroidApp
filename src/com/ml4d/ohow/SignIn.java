@@ -258,7 +258,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 
 			// The HttpClient will verify the certificate is signed by a trusted
 			// source.
-			HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/sign_in.php");
+			HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/check_credentials.php");
 			post.setHeader("Accept", "application/json");
 
 			List<NameValuePair> params = new ArrayList<NameValuePair>();

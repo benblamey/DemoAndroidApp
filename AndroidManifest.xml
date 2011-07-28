@@ -29,7 +29,8 @@
         </activity>
 
         <activity android:name=".Register"
-                  android:label="@string/register_activity_label">
+                  android:label="@string/register_activity_label"
+                  android:noHistory="TRUE">
         </activity>
         
         <!-- does this start a new task? or something else so that when we say back we don't go back to the sign in page. -->

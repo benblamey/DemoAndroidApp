@@ -6,6 +6,7 @@ package com.ml4d.ohow;
 import android.app.Activity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -99,6 +100,11 @@ public class Home extends Activity implements OnClickListener { //, DialogInterf
 //		}
 
 		//showState();
+		
+		APIAuthentication auth = new APIAuthentication(this);
+		Log.d("OHOW", auth.getPassword());
+		
+		//String password = 
 	}
 
 //	protected void onSaveInstanceState(Bundle outState) {

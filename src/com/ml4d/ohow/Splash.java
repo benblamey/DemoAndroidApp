@@ -25,7 +25,7 @@ public class Splash extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.splash);
-		
+				
 		PackageInfo packageInfo;
 		try {
 			packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
