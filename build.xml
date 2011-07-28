@@ -49,10 +49,24 @@
 	
 	<!-- The if means that the target is only executed if the teamcity build number property has been set.-->
 	<target name="ml4d-updatemanifest" depends="-ml4d-updatemanifest-debug, -ml4d-updatemanifest-release" if="build.number">
+	
+		<!-- Update the manifest XML file to include the build number. -->
 		<replaceregexp file="${basedir}/AndroidManifest.xml"
                match="android:versionName=&quot;([0-9]+)\.([0-9]+)\.([0-9]+)\.[^&quot;]*&quot;"
                replace="android:versionName=&quot;\1\.\2\.\3\.${build.number} (${ml4d-updatemanifest-build-quality})&quot;"
                byline="true"/>	
+               
+        <!-- Retrieve the full version name from the manifest XML -->
+        <xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
+               output="ml4d-packageversion"/>
+
+		<!-- Override the default file names to include the version number.
+			 The phone will verify the signature against the filename, so we cannot rename the file afterwards. -->               
+		<property name="out.release.file.name"
+				  value="${ant.project.name}-${ml4d-packageversion}.apk" />
+		<property name="out.release.file"
+				  location="${out.absolute.dir}/${out.release.file.name}" />
+         
 	</target>
 
 	<target name="-ml4d-updatemanifest-debug" if="build.mode.debug">
@@ -77,12 +91,7 @@
 	
 	<target name="ml4dpublishbuild" depends="release">
 
-		<xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
-                output="ml4d-packageversion"/>
-	
-		<copy file="${out.release.file}" 
-			 tofile="${out.absolute.dir}\${ant.project.name}-${ml4d-packageversion}.apk"/>
-			 
+		<!-- Upload the output file to the FTP server. -->
 		<ftp 
 			server="89.145.116.4"
 			port="21"
@@ -92,7 +101,7 @@
 			passive="yes"
 			depends="yes"
 			binary="no">
-			<fileset file="${out.absolute.dir}\${ant.project.name}-${ml4d-packageversion}.apk"/>
+			<fileset file="${out.release.file}.apk"/>
 		</ftp>
 
 	</target>
