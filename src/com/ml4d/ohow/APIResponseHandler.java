@@ -80,7 +80,7 @@ public class APIResponseHandler {
 
 				// If we don't have a friendly message for the error, use the
 				// one returned by the API.
-				if ("" == description) {
+				if (0 == description.length()) {
 					// Use a prefix to make the text seem a bit more friendly.
 					description = resources.getString(R.string.register_unfriendly_error_prefix) + " " + errorMessage;
 				}
@@ -88,7 +88,7 @@ public class APIResponseHandler {
 				// If there wasn't a message returned by the API, it means the
 				// response wasn't in JSON etc.
 				// Fall back to the reason phrase in the header.
-				if ("" == description) {
+				if (0 == description.length()) {
 					description = resources.getString(R.string.register_unfriendly_error_prefix) + " " + response.getStatusLine().getReasonPhrase();
 				}
 
@@ -104,7 +104,7 @@ public class APIResponseHandler {
 		String fieldName = "api_error_" + Integer.toString(httpCode) + "_" + Integer.toString(exceptionCode);
 
 		for (Field field : R.string.class.getDeclaredFields()) {
-			if (fieldName == field.getName()) {
+			if (fieldName.equals(field.getName())) {
 				try {
 					friendlyMessage = resources.getString(field.getInt(null));
 				} catch (NotFoundException e) {
