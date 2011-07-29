@@ -330,7 +330,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 				url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
 				post.setEntity(url);
 
-				_registerTask = new RegisterApiTask(this);
+				_registerTask = new RegisterApiTask(this, username, password);
 				_registerTask.execute(post);
 			} catch (UnsupportedEncodingException e) {
 				throw new ImprobableCheckedExceptionException(e);
@@ -374,10 +374,10 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			}
 			break;
 		case SUCCESS:
-			// When the user clicks on the success confirmation, go back to the
-			// sign_in page.
+			// When the user clicks on the success confirmation, go to the home activity 
+			// (we have already stored the credentials, and so are 'signed in').
 			if (DialogInterface.BUTTON_POSITIVE == which) {
-				Intent i = new Intent(this, SignIn.class);
+				Intent i = new Intent(this, Home.class);
 				startActivity(i);
 				break;
 			} else {
@@ -397,11 +397,15 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	private class RegisterApiTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 		private WeakReference<Register> _parent;
 		private String _userAgent;
+		private String _username;
+		private String _password;
 
-		public RegisterApiTask(Register parent) {
+		public RegisterApiTask(Register parent, String username, String password) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<Register>(parent);
-
+			_username = username;
+			_password = password;
+			
 			// Whilst we are on the UI thread, build a user-agent string from
 			// the package details.
 			PackageInfo packageInfo;
@@ -440,6 +444,10 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 					// result.
 					APIResponseHandler.ProcessJSONResponse(result, getResources());
 					parent._state = State.SUCCESS;
+					
+					// Store the credentials.
+					CredentialStore.getInstance(parent).setKnownGoodDetails(_username, _password);
+					
 				} catch (OHOWAPIException e) {
 					parent._state = State.FAILED;
 					parent._errorMessage = e.getLocalizedMessage();
