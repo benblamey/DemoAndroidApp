@@ -2,22 +2,29 @@ package com.ml4d.ohow;
 
 import com.ml4d.ohow.exceptions.CalledFromWrongThreadException;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 /**
- * Stores credentials for the OHOW API.
+ * Stores credentials for the OHOW API. Single instance.
+ * Lifetime is tied to the process. 
  */
 public class CredentialStore {
 
+	private static CredentialStore _instance;
 	private Context _context;
 	private SharedPreferences _preferences;
 	private boolean _haveVerifiedCredentials;
 	private String _username;
 	private String _password;
 
-	public CredentialStore(Context context) {
+	/**
+	 * Class is single instance, we do not allow direct instantiation.
+	 * @param context
+	 */
+	private CredentialStore(Context context) {
 		
 		_context = context;
 		_preferences = context.getSharedPreferences("APIAuthentication", Context.MODE_PRIVATE);
@@ -27,6 +34,26 @@ public class CredentialStore {
 			_username = _preferences.getString("_username", "");
 			_password = CryptUtility.decrypt(_preferences.getString("_password", ""));
 		}
+	}
+	
+	/**
+	 * Gets the single instance of this class (creating one if necessary).
+	 * @param activity 
+	 * @return
+	 */
+	public static CredentialStore getInstance(Activity activity)
+	{
+		// This method may only be called from the main looper thread.
+		if (Thread.currentThread() != activity.getMainLooper().getThread()) {
+			throw new CalledFromWrongThreadException();
+		}
+	
+		// We have ensured we are running on the UI thread, so there is no need for locking here. 
+		if (null == _instance) {
+			// Note that to prevent leaking a reference to an activity, we use the application context to manipulate the preferences.
+			_instance = new CredentialStore(activity.getApplicationContext());
+		}
+		return _instance;
 	}
 	
 	private void saveState() {
@@ -56,7 +83,7 @@ public class CredentialStore {
 	/**
 	 * Clear all saved credentials. Should be called when the OHOW API indicates the credentials are invalid.
 	 */
-	public void Clear() {
+	public void clear() {
 		verifyOnMainUIThread();
 		this._haveVerifiedCredentials = false;
 		this._username = "";

@@ -42,6 +42,6 @@
     <string name="register_error_dialog_title">Error!</string>
     
     <string name="register_unfriendly_error_prefix">Error: </string>
-    <string name="register_error_task_cancelled">Task was cancelled.</string>
+
     
 </resources>

@@ -34,9 +34,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /*
- * Interactive logic for the sign in activity.
+ * Interactive logic for the 'capture' activity.
  */
-public class SignIn extends Activity implements OnClickListener, DialogInterface.OnClickListener {
+public class Capture extends Activity implements OnClickListener, DialogInterface.OnClickListener {
 
 	/*
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -44,11 +44,11 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_ENTRY, WAITING, SUCCESS, FAILED
+		DATA_ENTRY, WAITING, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS,
 	}
 
 	private String _errorMessage;
-	private SignInTask _signInTask;
+	private CaptureTask _captureTask;
 	private State _state;
 	private DialogInterface _dialog;
 
@@ -72,14 +72,22 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			break;
 		case WAITING:
 			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.sign_in_waiting_dialog_title),
-					resources.getString(R.string.sign_in_waiting_dialog_body), true, // Indeterminate.
+			_dialog = ProgressDialog.show(this, resources.getString(R.string.capture_waiting_dialog_title),
+					resources.getString(R.string.capture_waiting_dialog_body), true, // Indeterminate.
 					false); // Not cancellable.
 			break;
 		case SUCCESS:
+			// Clear the field so that it isn't here if the user navigates back in history.
+			((TextView) this.findViewById(R.id.capture_edittext_body)).setText("");
+			
 			// Start the 'home' activity.
 			// Credentials/session key has already been stored.
 			startActivity(new Intent(this, Home.class));
+			
+			// Show the user some toast to inform them of the success.
+			Toast.makeText(this, resources.getString(R.string.capture_success), Toast.LENGTH_LONG).show();
+			
+			_state = State.DATA_ENTRY;
 			break;
 		case FAILED:
 			// Show a 'failed' dialog.
@@ -90,6 +98,23 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			failedDialog.show();
 			_dialog = failedDialog;
 			break;
+		case FAILED_INVALID_CREDENTIALS:
+			
+			// Don't redirect more than once.
+			_errorMessage = "";
+			_state = State.DATA_ENTRY;
+			
+			// Clear credentials saved in the store.
+			CredentialStore.getInstance(this).clear();
+			
+			// Go back to the sign in activity.
+			startActivity(new Intent(this, SignIn.class));
+			
+			// Show the user some toast explaining why they have been redirected.
+			Toast.makeText(this, resources.getString(R.string.sign_in_redirected_because_credentials_invalid), Toast.LENGTH_LONG).show();
+			
+			// We leave the text field as-is (and let it get its state persisted), then if the user goes back, they can try again with their original text.
+			break;
 		default:
 			throw new UnexpectedEnumValueException(_state);
 		}
@@ -99,15 +124,14 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.signin);
+		setContentView(R.layout.capture);
 		
-		if (CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
-			// Start the home activity.
-			startActivity(new Intent(this, Home.class));
+		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+			// Start the sign in activity.
+			startActivity(new Intent(this, SignIn.class));
 		}
 
-		findViewById(R.id.sign_in_sign_in_button).setOnClickListener(this);
-		findViewById(R.id.sign_in_register_button).setOnClickListener(this);
+		findViewById(R.id.capture_button_capture).setOnClickListener(this);
 
 		if (savedInstanceState != null) {
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
@@ -118,13 +142,17 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			if (State.SUCCESS == _state) {
 				_state = State.DATA_ENTRY;
 				_errorMessage = "";
+			} else if (State.FAILED_INVALID_CREDENTIALS == _state) {
+				// When the credentials are invalid, we immediately redirect to the sign in page.
+				// We don't want to do this automatically if the user reaches the activity from history.
+				_errorMessage = "";
+				_state = State.DATA_ENTRY;
 			}
 
-			// Because we have different layouts for portrait and landscape
+			// Because we may have different layouts for portrait and landscape
 			// views, we need to manually save and restore the state of the
 			// TextViews.
-			restoreTextViewInstanceState(savedInstanceState, R.id.signin_edittext_username);
-			restoreTextViewInstanceState(savedInstanceState, R.id.signin_edittext_password);
+			restoreTextViewInstanceState(savedInstanceState, R.id.capture_edittext_body);
 
 			// Restore the focused view.
 			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
@@ -144,12 +172,16 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		
 		if (State.WAITING == _state) {
 			_state = State.FAILED;
+		} else if (State.FAILED_INVALID_CREDENTIALS == _state) {
+			// When the credentials are invalid, we immediately redirect to the sign in page.
+			// We don't want to do this automatically if the user reaches the activity from history.
+			_errorMessage = "";
+			_state = State.DATA_ENTRY;
 		}
 
 		// Because we have different layouts for portrait and landscape views,
 		// we need to manually save and restore the state of the TextViews.
-		saveTextViewInstanceState(outState, R.id.signin_edittext_username);
-		saveTextViewInstanceState(outState, R.id.signin_edittext_password);
+		saveTextViewInstanceState(outState, R.id.capture_edittext_body);
 
 		// Save which view is focused.
 		View focusedView = getCurrentFocus();
@@ -201,23 +233,6 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		ensureTaskIsStopped();
 	}
 
-	/**
-	 * Ensures the asynchronous HTTP task is stopped.
-	 */
-	private void ensureTaskIsStopped() {
-		
-		// Don't interrupt the operation if it has started. The results are difficult to predict.
-		if (_signInTask != null) {
-			_signInTask.cancel(false); 
-			_signInTask = null;
-		}
-		
-		if (State.WAITING == _state) {
-			_errorMessage = getResources().getString(R.string.dialog_error_task_cancelled);
-			_state = State.FAILED;
-		}
-	}
-
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -231,66 +246,77 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		// The activity is about to be destroyed.
 		ensureTaskIsStopped();
 	}
-
-	private void registerButtonClicked() {
-		// Start the 'register' activity.
-		startActivity(new Intent(this, Register.class));
-	}
 	
-	private void signInButtonClicked() {
-		Resources resources = getResources();
-
-		String username = ((TextView) findViewById(R.id.signin_edittext_username)).getText().toString();
-		String password = ((TextView) findViewById(R.id.signin_edittext_password)).getText().toString();
-
-		String validationMessage = "";
-
-		// Username.
-		if (0 == username.length()) {
-			validationMessage = resources.getString(R.string.sign_in_invalid_username);
-		}
-
-		// Password.
-		else if (0 == password.length()) {
-			validationMessage = resources.getString(R.string.sign_in_invalid_password);
+	/**
+	 * Ensures the asynchronous HTTP task is stopped.
+	 */
+	private void ensureTaskIsStopped() {
+		
+		// Don't interrupt the operation if it has started. The results are difficult to predict.
+		if (_captureTask != null) {
+			_captureTask.cancel(false); 
+			_captureTask = null;
 		}
 		
-		if (validationMessage.length() > 0) {
-			Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
-		} else {
+		if (State.WAITING == _state) {
+			_errorMessage = getResources().getString(R.string.dialog_error_task_cancelled);
+			_state = State.FAILED;
+		}
+	}
+	
+	private void captureButtonClicked() {
+		Resources resources = getResources();
 
-			// The HttpClient will verify the certificate is signed by a trusted
-			// source.
-			HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/check_credentials.php");
-			post.setHeader("Accept", "application/json");
-
-			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("username", username));
-			params.add(new BasicNameValuePair("password", password));
-
-			// Update the UI to show that we are waiting.
-			_state = State.WAITING;
-			showState();
+		CredentialStore store = CredentialStore.getInstance(this);
+		if (store.getHaveVerifiedCredentials()) {
+		
+			String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
+			String validationMessage = "";
 			
-			UrlEncodedFormEntity url = null;
-			try {
-				url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
-				post.setEntity(url);
-				_signInTask = new SignInTask(this, username, password);
-				_signInTask.execute(post);
-			} catch (UnsupportedEncodingException e) {
-				throw new ImprobableCheckedExceptionException(e);
+			if (APIConstants.captureBodyMinLength > body.length()) {
+				validationMessage = resources.getString(R.string.capture_body_text_too_short);
+			} else if (APIConstants.captureBodyMaxLength < body.length()) {
+				validationMessage = resources.getString(R.string.capture_body_text_too_long);
 			}
+					
+			if (validationMessage.length() > 0) {
+				Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
+			} else {
+	
+				// The HttpClient will verify the certificate is signed by a trusted
+				// source.
+				HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
+				post.setHeader("Accept", "application/json");
+
+				List<NameValuePair> params = new ArrayList<NameValuePair>();
+				params.add(new BasicNameValuePair("username", store.getUsername()));
+				params.add(new BasicNameValuePair("password", store.getPassword()));
+				params.add(new BasicNameValuePair("body", body));
+	
+				// Update the UI to show that we are waiting.
+				_state = State.WAITING;
+				showState();
+				
+				UrlEncodedFormEntity url = null;
+				try {
+					url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+					post.setEntity(url);
+					_captureTask = new CaptureTask(this);
+					_captureTask.execute(post);
+				} catch (UnsupportedEncodingException e) {
+					throw new ImprobableCheckedExceptionException(e);
+				}
+			}
+		} else {
+			_state = State.FAILED_INVALID_CREDENTIALS;
+			showState();
 		}
 	}
 
 	public void onClick(View view) {
 		switch (view.getId()) {
-		case R.id.sign_in_register_button:
-			registerButtonClicked();
-			break;
-		case R.id.sign_in_sign_in_button:
-			signInButtonClicked();
+		case R.id.capture_button_capture:
+			captureButtonClicked();
 			break;
 		default:
 			throw new UnknownClickableItemException(view.getId());
@@ -299,12 +325,8 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-
 		switch (_state) {
-
 		case FAILED:
-			// When the user clicks on the success confirmation, go back to the
-			// sign_in page.
 			if (DialogInterface.BUTTON_POSITIVE == which) {
 				_state = State.DATA_ENTRY;
 				showState();
@@ -324,17 +346,13 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	/**
 	 * Asynchronously performs a HTTP request.
 	 */
-	private class SignInTask extends AsyncTask<HttpPost, Void, HttpResponse> {
-		private WeakReference<SignIn> _parent;
-		private String _userAgent;
-		private String _username;
-		private String _password;		 
+	private class CaptureTask extends AsyncTask<HttpPost, Void, HttpResponse> {
+		private WeakReference<Capture> _parent;
+		private String _userAgent;		 
 
-		public SignInTask(SignIn parent, String username, String password) {
+		public CaptureTask(Capture parent) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<SignIn>(parent);
-			_username = username;
-			_password = password;
+			_parent = new WeakReference<Capture>(parent);
 
 			// Whilst we are on the UI thread, build a user-agent string from
 			// the package details.
@@ -364,10 +382,10 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		protected void onPostExecute(HttpResponse response) {
 			// On the main thread.
 			
-			SignIn parent = _parent.get();
+			Capture parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
-			if (parent._signInTask == this) {
+			if (parent._captureTask == this) {
 
 				CredentialStore auth = CredentialStore.getInstance(parent);
 				
@@ -377,21 +395,18 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 					// We don't actually care about the response, we just need to ensure there are no errors.
 					APIResponseHandler.ProcessJSONResponse(response, getResources());
 
-					// Store the credentials now that they have been verified.
-					auth.setKnownGoodDetails(_username, _password);
-
 					// To complete without error is a success.
 					parent._state = State.SUCCESS;
 					
 				} catch (OHOWAPIException e) {
+					parent._state = State.FAILED;
 					
 					if ((401 == e.getHttpCode()) && (3 == e.getExceptionCode())) {
 						// The password was wrong. Clear any saved credentials or session keys.
 						auth.clear();
-						((TextView) findViewById(R.id.signin_edittext_password)).setText("");
+						parent._state = State.FAILED_INVALID_CREDENTIALS;	
 					}
 					
-					parent._state = State.FAILED;
 					parent._errorMessage = e.getLocalizedMessage();
 				} catch (NoResponseAPIException e) {
 					parent._state = State.FAILED;

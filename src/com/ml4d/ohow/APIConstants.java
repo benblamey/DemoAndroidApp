@@ -25,4 +25,10 @@ public class APIConstants
 
 	public static final int passwordMaxLength = 255;
 	public static final int passwordMinLength = 6;
+	
+	// Constants relating to the body of a capture.
+	// A body text should fail validation if it *MATCHES* this regex (the others pass validation if they match).
+	public static final String captureBodyFailRegex = "[\\n|\\r]";
+	public static final int captureBodyMinLength = 3;
+	public static final int captureBodyMaxLength = 9999;
 }

@@ -232,7 +232,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 												// are difficult to predict.
 				_registerTask = null;
 			}
-			_errorMessage = getResources().getString(R.string.register_error_task_cancelled);
+			_errorMessage = getResources().getString(R.string.dialog_error_task_cancelled);
 			_state = State.FAILED;
 		}
 	}
