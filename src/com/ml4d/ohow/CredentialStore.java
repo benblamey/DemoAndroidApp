@@ -9,6 +9,7 @@ import android.content.SharedPreferences.Editor;
 
 /**
  * Stores credentials for the OHOW API. Single instance.
+ * Lifetime is tied to the process. 
  */
 public class CredentialStore {
 
@@ -19,6 +20,10 @@ public class CredentialStore {
 	private String _username;
 	private String _password;
 
+	/**
+	 * Class is single instance, we do not allow direct instantiation.
+	 * @param context
+	 */
 	private CredentialStore(Context context) {
 		
 		_context = context;
@@ -32,7 +37,7 @@ public class CredentialStore {
 	}
 	
 	/**
-	 * Gets the single instance of this class.
+	 * Gets the single instance of this class (creating one if necessary).
 	 * @param activity 
 	 * @return
 	 */
@@ -45,6 +50,7 @@ public class CredentialStore {
 	
 		// We have ensured we are running on the UI thread, so there is no need for locking here. 
 		if (null == _instance) {
+			// Note that to prevent leaking a reference to an activity, we use the application context to manipulate the preferences.
 			_instance = new CredentialStore(activity.getApplicationContext());
 		}
 		return _instance;

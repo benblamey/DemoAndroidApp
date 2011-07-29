@@ -28,5 +28,7 @@
     <string name="sign_in_waiting_dialog_title">Signing In...</string>
     <string name="sign_in_waiting_dialog_body">Please wait while you are signed in...</string>
     
+    <string name="sign_in_redirected_because_credentials_invalid">Your credentials are invalid - please sign in again.</string>
+    
 
 </resources>

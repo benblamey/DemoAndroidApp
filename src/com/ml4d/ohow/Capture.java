@@ -31,6 +31,7 @@ import android.os.Parcelable;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /*
  * Interactive logic for the 'capture' activity.
@@ -76,9 +77,17 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 					false); // Not cancellable.
 			break;
 		case SUCCESS:
+			// Clear the field so that it isn't here if the user navigates back in history.
+			((TextView) this.findViewById(R.id.capture_edittext_body)).setText("");
+			
 			// Start the 'home' activity.
 			// Credentials/session key has already been stored.
 			startActivity(new Intent(this, Home.class));
+			
+			// Show the user some toast to inform them of the success.
+			Toast.makeText(this, resources.getString(R.string.capture_success), Toast.LENGTH_LONG).show();
+			
+			_state = State.DATA_ENTRY;
 			break;
 		case FAILED:
 			// Show a 'failed' dialog.
@@ -91,12 +100,20 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			break;
 		case FAILED_INVALID_CREDENTIALS:
 			
-			// TODO: perhaps show a message for invalid credentials.
+			// Don't redirect more than once.
+			_errorMessage = "";
+			_state = State.DATA_ENTRY;
 			
 			// Clear credentials saved in the store.
 			CredentialStore.getInstance(this).clear();
+			
 			// Go back to the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
+			
+			// Show the user some toast explaining why they have been redirected.
+			Toast.makeText(this, resources.getString(R.string.sign_in_redirected_because_credentials_invalid), Toast.LENGTH_LONG).show();
+			
+			// We leave the text field as-is (and let it get its state persisted), then if the user goes back, they can try again with their original text.
 			break;
 		default:
 			throw new UnexpectedEnumValueException(_state);
@@ -110,7 +127,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		setContentView(R.layout.capture);
 		
 		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
-			// Start the home activity.
+			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
 		}
 
@@ -125,9 +142,14 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			if (State.SUCCESS == _state) {
 				_state = State.DATA_ENTRY;
 				_errorMessage = "";
+			} else if (State.FAILED_INVALID_CREDENTIALS == _state) {
+				// When the credentials are invalid, we immediately redirect to the sign in page.
+				// We don't want to do this automatically if the user reaches the activity from history.
+				_errorMessage = "";
+				_state = State.DATA_ENTRY;
 			}
 
-			// Because we have different layouts for portrait and landscape
+			// Because we may have different layouts for portrait and landscape
 			// views, we need to manually save and restore the state of the
 			// TextViews.
 			restoreTextViewInstanceState(savedInstanceState, R.id.capture_edittext_body);
@@ -150,6 +172,11 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		
 		if (State.WAITING == _state) {
 			_state = State.FAILED;
+		} else if (State.FAILED_INVALID_CREDENTIALS == _state) {
+			// When the credentials are invalid, we immediately redirect to the sign in page.
+			// We don't want to do this automatically if the user reaches the activity from history.
+			_errorMessage = "";
+			_state = State.DATA_ENTRY;
 		}
 
 		// Because we have different layouts for portrait and landscape views,
@@ -238,41 +265,32 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	}
 	
 	private void captureButtonClicked() {
-		//Resources resources = getResources();
+		Resources resources = getResources();
 
 		CredentialStore store = CredentialStore.getInstance(this);
 		if (store.getHaveVerifiedCredentials()) {
 		
-			String username = store.getUsername();
-			String password = store.getPassword();
 			String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
-	
-			//String validationMessage = "";
-	
-			// TODO: validate body
+			String validationMessage = "";
 			
-			// Username.
-	//		if (0 == username.length()) {
-	//			validationMessage = resources.getString(R.string.sign_in_invalid_username);
-	//		}
-	//
-	//		// Password.
-	//		else if (0 == password.length()) {
-	//			validationMessage = resources.getString(R.string.sign_in_invalid_password);
-	//		}
-	//		
-	//		if (validationMessage.length() > 0) {
-	//			Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
-	//		} else {
+			if (APIConstants.captureBodyMinLength > body.length()) {
+				validationMessage = resources.getString(R.string.capture_body_text_too_short);
+			} else if (APIConstants.captureBodyMaxLength < body.length()) {
+				validationMessage = resources.getString(R.string.capture_body_text_too_long);
+			}
+					
+			if (validationMessage.length() > 0) {
+				Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
+			} else {
 	
 				// The HttpClient will verify the certificate is signed by a trusted
 				// source.
 				HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
 				post.setHeader("Accept", "application/json");
-	
+
 				List<NameValuePair> params = new ArrayList<NameValuePair>();
-				params.add(new BasicNameValuePair("username", username));
-				params.add(new BasicNameValuePair("password", password));
+				params.add(new BasicNameValuePair("username", store.getUsername()));
+				params.add(new BasicNameValuePair("password", store.getPassword()));
 				params.add(new BasicNameValuePair("body", body));
 	
 				// Update the UI to show that we are waiting.
@@ -288,10 +306,10 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 				} catch (UnsupportedEncodingException e) {
 					throw new ImprobableCheckedExceptionException(e);
 				}
-				
-			//}
+			}
 		} else {
-			// todo - handle the case of no credentials here.
+			_state = State.FAILED_INVALID_CREDENTIALS;
+			showState();
 		}
 	}
 
@@ -307,9 +325,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-
 		switch (_state) {
-
 		case FAILED:
 			if (DialogInterface.BUTTON_POSITIVE == which) {
 				_state = State.DATA_ENTRY;
@@ -383,13 +399,14 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 					parent._state = State.SUCCESS;
 					
 				} catch (OHOWAPIException e) {
+					parent._state = State.FAILED;
 					
 					if ((401 == e.getHttpCode()) && (3 == e.getExceptionCode())) {
 						// The password was wrong. Clear any saved credentials or session keys.
 						auth.clear();
+						parent._state = State.FAILED_INVALID_CREDENTIALS;	
 					}
 					
-					parent._state = State.FAILED;
 					parent._errorMessage = e.getLocalizedMessage();
 				} catch (NoResponseAPIException e) {
 					parent._state = State.FAILED;

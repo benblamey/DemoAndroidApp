@@ -13,7 +13,7 @@
 		
 	<EditText
 		android:gravity="top"
-    	android:inputType="text|textMultiLine|textLongMessage"
+    	android:inputType="text|textImeMultiLine|textLongMessage"
     	android:layout_above="@+id/capture_button_capture"
     	android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
