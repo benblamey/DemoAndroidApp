@@ -292,6 +292,8 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 				params.add(new BasicNameValuePair("username", store.getUsername()));
 				params.add(new BasicNameValuePair("password", store.getPassword()));
 				params.add(new BasicNameValuePair("body", body));
+				params.add(new BasicNameValuePair("latitude", Double.toString(0.0)));
+				params.add(new BasicNameValuePair("longitude", Double.toString(0.0)));
 	
 				// Update the UI to show that we are waiting.
 				_state = State.WAITING;
