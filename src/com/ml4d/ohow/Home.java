@@ -19,8 +19,9 @@ public class Home extends Activity implements OnClickListener {
 		setContentView(R.layout.home);
 
 		findViewById(R.id.home_sign_out_button).setOnClickListener(this);
+		findViewById(R.id.home_capture_button).setOnClickListener(this);
 		
-		if (!new CredentialStore(this).getHaveVerifiedCredentials()) {
+		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
 		}
@@ -28,17 +29,25 @@ public class Home extends Activity implements OnClickListener {
 
 	private void signOutButtonClicked() {
 		// Clear the saved credentials.
-		CredentialStore auth = new CredentialStore(this);
-		auth.Clear();
+		CredentialStore auth = CredentialStore.getInstance(this);
+		auth.clear();
 		
 		// Start the sign in activity.
 		startActivity(new Intent(this, SignIn.class));
+	}
+	
+	private void captureButtonClicked() {	
+		// Start the sign in activity.
+		startActivity(new Intent(this, Capture.class));
 	}
 
 	public void onClick(View view) {
 		switch (view.getId()) {
 		case R.id.home_sign_out_button:
 			signOutButtonClicked();
+			break;
+		case R.id.home_capture_button:
+			captureButtonClicked();
 			break;
 		default:
 			throw new UnknownClickableItemException(view.getId());

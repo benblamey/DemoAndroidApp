@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Resources for the 'capture' activity. -->
+<resources>
+
+	<string name="capture_activity_label">Capture</string>
+	<string name="capture_button_capture_text">Capture</string>
+	<string name="capture_body_hint">What\'s happening right now?</string>
+	
+    <!-- Dialog messages -->
+    <string name="capture_waiting_dialog_title">Capturing the moment...</string>
+    <string name="capture_waiting_dialog_body">Please wait...</string>
+
+</resources>

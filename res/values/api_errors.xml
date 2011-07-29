@@ -15,7 +15,7 @@
 	<!-- 401 - Unauthorized -->
 	<string name="api_error_401_1">Your session key has expired. Sign out and sign in again.</string>
 	<string name="api_error_401_2">The wrong protocol was used to access a resource on the OHOW servers. Please report this error (and a description of what you were doing at the time)) to technical support.</string>
-	<string name="api_error_401_3">The password was incorrect. Please double-check and try again. Note that your OHOW password is case-sensitive. If you are still having problems, reset your password.</string>
+	<string name="api_error_401_3">The password was incorrect. Please double-check and try again. Note that your OHOW password is case-sensitive. If you are still having problems, try resetting your password.</string>
 	<string name="api_error_401_4">Your account has been locked out for some reason. Please contact technical support.</string>
 	
 	<!-- 404 - Not Found -->

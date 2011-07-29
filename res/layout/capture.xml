@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+	<Button
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:text="@string/capture_button_capture_text"
+		android:id="@+id/capture_button_capture"/>
+		
+	<EditText
+		android:gravity="top"
+    	android:inputType="text|textMultiLine|textLongMessage"
+    	android:layout_above="@+id/capture_button_capture"
+    	android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+    	android:id="@+id/capture_edittext_body"
+    	android:hint="@string/capture_body_hint"
+    	android:freezesText="true"/>
+			
+</RelativeLayout>

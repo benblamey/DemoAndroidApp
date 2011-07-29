@@ -9,4 +9,10 @@
 	
 	<string name="ok_button_label">OK</string>
 
+	<!-- General dialog strings -->	
+	<string name="error_dialog_title">Error!</string>
+    <string name="dialog_unfriendly_error_prefix">Error: </string>
+    <string name="dialog_error_rotate_when_busy">Please do not rotate the phone whilst sign-in is active.</string>
+    <string name="dialog_error_task_cancelled">Task was cancelled.</string>
+
 </resources>
