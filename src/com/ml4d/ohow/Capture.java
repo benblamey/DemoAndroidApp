@@ -105,6 +105,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
 			failedDialog.setMessage(_errorMessage);
 			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+			failedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
 			failedDialog.show();
 			_dialog = failedDialog;
 			break;
@@ -131,6 +132,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			noGpsfailedDialog.setTitle(resources.getString(R.string.error_dialog_title));
 			noGpsfailedDialog.setMessage(resources.getString(R.string.dialog_error_gps_no_gps));
 			noGpsfailedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+			noGpsfailedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
 			noGpsfailedDialog.show();
 			_dialog = noGpsfailedDialog;
 			break;

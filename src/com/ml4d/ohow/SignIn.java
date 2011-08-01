@@ -87,6 +87,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
 			failedDialog.setMessage(_errorMessage);
 			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+			failedDialog.setCancelable(false);
 			failedDialog.show();
 			_dialog = failedDialog;
 			break;

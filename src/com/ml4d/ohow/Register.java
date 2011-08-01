@@ -84,8 +84,8 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			AlertDialog successDialog = new AlertDialog.Builder(this).create();
 			successDialog.setTitle(resources.getString(R.string.register_success_dialog_title));
 			successDialog.setMessage(resources.getString(R.string.register_success_dialog_body));
-			successDialog.setButton(DialogInterface.BUTTON_POSITIVE,
-					getResources().getString(R.string.ok_button_label), this);
+			successDialog.setButton(DialogInterface.BUTTON_POSITIVE, getResources().getString(R.string.ok_button_label), this);
+			successDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
 			successDialog.show();
 			_dialog = successDialog;
 			break;
@@ -95,6 +95,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			failedDialog.setTitle(resources.getString(R.string.register_error_dialog_title));
 			failedDialog.setMessage(_errorMessage);
 			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+			failedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
 			failedDialog.show();
 			_dialog = failedDialog;
 			break;
