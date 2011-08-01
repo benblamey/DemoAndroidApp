@@ -20,11 +20,15 @@ import com.ml4d.ohow.exceptions.*;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -36,7 +40,7 @@ import android.widget.Toast;
 /*
  * Interactive logic for the 'capture' activity.
  */
-public class Capture extends Activity implements OnClickListener, DialogInterface.OnClickListener {
+public class Capture extends Activity implements OnClickListener, DialogInterface.OnClickListener, LocationListener {
 
 	/*
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -44,13 +48,19 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_ENTRY, WAITING, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS,
+		DATA_ENTRY, WAITING, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS, FAILED_NO_GPS_SERVICE
 	}
 
 	private String _errorMessage;
 	private CaptureTask _captureTask;
 	private State _state;
 	private DialogInterface _dialog;
+	private Location _location;
+	private boolean _gettingLocationUpdates;
+	/**
+	 * The maximum allowed age for a GPS fix allowed in a capture.
+	 */
+	private static final int _maximumGpsFixAgeMs = 2 * 60 * 1000;
 
 	/*
 	 * Updates the user-interface to represent the state of this activity
@@ -115,6 +125,15 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			
 			// We leave the text field as-is (and let it get its state persisted), then if the user goes back, they can try again with their original text.
 			break;
+		case FAILED_NO_GPS_SERVICE:
+			// Show a dialog.
+			AlertDialog noGpsfailedDialog = new AlertDialog.Builder(this).create();
+			noGpsfailedDialog.setTitle(resources.getString(R.string.error_dialog_title));
+			noGpsfailedDialog.setMessage(resources.getString(R.string.dialog_error_gps_no_gps));
+			noGpsfailedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+			noGpsfailedDialog.show();
+			_dialog = noGpsfailedDialog;
+			break;
 		default:
 			throw new UnexpectedEnumValueException(_state);
 		}
@@ -147,6 +166,11 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 				// We don't want to do this automatically if the user reaches the activity from history.
 				_errorMessage = "";
 				_state = State.DATA_ENTRY;
+			} else if (State.FAILED_NO_GPS_SERVICE == _state) {
+				// There was a problem with GPS the last time this activity was running - that
+				// may no longer be the case.
+				_errorMessage = "";
+				_state = State.DATA_ENTRY;
 			}
 
 			// Because we may have different layouts for portrait and landscape
@@ -159,6 +183,8 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			if (null != focusTarget) {
 				focusTarget.requestFocus();
 			}
+			
+			ensureGettingGPSUpdates();
 
 		} else {
 			_state = State.DATA_ENTRY;
@@ -168,16 +194,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
-		ensureTaskIsStopped();
-		
-		if (State.WAITING == _state) {
-			_state = State.FAILED;
-		} else if (State.FAILED_INVALID_CREDENTIALS == _state) {
-			// When the credentials are invalid, we immediately redirect to the sign in page.
-			// We don't want to do this automatically if the user reaches the activity from history.
-			_errorMessage = "";
-			_state = State.DATA_ENTRY;
-		}
+		tearEverythingDown();
 
 		// Because we have different layouts for portrait and landscape views,
 		// we need to manually save and restore the state of the TextViews.
@@ -215,6 +232,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	protected void onStart() {
 		super.onStart();
 		// The activity is about to become visible.
+		ensureGettingGPSUpdates();
 		showState();
 	}
 
@@ -222,6 +240,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	protected void onResume() {
 		super.onResume();
 		// The activity has become visible (it is now "resumed").
+		ensureGettingGPSUpdates();
 		showState();
 	}
 
@@ -230,27 +249,63 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		super.onPause();
 		// Another activity is taking focus (this activity is about to be
 		// "paused").
-		ensureTaskIsStopped();
+		tearEverythingDown();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 		// The activity is no longer visible (it is now "stopped").
-		ensureTaskIsStopped();
+		tearEverythingDown();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		// The activity is about to be destroyed.
-		ensureTaskIsStopped();
+		tearEverythingDown();
+	}
+
+	/**
+	 * Ensure we are getting GPS location updates.
+	 */
+	private void ensureGettingGPSUpdates() {
+		// Obtaining a GPS can take about 30 seconds, so we start the GPS provider as soon as we start the activity,
+		// this way, a fix is hopefully available by the time the user is ready to capture. 
+		
+		if (!_gettingLocationUpdates) {
+		
+			// Get the most recent GPS fix (this might be null or out of date).
+			LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			
+			// If GPS is not available, fail outright immediately (unless we're busy, showing another error, etc.).
+			if ((State.DATA_ENTRY == _state) && (!locationManager.isProviderEnabled("gps"))) {
+				_state = State.FAILED_NO_GPS_SERVICE;
+			}
+			
+			_location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			
+			// Begin listening for further GPS location updates.
+			locationManager.requestLocationUpdates("gps", 1, 1, this, this.getMainLooper());
+			_gettingLocationUpdates = true;
+		}
 	}
 	
 	/**
-	 * Ensures the asynchronous HTTP task is stopped.
+	 * Ensures the asynchronous HTTP task is stopped and that we are no longer watching GPS location updates.
 	 */
-	private void ensureTaskIsStopped() {
+	private void tearEverythingDown() {
+		
+		// Ensure we no longer listen to GPS location updates.
+		if (_gettingLocationUpdates) {
+			LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			if (null != lm) {
+				lm.removeUpdates(this);
+			}
+			_gettingLocationUpdates = false;
+		}
+		
+		// Ensure the Async HTTP task is cleaned away.
 		
 		// Don't interrupt the operation if it has started. The results are difficult to predict.
 		if (_captureTask != null) {
@@ -269,50 +324,65 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 
 		CredentialStore store = CredentialStore.getInstance(this);
 		if (store.getHaveVerifiedCredentials()) {
-		
-			String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
-			String validationMessage = "";
-			
-			if (APIConstants.captureBodyMinLength > body.length()) {
-				validationMessage = resources.getString(R.string.capture_body_text_too_short);
-			} else if (APIConstants.captureBodyMaxLength < body.length()) {
-				validationMessage = resources.getString(R.string.capture_body_text_too_long);
-			}
-					
-			if (validationMessage.length() > 0) {
-				Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
+			if (null == _location) {
+				_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
+				_state = State.FAILED;
 			} else {
-	
-				// The HttpClient will verify the certificate is signed by a trusted
-				// source.
-				HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
-				post.setHeader("Accept", "application/json");
-
-				List<NameValuePair> params = new ArrayList<NameValuePair>();
-				params.add(new BasicNameValuePair("username", store.getUsername()));
-				params.add(new BasicNameValuePair("password", store.getPassword()));
-				params.add(new BasicNameValuePair("body", body));
-				params.add(new BasicNameValuePair("latitude", Double.toString(0.0)));
-				params.add(new BasicNameValuePair("longitude", Double.toString(0.0)));
-	
-				// Update the UI to show that we are waiting.
-				_state = State.WAITING;
-				showState();
+				double longitude = _location.getLongitude();
+				double latitude = _location.getLatitude();
+				long unixTimestampMs = _location.getTime();
 				
-				UrlEncodedFormEntity url = null;
-				try {
-					url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
-					post.setEntity(url);
-					_captureTask = new CaptureTask(this);
-					_captureTask.execute(post);
-				} catch (UnsupportedEncodingException e) {
-					throw new ImprobableCheckedExceptionException(e);
+				if ((System.currentTimeMillis() - unixTimestampMs) > _maximumGpsFixAgeMs) {
+					// The most recent GPS fix is too old.
+					_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
+					_state = State.FAILED;
+				} else {
+					String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
+					String validationMessage = "";
+			
+					if (APIConstants.captureBodyMinLength > body.length()) {
+						validationMessage = resources.getString(R.string.capture_body_text_too_short);
+					} else if (APIConstants.captureBodyMaxLength < body.length()) {
+						validationMessage = resources.getString(R.string.capture_body_text_too_long);
+					}
+					
+					if (validationMessage.length() > 0) {
+						Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
+					} else {
+			
+						// The HttpClient will verify the certificate is signed by a trusted
+						// source.
+						HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
+						post.setHeader("Accept", "application/json");
+		
+						List<NameValuePair> params = new ArrayList<NameValuePair>();
+						params.add(new BasicNameValuePair("username", store.getUsername()));
+						params.add(new BasicNameValuePair("password", store.getPassword()));
+						params.add(new BasicNameValuePair("body", body));
+						params.add(new BasicNameValuePair("latitude", Double.toString(longitude)));
+						params.add(new BasicNameValuePair("longitude", Double.toString(latitude)));
+	
+						// Update the UI to show that we are waiting.
+						_state = State.WAITING;
+						showState();
+						
+						UrlEncodedFormEntity url = null;
+						try {
+							url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+							post.setEntity(url);
+							_captureTask = new CaptureTask(this);
+							_captureTask.execute(post);
+						} catch (UnsupportedEncodingException e) {
+							throw new ImprobableCheckedExceptionException(e);
+						}
+					}
 				}
 			}
 		} else {
 			_state = State.FAILED_INVALID_CREDENTIALS;
-			showState();
 		}
+
+		showState();
 	}
 
 	public void onClick(View view) {
@@ -329,16 +399,19 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	public void onClick(DialogInterface dialog, int which) {
 		switch (_state) {
 		case FAILED:
-			if (DialogInterface.BUTTON_POSITIVE == which) {
-				_state = State.DATA_ENTRY;
-				showState();
-			} else {
-				throw new IllegalStateException();
-			}
+			// Something was wrong, go back to data-entry to let the user try again.
+			_state = State.DATA_ENTRY;
+			showState();
+			break;
+		case FAILED_NO_GPS_SERVICE:
+			// Next time the activity starts, don't assume there is still a problem with GPS.
+			_state = State.DATA_ENTRY;
+			startActivity(new Intent(this, Home.class));
 			break;
 		case SUCCESS:
 		case DATA_ENTRY:
 		case WAITING:
+		case FAILED_INVALID_CREDENTIALS:
 			throw new IllegalStateException();
 		default:
 			throw new UnexpectedEnumValueException(_state);
@@ -420,5 +493,30 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			}
 		}
 
+	}
+
+	// 'LocationListener' interface members.
+
+	@Override
+	public void onLocationChanged(Location location) {
+		// A GPS fix has been obtained, store it.
+		_location = location;
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		_state = State.FAILED_NO_GPS_SERVICE;
+		showState();
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// Nothing to do.
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// Nothing to do.
+		
 	}
 }
