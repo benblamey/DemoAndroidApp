@@ -94,8 +94,8 @@ public class Splash extends Activity {
 		@Override
 		protected Object doInBackground(Object... arg0) {
             int waitedMs = 0;
-            // We execute a loop incase the task is cancelled while we are waiting.
-            while(!super.isCancelled() && (waitedMs < _delayMs)) {
+            // We execute a loop incase the task is canceled while we are waiting.
+            while(!super.isCanceled() && (waitedMs < _delayMs)) {
             	try {
 					Thread.sleep(_loopDelayMs);
 				} catch (InterruptedException e) {
