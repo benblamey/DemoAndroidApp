@@ -47,7 +47,7 @@ import android.widget.Toast;
  */
 public class Capture extends Activity implements OnClickListener, DialogInterface.OnClickListener, LocationListener {
 
-	/*
+	/**
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
 	 * this class is designed as a state machine at its core.
 	 * http://en.wikipedia.org/wiki/State_machine
@@ -56,6 +56,9 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		DATA_ENTRY, WAITING, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS, FAILED_NO_GPS_SERVICE
 	}
 
+	/**
+	 * The message used only with the State.FAILED state.
+	 */
 	private String _errorMessage;
 	private CaptureTask _captureTask;
 	private State _state;
@@ -64,13 +67,8 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	private boolean _gettingLocationUpdates;
 	private File _photoFile;
 	
-	private static final String _photoMime = "image/jpeg";
-	private static final String _photoExtensionWithoutDot = "jpg";
-	
-	/**
-	 * The boundary used for the multipart post HTTP request. 
-	 */
-	private static final String _multipartMessageBoundary = "bos2boFdfsljnhd5sg";
+	private static final String _jpegMime = "image/jpeg";
+	private static final String _jpegExtensionWithoutDot = "jpg";
 	
 	/** 
 	 * A hint for the GPS location update interval, in milliseconds.
@@ -85,14 +83,14 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	/**
 	 * The unique ID that this class uses to identify the task of obtaining a photo.
 	 */
-	private static final int _takePhotoTaskUId = 0x65C45B8;
+	private static final int _takePhotoIntentUId = 0x65C45B8;
 	
 	/**
-	 * The maximum allowed age for a GPS fix allowed in a capture.
+	 * The maximum age for a GPS fix allowed in a capture that we permit.
 	 */
 	private static final int _maximumGpsFixAgeMs = 3 * 60 * 1000;
 
-	/*
+	/**
 	 * Updates the user-interface to represent the state of this activity
 	 * object.
 	 */
@@ -261,7 +259,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		}
 	}
 
-	/*
+	/**
 	 * Saves the state of the specified TextView.
 	 */
 	private void saveTextViewInstanceState(Bundle state, int textViewId) {
@@ -269,7 +267,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		state.putParcelable("textView_id_" + Integer.toString(textViewId), instanceState);
 	}
 
-	/*
+	/**
 	 * Restores the state of the specified TextView.
 	 */
 	private void restoreTextViewInstanceState(Bundle state, int textViewId) {
@@ -349,9 +347,9 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		
 		// Ensure we no longer listen to GPS location updates.
 		if (_gettingLocationUpdates) {
-			LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-			if (null != lm) {
-				lm.removeUpdates(this);
+			LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			if (null != locationManager) {
+				locationManager.removeUpdates(this);
 			}
 			_gettingLocationUpdates = false;
 		}
@@ -374,7 +372,10 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		Resources resources = getResources();
 
 		CredentialStore store = CredentialStore.getInstance(this);
-		if (store.getHaveVerifiedCredentials()) {
+		if (!store.getHaveVerifiedCredentials()) {
+			_errorMessage = "";
+			_state = State.FAILED_INVALID_CREDENTIALS;
+		} else {
 			if (null == _location) {
 				_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
 				_state = State.FAILED;
@@ -388,6 +389,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 					_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
 					_state = State.FAILED;
 				} else {
+					// Validate the user data the same as it will be validated by the OHOW API.
 					String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
 					String validationMessage = "";
 			
@@ -405,37 +407,35 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 						// source.
 						HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
 						post.setHeader("Accept", "application/json");
+						post.setHeader("X_OHOW_DEBUG_KEY", "sj30fj5X9whE93Bf0tjfhSh3jkfs2w03udj92");
 		
-						final Charset utf8Charset = Charset.forName("UTF-8");
-						MultipartEntity entity = new MultipartEntity(HttpMultipartMode.STRICT, _multipartMessageBoundary, utf8Charset);
-						
+						// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 
+						MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 						final String textMimeType = "text/plain";
+						final Charset utf8 = Charset2.getUtf8();
 						 
 						try {
-							entity.addPart(new FormBodyPart("username", new StringBody(store.getUsername(), textMimeType, utf8Charset))); 
-							entity.addPart(new FormBodyPart("password", new StringBody(store.getPassword(), textMimeType, utf8Charset)));
-							entity.addPart(new FormBodyPart("body", new StringBody(body, textMimeType, utf8Charset)));
-							entity.addPart(new FormBodyPart("longitude", new StringBody(Double.toString(longitude), textMimeType, utf8Charset)));
-							entity.addPart(new FormBodyPart("latitude", new StringBody(Double.toString(latitude), textMimeType, utf8Charset)));
+							entity.addPart(new FormBodyPart("username", new StringBody(store.getUsername(), textMimeType, utf8))); 
+							entity.addPart(new FormBodyPart("password", new StringBody(store.getPassword(), textMimeType, utf8)));
+							entity.addPart(new FormBodyPart("body", new StringBody(body, textMimeType, utf8)));
+							entity.addPart(new FormBodyPart("longitude", new StringBody(Double.toString(longitude), textMimeType, utf8)));
+							entity.addPart(new FormBodyPart("latitude", new StringBody(Double.toString(latitude), textMimeType, utf8)));
 						} catch (UnsupportedEncodingException e) {
 							throw new ImprobableCheckedExceptionException(e);
 						}
 						
 						if (null != _photoFile) {
-							FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), _photoMime, "UTF-8");
+							FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), _jpegMime, Charset2.getUtf8().name());
 							entity.addPart("photo", photoFilePart);
 						}
 						post.setEntity(entity);
 						
 						_state = State.WAITING;
-						showState();
 						_captureTask = new CaptureTask(this);
 						_captureTask.execute(post);
 					}
 				}
 			}
-		} else {
-			_state = State.FAILED_INVALID_CREDENTIALS;
 		}
 
 		showState();
@@ -459,11 +459,13 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		switch (_state) {
 		case FAILED:
 			// Something was wrong, go back to data-entry to let the user try again.
+			_errorMessage = "";
 			_state = State.DATA_ENTRY;
 			showState();
 			break;
 		case FAILED_NO_GPS_SERVICE:
 			// Next time the activity starts, don't assume there is still a problem with GPS.
+			_errorMessage = "";
 			_state = State.DATA_ENTRY;
 			startActivity(new Intent(this, Home.class));
 			break;
@@ -510,8 +512,6 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 				return null;
 			} catch (IOException e) {
 				return null;
-			} finally {
-				System.gc();
 			}
 		}
 
@@ -550,7 +550,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 				}
 
 				// Allow this task to be garbage-collected as it is no longer needed.
-				// I hope that for large requests (e.g. images) this helps bring down our memory footprint.
+				// I think that for large requests (e.g. images) this helps bring down our memory footprint.
 				parent._captureTask = null;
 
 				parent.showState();
@@ -593,12 +593,11 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			_photoFile = null;
 		} else {
 			try {
-				_photoFile = ExternalStorageUtilities.getTempFileOnExternalStorage(_photoExtensionWithoutDot, getResources());
+				_photoFile = ExternalStorageUtilities.getTempFileOnExternalStorage(_jpegExtensionWithoutDot, getResources());
 				_photoFile.deleteOnExit();
-				
 			    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			    cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(_photoFile));
-			    startActivityForResult(cameraIntent, _takePhotoTaskUId);
+			    startActivityForResult(cameraIntent, _takePhotoIntentUId);
 			} catch (IOException e) {
 				_state = State.FAILED;
 				_errorMessage = e.getLocalizedMessage();
@@ -612,7 +611,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		
-		if (_takePhotoTaskUId == requestCode) {
+		if (_takePhotoIntentUId == requestCode) {
 			
 			// We are being called back for the photo task.
 			if (RESULT_CANCELED == resultCode) {
