@@ -276,6 +276,8 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			UrlEncodedFormEntity url = null;
 			try {
 				url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+				
+				
 				post.setEntity(url);
 				_signInTask = new SignInTask(this, username, password);
 				_signInTask.execute(post);

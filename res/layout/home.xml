@@ -12,9 +12,9 @@
 	</Button>
 
 	<Button
-		android:layout_below="@+id/home_capture_button"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
 		android:text="@string/home_sign_out_label"
 		android:id="@+id/home_sign_out_button">
 	</Button>

@@ -2,21 +2,20 @@ package com.ml4d.ohow;
 
 import java.io.*;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.Charset;
 
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HTTP;
-
 import com.ml4d.ohow.exceptions.*;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -26,14 +25,20 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +47,7 @@ import android.widget.Toast;
  */
 public class Capture extends Activity implements OnClickListener, DialogInterface.OnClickListener, LocationListener {
 
-	/*
+	/**
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
 	 * this class is designed as a state machine at its core.
 	 * http://en.wikipedia.org/wiki/State_machine
@@ -51,18 +56,41 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		DATA_ENTRY, WAITING, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS, FAILED_NO_GPS_SERVICE
 	}
 
+	/**
+	 * The message used only with the State.FAILED state.
+	 */
 	private String _errorMessage;
 	private CaptureTask _captureTask;
 	private State _state;
 	private DialogInterface _dialog;
 	private Location _location;
 	private boolean _gettingLocationUpdates;
-	/**
-	 * The maximum allowed age for a GPS fix allowed in a capture.
+	private File _photoFile;
+	
+	private static final String _jpegMime = "image/jpeg";
+	private static final String _jpegExtensionWithoutDot = "jpg";
+	
+	/** 
+	 * A hint for the GPS location update interval, in milliseconds.
 	 */
-	private static final int _maximumGpsFixAgeMs = 2 * 60 * 1000;
+	private static final int _gpsSuggestedUpdateIntervalMS = 5000;
 
-	/*
+	/**
+	 * The minimum distance interval for update, in metres.
+	 */
+	private static final int _gpsSuggestedUpdateDistanceMetres = 1;
+	
+	/**
+	 * The unique ID that this class uses to identify the task of obtaining a photo.
+	 */
+	private static final int _takePhotoIntentUId = 0x65C45B8;
+	
+	/**
+	 * The maximum age for a GPS fix allowed in a capture that we permit.
+	 */
+	private static final int _maximumGpsFixAgeMs = 3 * 60 * 1000;
+
+	/**
 	 * Updates the user-interface to represent the state of this activity
 	 * object.
 	 */
@@ -73,8 +101,21 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			_dialog.dismiss();
 			_dialog = null;
 		}
-
+		
 		Resources resources = getResources();
+		
+		// Update the photo and the photo button.
+		String togglePhotoButtonText = resources.getString(R.string.capture_photo_button_toggle_add);
+		if ((null != _photoFile) && (_photoFile.exists())) {
+			Options bitmapOptions = new Options();
+			bitmapOptions.inSampleSize = 4; // Open the bitmap as 1/4 its original size to save memory.
+			Bitmap photoBitmap = BitmapFactory.decodeFile(_photoFile.getAbsolutePath(), bitmapOptions);
+			((ImageView)findViewById(R.id.imageview_photo)).setImageBitmap(photoBitmap);
+			togglePhotoButtonText = resources.getString(R.string.capture_photo_button_toggle_remove);
+		} else { 
+			((ImageView)findViewById(R.id.imageview_photo)).setImageBitmap(null);
+		}
+		((android.widget.Button)findViewById(R.id.capture_button_toggle_photo)).setText(togglePhotoButtonText); 
 
 		switch (_state) {
 		case DATA_ENTRY:
@@ -88,7 +129,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			break;
 		case SUCCESS:
 			// Clear the field so that it isn't here if the user navigates back in history.
-			((TextView) this.findViewById(R.id.capture_edittext_body)).setText("");
+			((TextView) findViewById(R.id.capture_edittext_body)).setText("");
 			
 			// Start the 'home' activity.
 			// Credentials/session key has already been stored.
@@ -153,10 +194,12 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		}
 
 		findViewById(R.id.capture_button_capture).setOnClickListener(this);
+		findViewById(R.id.capture_button_toggle_photo).setOnClickListener(this);
 
 		if (savedInstanceState != null) {
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
+			_photoFile = (File)savedInstanceState.getSerializable("_photoFile");
 			
 			// If we have previously successfully logged in, go back to the data-entry state.
 			// Otherwise we will redirect immediately back to the home activity.
@@ -210,23 +253,27 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 
 		outState.putString("_state", _state.name());
 		outState.putString("_errorMessage", _errorMessage);
+		
+		if (null != _photoFile) {
+			outState.putSerializable("_photoFile", _photoFile);
+		}
 	}
 
-	/*
+	/**
 	 * Saves the state of the specified TextView.
 	 */
 	private void saveTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = ((TextView) this.findViewById(textViewId)).onSaveInstanceState();
+		Parcelable instanceState = ((TextView) findViewById(textViewId)).onSaveInstanceState();
 		state.putParcelable("textView_id_" + Integer.toString(textViewId), instanceState);
 	}
 
-	/*
+	/**
 	 * Restores the state of the specified TextView.
 	 */
 	private void restoreTextViewInstanceState(Bundle state, int textViewId) {
 		Parcelable instanceState = state.getParcelable("textView_id_" + Integer.toString(textViewId));
 		if (null != instanceState) {
-			((TextView) this.findViewById(textViewId)).onRestoreInstanceState(instanceState);
+			((TextView) findViewById(textViewId)).onRestoreInstanceState(instanceState);
 		}
 	}
 
@@ -288,7 +335,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			_location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 			
 			// Begin listening for further GPS location updates.
-			locationManager.requestLocationUpdates("gps", 1, 1, this, this.getMainLooper());
+			locationManager.requestLocationUpdates("gps", _gpsSuggestedUpdateIntervalMS, _gpsSuggestedUpdateDistanceMetres, this, getMainLooper());
 			_gettingLocationUpdates = true;
 		}
 	}
@@ -300,9 +347,9 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		
 		// Ensure we no longer listen to GPS location updates.
 		if (_gettingLocationUpdates) {
-			LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-			if (null != lm) {
-				lm.removeUpdates(this);
+			LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+			if (null != locationManager) {
+				locationManager.removeUpdates(this);
 			}
 			_gettingLocationUpdates = false;
 		}
@@ -325,7 +372,10 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		Resources resources = getResources();
 
 		CredentialStore store = CredentialStore.getInstance(this);
-		if (store.getHaveVerifiedCredentials()) {
+		if (!store.getHaveVerifiedCredentials()) {
+			_errorMessage = "";
+			_state = State.FAILED_INVALID_CREDENTIALS;
+		} else {
 			if (null == _location) {
 				_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
 				_state = State.FAILED;
@@ -339,6 +389,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 					_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
 					_state = State.FAILED;
 				} else {
+					// Validate the user data the same as it will be validated by the OHOW API.
 					String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
 					String validationMessage = "";
 			
@@ -351,37 +402,40 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 					if (validationMessage.length() > 0) {
 						Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
 					} else {
-			
+	
 						// The HttpClient will verify the certificate is signed by a trusted
 						// source.
 						HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
 						post.setHeader("Accept", "application/json");
+						post.setHeader("X_OHOW_DEBUG_KEY", "sj30fj5X9whE93Bf0tjfhSh3jkfs2w03udj92");
 		
-						List<NameValuePair> params = new ArrayList<NameValuePair>();
-						params.add(new BasicNameValuePair("username", store.getUsername()));
-						params.add(new BasicNameValuePair("password", store.getPassword()));
-						params.add(new BasicNameValuePair("body", body));
-						params.add(new BasicNameValuePair("latitude", Double.toString(longitude)));
-						params.add(new BasicNameValuePair("longitude", Double.toString(latitude)));
-	
-						// Update the UI to show that we are waiting.
-						_state = State.WAITING;
-						showState();
-						
-						UrlEncodedFormEntity url = null;
+						// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 
+						MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+						final String textMimeType = "text/plain";
+						final Charset utf8 = Charset2.getUtf8();
+						 
 						try {
-							url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
-							post.setEntity(url);
-							_captureTask = new CaptureTask(this);
-							_captureTask.execute(post);
+							entity.addPart(new FormBodyPart("username", new StringBody(store.getUsername(), textMimeType, utf8))); 
+							entity.addPart(new FormBodyPart("password", new StringBody(store.getPassword(), textMimeType, utf8)));
+							entity.addPart(new FormBodyPart("body", new StringBody(body, textMimeType, utf8)));
+							entity.addPart(new FormBodyPart("longitude", new StringBody(Double.toString(longitude), textMimeType, utf8)));
+							entity.addPart(new FormBodyPart("latitude", new StringBody(Double.toString(latitude), textMimeType, utf8)));
 						} catch (UnsupportedEncodingException e) {
 							throw new ImprobableCheckedExceptionException(e);
 						}
+						
+						if (null != _photoFile) {
+							FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), _jpegMime, Charset2.getUtf8().name());
+							entity.addPart("photo", photoFilePart);
+						}
+						post.setEntity(entity);
+						
+						_state = State.WAITING;
+						_captureTask = new CaptureTask(this);
+						_captureTask.execute(post);
 					}
 				}
 			}
-		} else {
-			_state = State.FAILED_INVALID_CREDENTIALS;
 		}
 
 		showState();
@@ -391,6 +445,9 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		switch (view.getId()) {
 		case R.id.capture_button_capture:
 			captureButtonClicked();
+			break;
+		case R.id.capture_button_toggle_photo:
+			togglePhoto();
 			break;
 		default:
 			throw new UnknownClickableItemException(view.getId());
@@ -402,11 +459,13 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		switch (_state) {
 		case FAILED:
 			// Something was wrong, go back to data-entry to let the user try again.
+			_errorMessage = "";
 			_state = State.DATA_ENTRY;
 			showState();
 			break;
 		case FAILED_NO_GPS_SERVICE:
 			// Next time the activity starts, don't assume there is still a problem with GPS.
+			_errorMessage = "";
 			_state = State.DATA_ENTRY;
 			startActivity(new Intent(this, Home.class));
 			break;
@@ -490,6 +549,9 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 					parent._errorMessage = parent.getResources().getString(R.string.comms_error);
 				}
 
+				// Allow this task to be garbage-collected as it is no longer needed.
+				// I think that for large requests (e.g. images) this helps bring down our memory footprint.
+				parent._captureTask = null;
 
 				parent.showState();
 			}
@@ -519,6 +581,51 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// Nothing to do.
-		
 	}
+	
+	// Photo capture.
+
+	private void togglePhoto() {
+		
+		if (null != _photoFile) {
+			// Delete the photo file - note that this method does not throw IOException on failure.
+			_photoFile.delete(); 
+			_photoFile = null;
+		} else {
+			try {
+				_photoFile = ExternalStorageUtilities.getTempFileOnExternalStorage(_jpegExtensionWithoutDot, getResources());
+				_photoFile.deleteOnExit();
+			    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			    cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(_photoFile));
+			    startActivityForResult(cameraIntent, _takePhotoIntentUId);
+			} catch (IOException e) {
+				_state = State.FAILED;
+				_errorMessage = e.getLocalizedMessage();
+			}
+		}
+		
+		showState();
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		if (_takePhotoIntentUId == requestCode) {
+			
+			// We are being called back for the photo task.
+			if (RESULT_CANCELED == resultCode) {
+				// The task was cancelled or something went wrong.
+				// Delete the photo file - note that this method does not throw IOException on failure.
+				_photoFile.delete();
+				_photoFile = null;
+			}
+			// Otherwise, the task succeeded (we can't be sure that some manufacturers won't use a custom return code.)
+			
+			// If the file exists, it will be displayed, and it will be uploaded when we perform the capture.
+			
+			showState();
+		}
+	}
+
 }
