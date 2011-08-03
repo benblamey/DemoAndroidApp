@@ -1,0 +1,1 @@
+In this folder I've put the full contents of the various ZIP files used by the external libraries. The external library JARs themselves need to be copied to 'lib' for ant to build correctly (adding them to the classpath inside eclipse is not sufficient for an ant build.).
