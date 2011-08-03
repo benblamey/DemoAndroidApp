@@ -214,7 +214,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		}
 		
 		if (State.WAITING == _state) {
-			_errorMessage = getResources().getString(R.string.dialog_error_task_cancelled);
+			_errorMessage = getResources().getString(R.string.dialog_error_task_canceled);
 			_state = State.FAILED;
 		}
 	}

@@ -86,7 +86,7 @@ public final class R {
         public static final int dialog_error_gps_no_fix=0x7f040010;
         public static final int dialog_error_gps_no_gps=0x7f040011;
         public static final int dialog_error_rotate_when_busy=0x7f04000e;
-        public static final int dialog_error_task_cancelled=0x7f04000f;
+        public static final int dialog_error_task_canceled=0x7f04000f;
         public static final int dialog_unfriendly_error_prefix=0x7f04000d;
         /**  General dialog strings 
          */

@@ -363,7 +363,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		}
 		
 		if (State.WAITING == _state) {
-			_errorMessage = getResources().getString(R.string.dialog_error_task_cancelled);
+			_errorMessage = getResources().getString(R.string.dialog_error_task_canceled);
 			_state = State.FAILED;
 		}
 	}
@@ -615,7 +615,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			
 			// We are being called back for the photo task.
 			if (RESULT_CANCELED == resultCode) {
-				// The task was cancelled or something went wrong.
+				// The task was canceled or something went wrong.
 				// Delete the photo file - note that this method does not throw IOException on failure.
 				_photoFile.delete();
 				_photoFile = null;
