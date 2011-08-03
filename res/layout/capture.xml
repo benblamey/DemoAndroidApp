@@ -11,10 +11,32 @@
 		android:text="@string/capture_button_capture_text"
 		android:id="@+id/capture_button_capture"/>
 		
+	<RelativeLayout 
+		android:id="@+id/capture_imageview_frame"
+		android:layout_above="@+id/capture_button_capture"
+		android:layout_width="100dp"
+		android:layout_height="fill_parent">
+		
+		<ImageView
+			android:id="@+id/imageview_photo"
+			android:layout_height="fill_parent"
+			android:layout_width="fill_parent" 
+			android:scaleType="centerCrop"
+			android:background="#FF00FF"/>
+			
+		<Button
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:id="@+id/capture_button_toggle_photo"/>
+						
+    </RelativeLayout>
+		
 	<EditText
 		android:gravity="top"
     	android:inputType="text|textImeMultiLine|textLongMessage"
     	android:layout_above="@+id/capture_button_capture"
+    	android:layout_toRightOf="@+id/capture_imageview_frame"
     	android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
     	android:id="@+id/capture_edittext_body"
