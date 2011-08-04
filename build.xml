@@ -47,7 +47,10 @@
     <target name="-pre-build" depends="ml4d-updatemanifest">
     </target>
 	
-	<!-- The if means that the target is only executed if the teamcity build number property has been set.-->
+	<!-- The 'if' says to only execute the target if the TeamCity build number property has been set.
+		 Note that this is a one-way change. It is assumed that the target is only executed on the build server, in which case
+		 the source will be cleaned before the next build.
+	-->
 	<target name="ml4d-updatemanifest" depends="-ml4d-updatemanifest-debug, -ml4d-updatemanifest-release" if="build.number">
 
 		<!-- Update the manifest XML file to include the build number. -->
@@ -81,7 +84,7 @@
     <target name="-post-compile"/>
 -->
 	
-	<target name="ml4dpublishbuild" depends="release">
+	<target name="ml4dpublishrelease" depends="release">
 
 		<!-- Create a directory to hold the output file -->
 		<ftp action="mkdir"

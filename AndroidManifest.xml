@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Notes about 'android:versionName'
+The value should always be of the form: X.Y.Z.W where:
+X = major version number (public release, always matches android:versionCode).
+Y = minor version number.
+Z = more minor version number.
+W = Should be left alone. For server (official) builds the component is automatically replaced with the build number.  
+Note that deviation from this format will cause the app to throw an exception on startup!! 
+ -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ml4d.ohow"
       android:versionCode="1"
-      android:versionName="1.0.0.[DEVELOPER BUILD - DO NOT USE]">
+      android:versionName="1.0.0.[UNOFFICIAL BUILD - DO NOT USE]">
     <uses-sdk android:minSdkVersion="7" />
 
 	<!-- The 'android:debuggable' attribute no longer needs to be set, 

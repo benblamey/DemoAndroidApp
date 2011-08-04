@@ -36,6 +36,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -376,64 +377,80 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			_errorMessage = "";
 			_state = State.FAILED_INVALID_CREDENTIALS;
 		} else {
+			
+			boolean allowCapture;
+			double latitude = -1234;
+			double longitude = -1234;
+			long unixTimestampMs = 0;
+
 			if (null == _location) {
+				allowCapture = false;
+			} else {
+				latitude = _location.getLatitude();
+				longitude = _location.getLongitude();
+				unixTimestampMs = _location.getTime();
+				// Allow capture only if the fix is 'fresh'.
+				allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < _maximumGpsFixAgeMs);
+			}
+			
+			if (!OfficialBuild.getInstance(this).isOfficialBuild() && !allowCapture) {
+				// This is an unofficial (i.e. developer) build. Provide some dummy co-ordinates and allow the capture to proceed.
+				longitude = -2.599488; // (Coordinates of Bristol Office.)
+				latitude = 51.453956;
+				unixTimestampMs = System.currentTimeMillis() - 1;
+				allowCapture = true;
+				Log.d("OHOW", "NO suitable fix - using dummy GPS coordinates instead (this feature is only enabled on developer builds).");
+			}
+			
+			if (!allowCapture) {
+				// There was no GPS fix or else it was too old.
 				_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
 				_state = State.FAILED;
 			} else {
-				double longitude = _location.getLongitude();
-				double latitude = _location.getLatitude();
-				long unixTimestampMs = _location.getTime();
+				// Validate the user data the same as it will be validated by the OHOW API.
+				String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
+				String validationMessage = "";
+		
+				if (APIConstants.captureBodyMinLength > body.length()) {
+					validationMessage = resources.getString(R.string.capture_body_text_too_short);
+				} else if (APIConstants.captureBodyMaxLength < body.length()) {
+					validationMessage = resources.getString(R.string.capture_body_text_too_long);
+				}
 				
-				if ((System.currentTimeMillis() - unixTimestampMs) > _maximumGpsFixAgeMs) {
-					// The most recent GPS fix is too old.
-					_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
-					_state = State.FAILED;
+				if (validationMessage.length() > 0) {
+					Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
 				} else {
-					// Validate the user data the same as it will be validated by the OHOW API.
-					String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
-					String validationMessage = "";
-			
-					if (APIConstants.captureBodyMinLength > body.length()) {
-						validationMessage = resources.getString(R.string.capture_body_text_too_short);
-					} else if (APIConstants.captureBodyMaxLength < body.length()) {
-						validationMessage = resources.getString(R.string.capture_body_text_too_long);
+
+					// The HttpClient will verify the certificate is signed by a trusted
+					// source.
+					HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
+					post.setHeader("Accept", "application/json");
+					post.setHeader("X_OHOW_DEBUG_KEY", "sj30fj5X9whE93Bf0tjfhSh3jkfs2w03udj92");
+	
+					// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 
+					MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+					final String textMimeType = "text/plain";
+					final Charset utf8 = Charset2.getUtf8();
+					 
+					try {
+						entity.addPart(new FormBodyPart("username", new StringBody(store.getUsername(), textMimeType, utf8))); 
+						entity.addPart(new FormBodyPart("password", new StringBody(store.getPassword(), textMimeType, utf8)));
+						entity.addPart(new FormBodyPart("body", new StringBody(body, textMimeType, utf8)));
+						entity.addPart(new FormBodyPart("longitude", new StringBody(Double.toString(longitude), textMimeType, utf8)));
+						entity.addPart(new FormBodyPart("latitude", new StringBody(Double.toString(latitude), textMimeType, utf8)));
+					} catch (UnsupportedEncodingException e) {
+						throw new ImprobableCheckedExceptionException(e);
 					}
 					
-					if (validationMessage.length() > 0) {
-						Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
-					} else {
-	
-						// The HttpClient will verify the certificate is signed by a trusted
-						// source.
-						HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
-						post.setHeader("Accept", "application/json");
-						post.setHeader("X_OHOW_DEBUG_KEY", "sj30fj5X9whE93Bf0tjfhSh3jkfs2w03udj92");
-		
-						// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 
-						MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-						final String textMimeType = "text/plain";
-						final Charset utf8 = Charset2.getUtf8();
-						 
-						try {
-							entity.addPart(new FormBodyPart("username", new StringBody(store.getUsername(), textMimeType, utf8))); 
-							entity.addPart(new FormBodyPart("password", new StringBody(store.getPassword(), textMimeType, utf8)));
-							entity.addPart(new FormBodyPart("body", new StringBody(body, textMimeType, utf8)));
-							entity.addPart(new FormBodyPart("longitude", new StringBody(Double.toString(longitude), textMimeType, utf8)));
-							entity.addPart(new FormBodyPart("latitude", new StringBody(Double.toString(latitude), textMimeType, utf8)));
-						} catch (UnsupportedEncodingException e) {
-							throw new ImprobableCheckedExceptionException(e);
-						}
-						
-						if (null != _photoFile) {
-							FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), _jpegMime, Charset2.getUtf8().name());
-							entity.addPart("photo", photoFilePart);
-						}
-						post.setEntity(entity);
-						
-						_state = State.WAITING;
-						_captureTask = new CaptureTask(this);
-						_captureTask.execute(post);
+					if (null != _photoFile) {
+						FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), _jpegMime, Charset2.getUtf8().name());
+						entity.addPart("photo", photoFilePart);
 					}
+					post.setEntity(entity);
+					
+					_state = State.WAITING;
+					_captureTask = new CaptureTask(this);
+					_captureTask.execute(post);
 				}
 			}
 		}
