@@ -36,11 +36,12 @@ public final class R {
         public static final int splash_text_view_version_number=0x7f050013;
     }
     public static final class layout {
-        public static final int capturetextphoto=0x7f030000;
-        public static final int home=0x7f030001;
-        public static final int register=0x7f030002;
-        public static final int signin=0x7f030003;
-        public static final int splash=0x7f030004;
+        public static final int capturelocation=0x7f030000;
+        public static final int capturetextphoto=0x7f030001;
+        public static final int home=0x7f030002;
+        public static final int register=0x7f030003;
+        public static final int signin=0x7f030004;
+        public static final int splash=0x7f030005;
     }
     public static final class string {
         /**  The strings here should be user friendly descriptions of the exceptions thrown by the API. 
