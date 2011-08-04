@@ -14,13 +14,13 @@ public final class R {
         public static final int icon=0x7f020000;
     }
     public static final class id {
-        public static final int capture_button_capture=0x7f050000;
-        public static final int capture_button_toggle_photo=0x7f050003;
-        public static final int capture_edittext_body=0x7f050004;
-        public static final int capture_imageview_frame=0x7f050001;
+        public static final int capture_text_photo_button_capture=0x7f050000;
+        public static final int capture_text_photo_button_toggle_photo=0x7f050003;
+        public static final int capture_text_photo_edittext_body=0x7f050004;
+        public static final int capture_text_photo_imageview_frame=0x7f050001;
+        public static final int capture_text_photo_imageview_photo=0x7f050002;
         public static final int home_capture_button=0x7f050005;
         public static final int home_sign_out_button=0x7f050006;
-        public static final int imageview_photo=0x7f050002;
         public static final int register_checkbox_terms=0x7f05000c;
         public static final int register_edittext_email=0x7f050009;
         public static final int register_edittext_first_name=0x7f050007;
@@ -36,7 +36,7 @@ public final class R {
         public static final int splash_text_view_version_number=0x7f050013;
     }
     public static final class layout {
-        public static final int capture=0x7f030000;
+        public static final int capturetextphoto=0x7f030000;
         public static final int home=0x7f030001;
         public static final int register=0x7f030002;
         public static final int signin=0x7f030003;
@@ -67,21 +67,24 @@ public final class R {
 		gets truncated when the app is shown in the matrix of available apps. 
          */
         public static final int app_name=0x7f04000a;
-        public static final int capture_activity_label=0x7f040012;
-        public static final int capture_body_hint=0x7f040014;
-        public static final int capture_body_text_too_long=0x7f040019;
+        public static final int capture_location_waiting_dialog_body=0x7f04001a;
+        public static final int capture_location_waiting_dialog_success=0x7f04001b;
+        /**  Strings used by the 'capturelocation' activity (it is this activity that actually does the capture API call. 
+ Dialog and toast messages 
+         */
+        public static final int capture_location_waiting_dialog_title=0x7f040019;
+        /**   Strings used by the 'capturetextphoto' activity. 
+         */
+        public static final int capture_text_photo_activity_label=0x7f040012;
+        public static final int capture_text_photo_body_hint=0x7f040014;
+        public static final int capture_text_photo_body_text_too_long=0x7f040016;
         /**  Validation errors 
  The limits are such that the user won't actually care about their values. 
          */
-        public static final int capture_body_text_too_short=0x7f040018;
-        public static final int capture_button_capture_text=0x7f040013;
-        public static final int capture_photo_button_toggle_add=0x7f04001a;
-        public static final int capture_photo_button_toggle_remove=0x7f04001b;
-        public static final int capture_success=0x7f040017;
-        public static final int capture_waiting_dialog_body=0x7f040016;
-        /**  Dialog and toast messages 
-         */
-        public static final int capture_waiting_dialog_title=0x7f040015;
+        public static final int capture_text_photo_body_text_too_short=0x7f040015;
+        public static final int capture_text_photo_button_capture_text=0x7f040013;
+        public static final int capture_text_photo_photo_button_toggle_add=0x7f040017;
+        public static final int capture_text_photo_photo_button_toggle_remove=0x7f040018;
         public static final int comms_error=0x7f040000;
         public static final int dialog_error_gps_no_fix=0x7f040010;
         public static final int dialog_error_gps_no_gps=0x7f040011;

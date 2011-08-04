@@ -40,7 +40,7 @@ public class Home extends Activity implements OnClickListener {
 	
 	private void captureButtonClicked() {	
 		// Start the sign in activity.
-		startActivity(new Intent(this, Capture.class));
+		startActivity(new Intent(this, CaptureTextPhoto.class));
 	}
 
 	public void onClick(View view) {

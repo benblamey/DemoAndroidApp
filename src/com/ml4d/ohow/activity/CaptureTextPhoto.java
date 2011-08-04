@@ -55,9 +55,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /*
- * Interactive logic for the 'capture' activity.
+ * Interactive logic for the 'capturetextphoto' activity.
  */
-public class Capture extends Activity implements OnClickListener, DialogInterface.OnClickListener, LocationListener {
+public class CaptureTextPhoto extends Activity implements OnClickListener, DialogInterface.OnClickListener, LocationListener {
 
 	/**
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -117,17 +117,17 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		Resources resources = getResources();
 		
 		// Update the photo and the photo button.
-		String togglePhotoButtonText = resources.getString(R.string.capture_photo_button_toggle_add);
+		String togglePhotoButtonText = resources.getString(R.string.capture_text_photo_photo_button_toggle_add);
 		if ((null != _photoFile) && (_photoFile.exists())) {
 			Options bitmapOptions = new Options();
 			bitmapOptions.inSampleSize = 4; // Open the bitmap as 1/4 its original size to save memory.
 			Bitmap photoBitmap = BitmapFactory.decodeFile(_photoFile.getAbsolutePath(), bitmapOptions);
-			((ImageView)findViewById(R.id.imageview_photo)).setImageBitmap(photoBitmap);
-			togglePhotoButtonText = resources.getString(R.string.capture_photo_button_toggle_remove);
+			((ImageView)findViewById(R.id.capture_text_photo_imageview_photo)).setImageBitmap(photoBitmap);
+			togglePhotoButtonText = resources.getString(R.string.capture_text_photo_photo_button_toggle_remove);
 		} else { 
-			((ImageView)findViewById(R.id.imageview_photo)).setImageBitmap(null);
+			((ImageView)findViewById(R.id.capture_text_photo_imageview_photo)).setImageBitmap(null);
 		}
-		((android.widget.Button)findViewById(R.id.capture_button_toggle_photo)).setText(togglePhotoButtonText); 
+		((android.widget.Button)findViewById(R.id.capture_text_photo_button_toggle_photo)).setText(togglePhotoButtonText); 
 
 		switch (_state) {
 		case DATA_ENTRY:
@@ -135,20 +135,20 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			break;
 		case WAITING:
 			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.capture_waiting_dialog_title),
-					resources.getString(R.string.capture_waiting_dialog_body), true, // Indeterminate.
+			_dialog = ProgressDialog.show(this, resources.getString(R.string.capture_location_waiting_dialog_title),
+					resources.getString(R.string.capture_location_waiting_dialog_body), true, // Indeterminate.
 					false); // Not cancellable.
 			break;
 		case SUCCESS:
 			// Clear the field so that it isn't here if the user navigates back in history.
-			((TextView) findViewById(R.id.capture_edittext_body)).setText("");
+			((TextView) findViewById(R.id.capture_text_photo_edittext_body)).setText("");
 			
 			// Start the 'home' activity.
 			// Credentials/session key has already been stored.
 			startActivity(new Intent(this, Home.class));
 			
 			// Show the user some toast to inform them of the success.
-			Toast.makeText(this, resources.getString(R.string.capture_success), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, resources.getString(R.string.capture_location_waiting_dialog_success), Toast.LENGTH_LONG).show();
 			
 			_state = State.DATA_ENTRY;
 			break;
@@ -198,15 +198,15 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.capture);
+		setContentView(R.layout.capturetextphoto);
 		
 		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
 		}
 
-		findViewById(R.id.capture_button_capture).setOnClickListener(this);
-		findViewById(R.id.capture_button_toggle_photo).setOnClickListener(this);
+		findViewById(R.id.capture_text_photo_button_capture).setOnClickListener(this);
+		findViewById(R.id.capture_text_photo_button_toggle_photo).setOnClickListener(this);
 
 		if (savedInstanceState != null) {
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
@@ -233,7 +233,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 			// Because we may have different layouts for portrait and landscape
 			// views, we need to manually save and restore the state of the
 			// TextViews.
-			restoreTextViewInstanceState(savedInstanceState, R.id.capture_edittext_body);
+			restoreTextViewInstanceState(savedInstanceState, R.id.capture_text_photo_edittext_body);
 
 			// Restore the focused view.
 			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
@@ -255,7 +255,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 
 		// Because we have different layouts for portrait and landscape views,
 		// we need to manually save and restore the state of the TextViews.
-		saveTextViewInstanceState(outState, R.id.capture_edittext_body);
+		saveTextViewInstanceState(outState, R.id.capture_text_photo_edittext_body);
 
 		// Save which view is focused.
 		View focusedView = getCurrentFocus();
@@ -419,13 +419,13 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 				_state = State.FAILED;
 			} else {
 				// Validate the user data the same as it will be validated by the OHOW API.
-				String body = ((TextView) findViewById(R.id.capture_edittext_body)).getText().toString();
+				String body = ((TextView) findViewById(R.id.capture_text_photo_edittext_body)).getText().toString();
 				String validationMessage = "";
 		
 				if (APIConstants.captureBodyMinLength > body.length()) {
-					validationMessage = resources.getString(R.string.capture_body_text_too_short);
+					validationMessage = resources.getString(R.string.capture_text_photo_body_text_too_short);
 				} else if (APIConstants.captureBodyMaxLength < body.length()) {
-					validationMessage = resources.getString(R.string.capture_body_text_too_long);
+					validationMessage = resources.getString(R.string.capture_text_photo_body_text_too_long);
 				}
 				
 				if (validationMessage.length() > 0) {
@@ -471,10 +471,10 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 
 	public void onClick(View view) {
 		switch (view.getId()) {
-		case R.id.capture_button_capture:
+		case R.id.capture_text_photo_button_capture:
 			captureButtonClicked();
 			break;
-		case R.id.capture_button_toggle_photo:
+		case R.id.capture_text_photo_button_toggle_photo:
 			togglePhoto();
 			break;
 		default:
@@ -511,12 +511,12 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	 * Asynchronously performs a HTTP request.
 	 */
 	private class CaptureTask extends AsyncTask<HttpPost, Void, HttpResponse> {
-		private WeakReference<Capture> _parent;
+		private WeakReference<CaptureTextPhoto> _parent;
 		private String _userAgent;		 
 
-		public CaptureTask(Capture parent) {
+		public CaptureTask(CaptureTextPhoto parent) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<Capture>(parent);
+			_parent = new WeakReference<CaptureTextPhoto>(parent);
 
 			// Whilst we are on the UI thread, build a user-agent string from
 			// the package details.
@@ -546,7 +546,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		protected void onPostExecute(HttpResponse response) {
 			// On the main thread.
 			
-			Capture parent = _parent.get();
+			CaptureTextPhoto parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
 			if (parent._captureTask == this) {

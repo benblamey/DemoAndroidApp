@@ -45,8 +45,8 @@ Note that deviation from this format will cause the app to throw an exception on
                   android:label="@string/home_activity_label">
         </activity>
         
-        <activity android:name=".activity.Capture"
-                  android:label="@string/capture_activity_label">
+        <activity android:name=".activity.CaptureTextPhoto"
+                  android:label="@string/capture_text_photo_activity_label">
         </activity>
         
     </application>
