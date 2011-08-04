@@ -1,4 +1,4 @@
-package com.ml4d.ohow;
+package com.ml4d.core;
 
 import java.nio.charset.Charset;
 

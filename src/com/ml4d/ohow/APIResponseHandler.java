@@ -9,7 +9,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.ml4d.ohow.exceptions.ImprobableCheckedExceptionException;
+import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.ohow.exceptions.*;
 
 import android.content.res.Resources;

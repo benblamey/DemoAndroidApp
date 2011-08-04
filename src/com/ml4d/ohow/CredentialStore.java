@@ -1,6 +1,6 @@
 package com.ml4d.ohow;
 
-import com.ml4d.ohow.exceptions.CalledFromWrongThreadException;
+import com.ml4d.core.exceptions.CalledFromWrongThreadException;
 
 import android.app.Activity;
 import android.content.Context;

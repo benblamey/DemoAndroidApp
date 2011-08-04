@@ -1,4 +1,4 @@
-package com.ml4d.ohow.exceptions;
+package com.ml4d.core.exceptions;
 
 /*
  * Used in circumstances where the developer does not wish to really catch a checked exception, but doesn't want

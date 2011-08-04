@@ -20,7 +20,7 @@ Note that deviation from this format will cause the app to throw an exception on
     	android:label="@string/app_name">
 
 		<!-- We set 'noHistory' true to ensure the splash screen is shown only once. -->
-        <activity android:name=".Splash"
+        <activity android:name=".activity.Splash"
                   android:label="@string/splash_activity_label"
                   android:noHistory="TRUE">
             <intent-filter>
@@ -31,21 +31,21 @@ Note that deviation from this format will cause the app to throw an exception on
 
 		<!-- We set 'noHistory' true to ensure the splash screen is shown only once,
 			 this ensures it is not shown if the user has already logged in. -->
-        <activity android:name=".SignIn"
+        <activity android:name=".activity.SignIn"
                   android:label="@string/sign_in_activity_label"
                   android:noHistory="TRUE">
         </activity>
 
-        <activity android:name=".Register"
+        <activity android:name=".activity.Register"
                   android:label="@string/register_activity_label"
                   android:noHistory="TRUE">
         </activity>
         
-        <activity android:name=".Home"
+        <activity android:name=".activity.Home"
                   android:label="@string/home_activity_label">
         </activity>
         
-        <activity android:name=".Capture"
+        <activity android:name=".activity.Capture"
                   android:label="@string/capture_activity_label">
         </activity>
         

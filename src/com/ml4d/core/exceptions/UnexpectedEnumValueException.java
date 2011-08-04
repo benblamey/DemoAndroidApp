@@ -1,4 +1,4 @@
-package com.ml4d.ohow.exceptions;
+package com.ml4d.core.exceptions;
 
 /*
  * Used when a 'switch' statement (or equivalently a series of if/else if/.. statements does not handle a case

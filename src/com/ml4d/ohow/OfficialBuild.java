@@ -1,8 +1,10 @@
 package com.ml4d.ohow;
 
 import java.util.regex.Pattern;
-import com.ml4d.ohow.exceptions.CalledFromWrongThreadException;
-import com.ml4d.ohow.exceptions.ImprobableCheckedExceptionException;
+
+import com.ml4d.core.exceptions.CalledFromWrongThreadException;
+import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
+
 import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;

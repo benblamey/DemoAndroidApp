@@ -1,4 +1,4 @@
-package com.ml4d.ohow.exceptions;
+package com.ml4d.core.exceptions;
 
 /**
  * When a method is called from an inappropriate thread. Commonly thrown by objects that 

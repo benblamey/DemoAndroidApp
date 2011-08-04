@@ -1,4 +1,4 @@
-package com.ml4d.ohow;
+package com.ml4d.ohow.activity;
 
 import java.io.*;
 import java.lang.ref.WeakReference;
@@ -15,6 +15,17 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpProtocolParams;
+
+import com.ml4d.core.Charset2;
+import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
+import com.ml4d.core.exceptions.UnexpectedEnumValueException;
+import com.ml4d.core.exceptions.UnknownClickableItemException;
+import com.ml4d.ohow.APIConstants;
+import com.ml4d.ohow.APIResponseHandler;
+import com.ml4d.ohow.CredentialStore;
+import com.ml4d.ohow.ExternalStorageUtilities;
+import com.ml4d.ohow.OfficialBuild;
+import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.*;
 import android.app.Activity;
 import android.app.AlertDialog;

@@ -1,9 +1,10 @@
-package com.ml4d.ohow;
+package com.ml4d.ohow.activity;
 
 import java.lang.ref.WeakReference;
 
-import com.ml4d.ohow.exceptions.ImprobableCheckedExceptionException;
-
+import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
+import com.ml4d.ohow.CredentialStore;
+import com.ml4d.ohow.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageInfo;

@@ -1,4 +1,4 @@
-package com.ml4d.ohow.exceptions;
+package com.ml4d.core.exceptions;
 
 /**
  * When a switch statement is used to handle a 'OnClickListener.onClick' method, and the ID of the button is unknown.

@@ -1,9 +1,10 @@
-package com.ml4d.ohow;
+package com.ml4d.ohow.activity;
 
 import java.io.*;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -14,6 +15,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 
+import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
+import com.ml4d.core.exceptions.UnexpectedEnumValueException;
+import com.ml4d.core.exceptions.UnknownClickableItemException;
+import com.ml4d.ohow.APIResponseHandler;
+import com.ml4d.ohow.CredentialStore;
+import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.*;
 
 import android.app.Activity;
@@ -24,22 +31,18 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 /*
- * Interactive logic for the register activity.
+ * Interactive logic for the sign in activity.
  */
-public class Register extends Activity implements OnClickListener, DialogInterface.OnClickListener {
+public class SignIn extends Activity implements OnClickListener, DialogInterface.OnClickListener {
 
 	/*
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -51,7 +54,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	}
 
 	private String _errorMessage;
-	private RegisterApiTask _registerTask;
+	private SignInTask _signInTask;
 	private State _state;
 	private DialogInterface _dialog;
 
@@ -75,27 +78,22 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			break;
 		case WAITING:
 			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.register_waiting_dialog_title),
-					resources.getString(R.string.register_waiting_dialog_body), true, // Indeterminate.
+			_dialog = ProgressDialog.show(this, resources.getString(R.string.sign_in_waiting_dialog_title),
+					resources.getString(R.string.sign_in_waiting_dialog_body), true, // Indeterminate.
 					false); // Not cancellable.
 			break;
 		case SUCCESS:
-			// Show a 'success' dialog.
-			AlertDialog successDialog = new AlertDialog.Builder(this).create();
-			successDialog.setTitle(resources.getString(R.string.register_success_dialog_title));
-			successDialog.setMessage(resources.getString(R.string.register_success_dialog_body));
-			successDialog.setButton(DialogInterface.BUTTON_POSITIVE, getResources().getString(R.string.ok_button_label), this);
-			successDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
-			successDialog.show();
-			_dialog = successDialog;
+			// Start the 'home' activity.
+			// Credentials/session key has already been stored.
+			startActivity(new Intent(this, Home.class));
 			break;
 		case FAILED:
 			// Show a 'failed' dialog.
 			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
-			failedDialog.setTitle(resources.getString(R.string.register_error_dialog_title));
+			failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
 			failedDialog.setMessage(_errorMessage);
 			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
-			failedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
+			failedDialog.setCancelable(false);
 			failedDialog.show();
 			_dialog = failedDialog;
 			break;
@@ -108,27 +106,32 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.register);
+		setContentView(R.layout.signin);
+		
+		if (CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+			// Start the home activity.
+			startActivity(new Intent(this, Home.class));
+		}
 
-		View registerButton = findViewById(R.id.register_register_button);
-		registerButton.setOnClickListener(this);
-
-		View viewTermsAndConditionsButton = findViewById(R.id.register_view_terms_and_conditions_button);
-		viewTermsAndConditionsButton.setOnClickListener(this);
+		findViewById(R.id.sign_in_sign_in_button).setOnClickListener(this);
+		findViewById(R.id.sign_in_register_button).setOnClickListener(this);
 
 		if (savedInstanceState != null) {
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
+			
+			// If we have previously successfully logged in, go back to the data-entry state.
+			// Otherwise we will redirect immediately back to the home activity.
+			if (State.SUCCESS == _state) {
+				_state = State.DATA_ENTRY;
+				_errorMessage = "";
+			}
 
 			// Because we have different layouts for portrait and landscape
 			// views, we need to manually save and restore the state of the
 			// TextViews.
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_first_name);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_last_name);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_email);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_username);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_password);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_checkbox_terms);
+			restoreTextViewInstanceState(savedInstanceState, R.id.signin_edittext_username);
+			restoreTextViewInstanceState(savedInstanceState, R.id.signin_edittext_password);
 
 			// Restore the focused view.
 			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
@@ -144,38 +147,21 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
-		switch (_state) {
-		case DATA_ENTRY:
-			break;
-		case WAITING:
-			// Cancel the operation.
-			_registerTask.cancel(false); // Don't interrupt the operation if it
-											// has started. The results are
-											// difficult to predict.
-			_registerTask = null;
+		ensureTaskIsStopped();
+		
+		if (State.WAITING == _state) {
 			_state = State.FAILED;
-			break;
-		case SUCCESS:
-			break;
-		case FAILED:
-			break;
-		default:
-			throw new UnexpectedEnumValueException(_state);
 		}
 
 		// Because we have different layouts for portrait and landscape views,
 		// we need to manually save and restore the state of the TextViews.
-		saveTextViewInstanceState(outState, R.id.register_edittext_first_name);
-		saveTextViewInstanceState(outState, R.id.register_edittext_last_name);
-		saveTextViewInstanceState(outState, R.id.register_edittext_email);
-		saveTextViewInstanceState(outState, R.id.register_edittext_username);
-		saveTextViewInstanceState(outState, R.id.register_edittext_password);
-		saveTextViewInstanceState(outState, R.id.register_checkbox_terms);
+		saveTextViewInstanceState(outState, R.id.signin_edittext_username);
+		saveTextViewInstanceState(outState, R.id.signin_edittext_password);
 
 		// Save which view is focused.
-		View v = getCurrentFocus();
-		if (null != v) {
-			outState.putInt("focused_view", v.getId());
+		View focusedView = getCurrentFocus();
+		if (null != focusedView) {
+			outState.putInt("focused_view", focusedView.getId());
 		}
 
 		outState.putString("_state", _state.name());
@@ -226,13 +212,14 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	 * Ensures the asynchronous HTTP task is stopped.
 	 */
 	private void ensureTaskIsStopped() {
+		
+		// Don't interrupt the operation if it has started. The results are difficult to predict.
+		if (_signInTask != null) {
+			_signInTask.cancel(false); 
+			_signInTask = null;
+		}
+		
 		if (State.WAITING == _state) {
-			if (this._registerTask != null) {
-				_registerTask.cancel(false); // Don't interrupt the operation if
-												// it has started. The results
-												// are difficult to predict.
-				_registerTask = null;
-			}
 			_errorMessage = getResources().getString(R.string.dialog_error_task_canceled);
 			_state = State.FAILED;
 		}
@@ -253,110 +240,70 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	}
 
 	private void registerButtonClicked() {
+		// Start the 'register' activity.
+		startActivity(new Intent(this, Register.class));
+	}
+	
+	private void signInButtonClicked() {
+		Resources resources = getResources();
 
-		Resources resources = this.getResources();
-
-		String firstName = ((TextView) this.findViewById(R.id.register_edittext_first_name)).getText().toString();
-		String lastName = ((TextView) this.findViewById(R.id.register_edittext_last_name)).getText().toString();
-		String emailAddress = ((TextView) this.findViewById(R.id.register_edittext_email)).getText().toString();
-		String username = ((TextView) this.findViewById(R.id.register_edittext_username)).getText().toString();
-		String password = ((TextView) this.findViewById(R.id.register_edittext_password)).getText().toString();
-
-		Pattern emailAddressRegex = Pattern.compile(APIConstants.emailRegex);
-		Matcher emailAddressRegexMatcher = emailAddressRegex.matcher(emailAddress);
-
-		Pattern usernameRegex = Pattern.compile(APIConstants.usernameRegex);
-		Matcher usernameRegexMatcher = usernameRegex.matcher(username);
+		String username = ((TextView) findViewById(R.id.signin_edittext_username)).getText().toString();
+		String password = ((TextView) findViewById(R.id.signin_edittext_password)).getText().toString();
 
 		String validationMessage = "";
 
-		// First name.
-		if (firstName.length() < APIConstants.firstNameMinLength) {
-			validationMessage = resources.getString(R.string.register_first_name_too_short);
-		} else if (firstName.length() > APIConstants.firstNameMaxLength) {
-			validationMessage = String.format(resources.getString(R.string.register_first_name_too_long),
-					APIConstants.firstNameMaxLength);
-		}
-
-		// Last name.
-		else if (lastName.length() < APIConstants.lastNameMinLength) {
-			validationMessage = resources.getString(R.string.register_last_name_too_short);
-		} else if (lastName.length() > APIConstants.lastNameMaxLength) {
-			validationMessage = String.format(resources.getString(R.string.register_last_name_too_long),
-					APIConstants.lastNameMaxLength);
-		}
-
-		// Email address.
-		else if (!emailAddressRegexMatcher.matches()) {
-			validationMessage = resources.getString(R.string.register_invalid_email_address);
-		}
-
 		// Username.
-		else if (!usernameRegexMatcher.matches()) {
-			validationMessage = resources.getString(R.string.register_invalid_username);
+		if (0 == username.length()) {
+			validationMessage = resources.getString(R.string.sign_in_invalid_username);
 		}
 
 		// Password.
-		else if (!Pattern.compile("[0-9]").matcher(password).find()
-					|| !Pattern.compile("[a-z]").matcher(password).find()
-					|| !Pattern.compile("[A-Z]").matcher(password).find()
-					|| (APIConstants.passwordMinLength > password.length())
-					|| (APIConstants.passwordMaxLength < password.length())) {
-				validationMessage = resources.getString(R.string.register_invalid_password);
+		else if (0 == password.length()) {
+			validationMessage = resources.getString(R.string.sign_in_invalid_password);
 		}
 		
-		// Terms and Conditions.
-		else if (false == ((CheckBox) this.findViewById(R.id.register_checkbox_terms)).isChecked()) {
-			validationMessage = resources.getString(R.string.register_must_accept_terms);
-		}
-
 		if (validationMessage.length() > 0) {
 			Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
 		} else {
 
 			// The HttpClient will verify the certificate is signed by a trusted
 			// source.
-			HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/register.php");
+			HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/check_credentials.php");
 			post.setHeader("Accept", "application/json");
 
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("first_name", firstName));
-			params.add(new BasicNameValuePair("last_name", lastName));
-			params.add(new BasicNameValuePair("email", emailAddress));
 			params.add(new BasicNameValuePair("username", username));
 			params.add(new BasicNameValuePair("password", password));
 
+			// Update the UI to show that we are waiting.
+			_state = State.WAITING;
+			showState();
+			
 			UrlEncodedFormEntity url = null;
 			try {
 				url = new UrlEncodedFormEntity(params, HTTP.UTF_8);
+				
+				
 				post.setEntity(url);
-
-				_registerTask = new RegisterApiTask(this, username, password);
-				_registerTask.execute(post);
+				_signInTask = new SignInTask(this, username, password);
+				_signInTask.execute(post);
 			} catch (UnsupportedEncodingException e) {
 				throw new ImprobableCheckedExceptionException(e);
 			}
-			_state = State.WAITING;
-			showState();
 		}
 	}
 
 	public void onClick(View view) {
 		switch (view.getId()) {
-		case R.id.register_register_button:
+		case R.id.sign_in_register_button:
 			registerButtonClicked();
 			break;
-		case R.id.register_view_terms_and_conditions_button:
-			viewTermsAndConditionsClicked();
+		case R.id.sign_in_sign_in_button:
+			signInButtonClicked();
 			break;
 		default:
 			throw new UnknownClickableItemException(view.getId());
 		}
-	}
-
-	private void viewTermsAndConditionsClicked() {
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://cpanel02.lhc.uk.networkeq.net/~soberfun/terms.html"));
-		startActivity(browserIntent);
 	}
 
 	@Override
@@ -375,15 +322,6 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			}
 			break;
 		case SUCCESS:
-			// When the user clicks on the success confirmation, go to the home activity 
-			// (we have already stored the credentials, and so are 'signed in').
-			if (DialogInterface.BUTTON_POSITIVE == which) {
-				Intent i = new Intent(this, Home.class);
-				startActivity(i);
-				break;
-			} else {
-				throw new IllegalStateException();
-			}
 		case DATA_ENTRY:
 		case WAITING:
 			throw new IllegalStateException();
@@ -395,18 +333,18 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	/**
 	 * Asynchronously performs a HTTP request.
 	 */
-	private class RegisterApiTask extends AsyncTask<HttpPost, Void, HttpResponse> {
-		private WeakReference<Register> _parent;
+	private class SignInTask extends AsyncTask<HttpPost, Void, HttpResponse> {
+		private WeakReference<SignIn> _parent;
 		private String _userAgent;
 		private String _username;
-		private String _password;
+		private String _password;		 
 
-		public RegisterApiTask(Register parent, String username, String password) {
+		public SignInTask(SignIn parent, String username, String password) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<Register>(parent);
+			_parent = new WeakReference<SignIn>(parent);
 			_username = username;
 			_password = password;
-			
+
 			// Whilst we are on the UI thread, build a user-agent string from
 			// the package details.
 			PackageInfo packageInfo;
@@ -426,36 +364,49 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			try {
 				return client.execute(arg0[0]);
 			} catch (ClientProtocolException e) {
-				e.printStackTrace();
+				return null;
 			} catch (IOException e) {
-				e.printStackTrace();
+				return null;
 			}
-			return null;
 		}
 
-		protected void onPostExecute(HttpResponse result) {
+		protected void onPostExecute(HttpResponse response) {
+			// On the main thread.
 			
-			Register parent = _parent.get();
+			SignIn parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
-			if (parent._registerTask == this) {
+			if (parent._signInTask == this) {
 
+				CredentialStore auth = CredentialStore.getInstance(parent);
+				
 				try {
-					// ProcessJSONResponse() appropriately handles a null
-					// result.
-					APIResponseHandler.ProcessJSONResponse(result, getResources());
+					// ProcessJSONResponse() appropriately handles a null result.
+					
+					// We don't actually care about the response, we just need to ensure there are no errors.
+					APIResponseHandler.ProcessJSONResponse(response, getResources());
+
+					// Store the credentials now that they have been verified.
+					auth.setKnownGoodDetails(_username, _password);
+
+					// To complete without error is a success.
 					parent._state = State.SUCCESS;
 					
-					// Store the credentials.
-					CredentialStore.getInstance(parent).setKnownGoodDetails(_username, _password);
-					
 				} catch (OHOWAPIException e) {
+					
+					if ((401 == e.getHttpCode()) && (3 == e.getExceptionCode())) {
+						// The password was wrong. Clear any saved credentials or session keys.
+						auth.clear();
+						((TextView) findViewById(R.id.signin_edittext_password)).setText("");
+					}
+					
 					parent._state = State.FAILED;
 					parent._errorMessage = e.getLocalizedMessage();
 				} catch (NoResponseAPIException e) {
 					parent._state = State.FAILED;
 					parent._errorMessage = parent.getResources().getString(R.string.comms_error);
 				}
+
 
 				parent.showState();
 			}

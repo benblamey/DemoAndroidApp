@@ -17,7 +17,7 @@
 // Ben Blamey (ben@ml4d.com):
 // This class is available in version 8 of the Android API. When possible, this code should be dropped in favour of the Android API code. 
 
-package com.ml4d.google_import;
+package com.ml4d.core.google_import;
 
 import java.io.UnsupportedEncodingException;
 

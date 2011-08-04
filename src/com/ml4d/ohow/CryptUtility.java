@@ -13,14 +13,19 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.ml4d.google_import.Base64;
-import com.ml4d.ohow.exceptions.ImprobableCheckedExceptionException;
+import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
+import com.ml4d.core.google_import.Base64;
 
 /**
  * Performs symmetric encryption/decryption with a fixed key.
+ * 
+ * This type is not inside the com.ml4d.core package because it contains the symmetric key in source code.
  */
 public class CryptUtility {
 
+	/**
+	 * Including the key in this way is obviously fairly weak, it just provides a simple defence.
+	 */
 	private static final byte[] _keyBytes = new byte[] { 0xA, -0x09, 0x0a, 0x0b, -0x1D, 0x15, 0x29, 0x77, 0x51, 0x21,
 			0x02, -0x03, 0x2C, -0x0D, 0x4E, 0x3D, 0x43, -0x11, 0x7C, 0x63, 0x6A, 0x15, 0x16, 0x17 };
 

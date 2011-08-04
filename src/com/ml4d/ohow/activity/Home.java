@@ -1,6 +1,8 @@
-package com.ml4d.ohow;
+package com.ml4d.ohow.activity;
 
-import com.ml4d.ohow.exceptions.UnknownClickableItemException;
+import com.ml4d.core.exceptions.UnknownClickableItemException;
+import com.ml4d.ohow.CredentialStore;
+import com.ml4d.ohow.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
