@@ -25,8 +25,7 @@
 			android:id="@+id/imageview_photo"
 			android:layout_height="fill_parent"
 			android:layout_width="fill_parent" 
-			android:scaleType="centerCrop"
-			android:background="#FF00FF"/>
+			android:scaleType="centerCrop"/>
 			
 		<Button
 			android:layout_width="fill_parent"
