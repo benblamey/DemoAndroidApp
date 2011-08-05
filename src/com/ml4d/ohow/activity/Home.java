@@ -23,6 +23,10 @@ public class Home extends Activity implements OnClickListener {
 		findViewById(R.id.home_sign_out_button).setOnClickListener(this);
 		findViewById(R.id.home_capture_button).setOnClickListener(this);
 		
+		startSignInActivityIfNotSignedIn();
+	}
+	
+	private void startSignInActivityIfNotSignedIn() {
 		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
@@ -54,6 +58,20 @@ public class Home extends Activity implements OnClickListener {
 		default:
 			throw new UnknownClickableItemException(view.getId());
 		}
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
+		// The activity is about to become visible.
+		startSignInActivityIfNotSignedIn();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		// The activity has become visible (it is now "resumed").
+		startSignInActivityIfNotSignedIn();
 	}
 
 }

@@ -78,6 +78,139 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	 */
 	private static final int _maximumGpsFixAgeMs = 3 * 60 * 1000;
 
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.capturetextphoto);
+		
+		startSignInActivityIfNotSignedIn();
+
+		findViewById(R.id.capture_text_photo_button_capture).setOnClickListener(this);
+		findViewById(R.id.capture_text_photo_button_toggle_photo).setOnClickListener(this);
+
+		if (savedInstanceState != null) {
+			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
+			_errorMessage = savedInstanceState.getString("_errorMessage");
+			_photoFile = (File)savedInstanceState.getSerializable("_photoFile");
+			
+			if (State.FAILED_INVALID_CREDENTIALS == _state) {
+				// When the credentials are invalid, we immediately redirect to the sign in page.
+				// We don't want to do this automatically if the user reaches the activity from history.
+				_errorMessage = "";
+				_state = State.DATA_ENTRY;
+			} else if (State.FAILED_NO_GPS_SERVICE == _state) {
+				// There was a problem with GPS the last time this activity was running - that
+				// may no longer be the case.
+				_errorMessage = "";
+				_state = State.DATA_ENTRY;
+			}
+
+			// Because we may have different layouts for portrait and landscape
+			// views, we need to manually save and restore the state of the
+			// TextViews.
+			restoreTextViewInstanceState(savedInstanceState, R.id.capture_text_photo_edittext_body);
+
+			// Restore the focused view.
+			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
+			if (null != focusTarget) {
+				focusTarget.requestFocus();
+			}
+			
+			ensureGettingGPSUpdates();
+
+		} else {
+			_state = State.DATA_ENTRY;
+		}
+
+		showState();
+	}
+
+	private void startSignInActivityIfNotSignedIn() {
+		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+			// Start the sign in activity.
+			startActivity(new Intent(this, SignIn.class));
+		}
+	}
+	
+	protected void onSaveInstanceState(Bundle outState) {
+		tearEverythingDown();
+
+		// Because we have different layouts for portrait and landscape views,
+		// we need to manually save and restore the state of the TextViews.
+		saveTextViewInstanceState(outState, R.id.capture_text_photo_edittext_body);
+
+		// Save which view is focused.
+		View focusedView = getCurrentFocus();
+		if (null != focusedView) {
+			outState.putInt("focused_view", focusedView.getId());
+		}
+
+		outState.putString("_state", _state.name());
+		outState.putString("_errorMessage", _errorMessage);
+		
+		if (null != _photoFile) {
+			outState.putSerializable("_photoFile", _photoFile);
+		}
+	}
+
+	/**
+	 * Saves the state of the specified TextView.
+	 */
+	private void saveTextViewInstanceState(Bundle state, int textViewId) {
+		Parcelable instanceState = ((TextView) findViewById(textViewId)).onSaveInstanceState();
+		state.putParcelable("textView_id_" + Integer.toString(textViewId), instanceState);
+	}
+
+	/**
+	 * Restores the state of the specified TextView.
+	 */
+	private void restoreTextViewInstanceState(Bundle state, int textViewId) {
+		Parcelable instanceState = state.getParcelable("textView_id_" + Integer.toString(textViewId));
+		if (null != instanceState) {
+			((TextView) findViewById(textViewId)).onRestoreInstanceState(instanceState);
+		}
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		startSignInActivityIfNotSignedIn();
+		// The activity is about to become visible.
+		ensureGettingGPSUpdates();
+		showState();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		startSignInActivityIfNotSignedIn();
+		// The activity has become visible (it is now "resumed").
+		ensureGettingGPSUpdates();
+		showState();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		// Another activity is taking focus (this activity is about to be "paused").
+		tearEverythingDown();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		// The activity is no longer visible (it is now "stopped").
+		tearEverythingDown();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		// The activity is about to be destroyed.
+		tearEverythingDown();
+	}
+
 	/**
 	 * Updates the user-interface to represent the state of this activity
 	 * object.
@@ -149,133 +282,6 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 		default:
 			throw new UnexpectedEnumValueException(_state);
 		}
-	}
-
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.capturetextphoto);
-		
-		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
-			// Start the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
-		}
-
-		findViewById(R.id.capture_text_photo_button_capture).setOnClickListener(this);
-		findViewById(R.id.capture_text_photo_button_toggle_photo).setOnClickListener(this);
-
-		if (savedInstanceState != null) {
-			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
-			_errorMessage = savedInstanceState.getString("_errorMessage");
-			_photoFile = (File)savedInstanceState.getSerializable("_photoFile");
-			
-			if (State.FAILED_INVALID_CREDENTIALS == _state) {
-				// When the credentials are invalid, we immediately redirect to the sign in page.
-				// We don't want to do this automatically if the user reaches the activity from history.
-				_errorMessage = "";
-				_state = State.DATA_ENTRY;
-			} else if (State.FAILED_NO_GPS_SERVICE == _state) {
-				// There was a problem with GPS the last time this activity was running - that
-				// may no longer be the case.
-				_errorMessage = "";
-				_state = State.DATA_ENTRY;
-			}
-
-			// Because we may have different layouts for portrait and landscape
-			// views, we need to manually save and restore the state of the
-			// TextViews.
-			restoreTextViewInstanceState(savedInstanceState, R.id.capture_text_photo_edittext_body);
-
-			// Restore the focused view.
-			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
-			if (null != focusTarget) {
-				focusTarget.requestFocus();
-			}
-			
-			ensureGettingGPSUpdates();
-
-		} else {
-			_state = State.DATA_ENTRY;
-		}
-
-		showState();
-	}
-
-	protected void onSaveInstanceState(Bundle outState) {
-		tearEverythingDown();
-
-		// Because we have different layouts for portrait and landscape views,
-		// we need to manually save and restore the state of the TextViews.
-		saveTextViewInstanceState(outState, R.id.capture_text_photo_edittext_body);
-
-		// Save which view is focused.
-		View focusedView = getCurrentFocus();
-		if (null != focusedView) {
-			outState.putInt("focused_view", focusedView.getId());
-		}
-
-		outState.putString("_state", _state.name());
-		outState.putString("_errorMessage", _errorMessage);
-		
-		if (null != _photoFile) {
-			outState.putSerializable("_photoFile", _photoFile);
-		}
-	}
-
-	/**
-	 * Saves the state of the specified TextView.
-	 */
-	private void saveTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = ((TextView) findViewById(textViewId)).onSaveInstanceState();
-		state.putParcelable("textView_id_" + Integer.toString(textViewId), instanceState);
-	}
-
-	/**
-	 * Restores the state of the specified TextView.
-	 */
-	private void restoreTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = state.getParcelable("textView_id_" + Integer.toString(textViewId));
-		if (null != instanceState) {
-			((TextView) findViewById(textViewId)).onRestoreInstanceState(instanceState);
-		}
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		// The activity is about to become visible.
-		ensureGettingGPSUpdates();
-		showState();
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		// The activity has become visible (it is now "resumed").
-		ensureGettingGPSUpdates();
-		showState();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		// Another activity is taking focus (this activity is about to be "paused").
-		tearEverythingDown();
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		// The activity is no longer visible (it is now "stopped").
-		tearEverythingDown();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		// The activity is about to be destroyed.
-		tearEverythingDown();
 	}
 
 	/**

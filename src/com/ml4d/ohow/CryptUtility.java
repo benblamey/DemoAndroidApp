@@ -15,7 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.google_import.Base64;
-
+ 
 /**
  * Performs symmetric encryption/decryption with a fixed key.
  * 
