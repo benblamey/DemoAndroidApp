@@ -200,10 +200,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.capture);
 		
-		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
-			// Start the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
-		}
+		startSignInActivityIfNotSignedIn();
 
 		findViewById(R.id.capture_button_capture).setOnClickListener(this);
 		findViewById(R.id.capture_button_toggle_photo).setOnClickListener(this);
@@ -250,6 +247,13 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		showState();
 	}
 
+	private void startSignInActivityIfNotSignedIn() {
+		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+			// Start the sign in activity.
+			startActivity(new Intent(this, SignIn.class));
+		}
+	}
+	
 	protected void onSaveInstanceState(Bundle outState) {
 		tearEverythingDown();
 
@@ -292,6 +296,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	@Override
 	protected void onStart() {
 		super.onStart();
+		startSignInActivityIfNotSignedIn();
 		// The activity is about to become visible.
 		ensureGettingGPSUpdates();
 		showState();
@@ -300,6 +305,7 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	@Override
 	protected void onResume() {
 		super.onResume();
+		startSignInActivityIfNotSignedIn();
 		// The activity has become visible (it is now "resumed").
 		ensureGettingGPSUpdates();
 		showState();
