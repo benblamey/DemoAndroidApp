@@ -102,98 +102,6 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 	 */
 	private static final int _maximumGpsFixAgeMs = 3 * 60 * 1000;
 
-	/**
-	 * Updates the user-interface to represent the state of this activity
-	 * object.
-	 */
-	private void showState() {
-
-		// If a dialog is being displayed, remove it.
-		if (_dialog != null) {
-			_dialog.dismiss();
-			_dialog = null;
-		}
-		
-		Resources resources = getResources();
-		
-		// Update the photo and the photo button.
-		String togglePhotoButtonText = resources.getString(R.string.capture_photo_button_toggle_add);
-		if ((null != _photoFile) && (_photoFile.exists())) {
-			Options bitmapOptions = new Options();
-			bitmapOptions.inSampleSize = 4; // Open the bitmap as 1/4 its original size to save memory.
-			Bitmap photoBitmap = BitmapFactory.decodeFile(_photoFile.getAbsolutePath(), bitmapOptions);
-			((ImageView)findViewById(R.id.imageview_photo)).setImageBitmap(photoBitmap);
-			togglePhotoButtonText = resources.getString(R.string.capture_photo_button_toggle_remove);
-		} else { 
-			((ImageView)findViewById(R.id.imageview_photo)).setImageBitmap(null);
-		}
-		((android.widget.Button)findViewById(R.id.capture_button_toggle_photo)).setText(togglePhotoButtonText); 
-
-		switch (_state) {
-		case DATA_ENTRY:
-			// Nothing to do.
-			break;
-		case WAITING:
-			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.capture_waiting_dialog_title),
-					resources.getString(R.string.capture_waiting_dialog_body), true, // Indeterminate.
-					false); // Not cancellable.
-			break;
-		case SUCCESS:
-			// Clear the field so that it isn't here if the user navigates back in history.
-			((TextView) findViewById(R.id.capture_edittext_body)).setText("");
-			
-			// Start the 'home' activity.
-			// Credentials/session key has already been stored.
-			startActivity(new Intent(this, Home.class));
-			
-			// Show the user some toast to inform them of the success.
-			Toast.makeText(this, resources.getString(R.string.capture_success), Toast.LENGTH_LONG).show();
-			
-			_state = State.DATA_ENTRY;
-			break;
-		case FAILED:
-			// Show a 'failed' dialog.
-			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
-			failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
-			failedDialog.setMessage(_errorMessage);
-			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
-			failedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
-			failedDialog.show();
-			_dialog = failedDialog;
-			break;
-		case FAILED_INVALID_CREDENTIALS:
-			
-			// Don't redirect more than once.
-			_errorMessage = "";
-			_state = State.DATA_ENTRY;
-			
-			// Clear credentials saved in the store.
-			CredentialStore.getInstance(this).clear();
-			
-			// Go back to the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
-			
-			// Show the user some toast explaining why they have been redirected.
-			Toast.makeText(this, resources.getString(R.string.sign_in_redirected_because_credentials_invalid), Toast.LENGTH_LONG).show();
-			
-			// We leave the text field as-is (and let it get its state persisted), then if the user goes back, they can try again with their original text.
-			break;
-		case FAILED_NO_GPS_SERVICE:
-			// Show a dialog.
-			AlertDialog noGpsfailedDialog = new AlertDialog.Builder(this).create();
-			noGpsfailedDialog.setTitle(resources.getString(R.string.error_dialog_title));
-			noGpsfailedDialog.setMessage(resources.getString(R.string.dialog_error_gps_no_gps));
-			noGpsfailedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
-			noGpsfailedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
-			noGpsfailedDialog.show();
-			_dialog = noGpsfailedDialog;
-			break;
-		default:
-			throw new UnexpectedEnumValueException(_state);
-		}
-	}
-
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -331,6 +239,98 @@ public class Capture extends Activity implements OnClickListener, DialogInterfac
 		super.onDestroy();
 		// The activity is about to be destroyed.
 		tearEverythingDown();
+	}
+
+	/**
+	 * Updates the user-interface to represent the state of this activity
+	 * object.
+	 */
+	private void showState() {
+
+		// If a dialog is being displayed, remove it.
+		if (_dialog != null) {
+			_dialog.dismiss();
+			_dialog = null;
+		}
+		
+		Resources resources = getResources();
+		
+		// Update the photo and the photo button.
+		String togglePhotoButtonText = resources.getString(R.string.capture_photo_button_toggle_add);
+		if ((null != _photoFile) && (_photoFile.exists())) {
+			Options bitmapOptions = new Options();
+			bitmapOptions.inSampleSize = 4; // Open the bitmap as 1/4 its original size to save memory.
+			Bitmap photoBitmap = BitmapFactory.decodeFile(_photoFile.getAbsolutePath(), bitmapOptions);
+			((ImageView)findViewById(R.id.imageview_photo)).setImageBitmap(photoBitmap);
+			togglePhotoButtonText = resources.getString(R.string.capture_photo_button_toggle_remove);
+		} else { 
+			((ImageView)findViewById(R.id.imageview_photo)).setImageBitmap(null);
+		}
+		((android.widget.Button)findViewById(R.id.capture_button_toggle_photo)).setText(togglePhotoButtonText); 
+
+		switch (_state) {
+		case DATA_ENTRY:
+			// Nothing to do.
+			break;
+		case WAITING:
+			// Show a 'waiting' dialog.
+			_dialog = ProgressDialog.show(this, resources.getString(R.string.capture_waiting_dialog_title),
+					resources.getString(R.string.capture_waiting_dialog_body), true, // Indeterminate.
+					false); // Not cancellable.
+			break;
+		case SUCCESS:
+			// Clear the field so that it isn't here if the user navigates back in history.
+			((TextView) findViewById(R.id.capture_edittext_body)).setText("");
+			
+			// Start the 'home' activity.
+			// Credentials/session key has already been stored.
+			startActivity(new Intent(this, Home.class));
+			
+			// Show the user some toast to inform them of the success.
+			Toast.makeText(this, resources.getString(R.string.capture_success), Toast.LENGTH_LONG).show();
+			
+			_state = State.DATA_ENTRY;
+			break;
+		case FAILED:
+			// Show a 'failed' dialog.
+			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
+			failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
+			failedDialog.setMessage(_errorMessage);
+			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+			failedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
+			failedDialog.show();
+			_dialog = failedDialog;
+			break;
+		case FAILED_INVALID_CREDENTIALS:
+			
+			// Don't redirect more than once.
+			_errorMessage = "";
+			_state = State.DATA_ENTRY;
+			
+			// Clear credentials saved in the store.
+			CredentialStore.getInstance(this).clear();
+			
+			// Go back to the sign in activity.
+			startActivity(new Intent(this, SignIn.class));
+			
+			// Show the user some toast explaining why they have been redirected.
+			Toast.makeText(this, resources.getString(R.string.sign_in_redirected_because_credentials_invalid), Toast.LENGTH_LONG).show();
+			
+			// We leave the text field as-is (and let it get its state persisted), then if the user goes back, they can try again with their original text.
+			break;
+		case FAILED_NO_GPS_SERVICE:
+			// Show a dialog.
+			AlertDialog noGpsfailedDialog = new AlertDialog.Builder(this).create();
+			noGpsfailedDialog.setTitle(resources.getString(R.string.error_dialog_title));
+			noGpsfailedDialog.setMessage(resources.getString(R.string.dialog_error_gps_no_gps));
+			noGpsfailedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+			noGpsfailedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
+			noGpsfailedDialog.show();
+			_dialog = noGpsfailedDialog;
+			break;
+		default:
+			throw new UnexpectedEnumValueException(_state);
+		}
 	}
 
 	/**
