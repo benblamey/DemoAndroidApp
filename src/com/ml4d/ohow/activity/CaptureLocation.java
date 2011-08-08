@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.FormBodyPart;
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -20,31 +22,45 @@ import org.apache.http.params.HttpProtocolParams;
 import com.ml4d.core.Charset2;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
-import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.APIResponseHandler;
 import com.ml4d.ohow.CredentialStore;
+import com.ml4d.ohow.GooglePlacesAPI;
+import com.ml4d.ohow.LocationForCapture;
+import com.ml4d.ohow.LocationForCaptureArrayAdapter;
 import com.ml4d.ohow.R;
+import com.ml4d.ohow.exceptions.ApiViaHttpException;
 import com.ml4d.ohow.exceptions.NoResponseAPIException;
-import com.ml4d.ohow.exceptions.OHOWAPIException;
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
+
+/*
+ * Note regarding screen layout:
+ * "ListActivity has a default layout that consists of a single, full-screen list in the center of the screen.
+ * However, if you desire, you can customize the screen layout by setting your own view layout with setContentView() in onCreate(). 
+ * To do this, your own view MUST contain a ListView object with the id "@android:id/list" (or list if it's in code)"
+ * 
+ * http://developer.android.com/reference/android/app/ListActivity.html
+ */  
 
 /**
  * Interactive logic for the 'capturelocation' activity.
  */
-public class CaptureLocation extends Activity implements OnClickListener, DialogInterface.OnClickListener {
+public class CaptureLocation extends ListActivity implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener {
 	
 	/**
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -52,7 +68,7 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_ENTRY, WAITING, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS
+		WAITING_FOR_PLACES, DATA_ENTRY, WAITING_FOR_CAPTURE, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS
 	}
 
 	/**
@@ -60,43 +76,35 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 	 */
 	private String _errorMessage;
 	private CaptureTask _captureTask;
+	private GetPlacesTask _getPlacesTask;
 	private State _state;
 	private DialogInterface _dialog;
 	private String _body;
-	private Double _longitude;
-	private Double _latitude;
+	private double _latitude;
+	private double _longitude;
+	private double _fixAccuracyMeters;
 	private File _photoFile;
+	private ArrayList<LocationForCapture> _locations;
 
 	
-	private static final String _jpegMime = "image/jpeg";
-	
 	/** Called when the activity is first created. */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.capturelocation);
 		
-		findViewById(R.id.capture_location_button_capture).setOnClickListener(this);
+		ListView listView = getListView();
+		listView.setTextFilterEnabled(true);
+		listView.setOnItemClickListener(this);
 		
-		// Note that the 'savedInstanceState' bundle is not the 'extras' from the intent that launched the activity.
-		// They are available in 'onNewIntent'.
-		
-		// Get some details from the previous capture step. We assume they are valid, the API will check for us.
-		Intent startingIntent = getIntent();
-		_body = startingIntent.getStringExtra("body");
-		if (null == _body) {
-			throw new RuntimeException("This activity should only be started by the CaptureTextPhoto activity (with the details from that step filled in as intent extras).");
-		}
-		_longitude = startingIntent.getDoubleExtra("longitude", 9999); // The default value will eventually be rejected by the API if it is used.
-		_latitude = startingIntent.getDoubleExtra("latitude", 9999); // The default value will eventually be rejected by the API if it is used.
-		_photoFile = (File)startingIntent.getSerializableExtra("photoFile");
-
 		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
 		}
 
 		if (savedInstanceState != null) {
+			// The activity is being restored.
+			
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
 			
@@ -111,21 +119,34 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 				_errorMessage = "";
 				_state = State.DATA_ENTRY;
 			}
-
-			// TODO: restore view states.
-			// Because we may have different layouts for portrait and landscape
-			// views, we need to manually save and restore the state of the
-			// TextViews.
-			//restoreTextViewInstanceState(savedInstanceState, R.id.capture_text_photo_edittext_body);
-
-			// Restore the focused view.
-			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
-			if (null != focusTarget) {
-				focusTarget.requestFocus();
-			}
+			
+			_locations = (ArrayList<LocationForCapture>)(savedInstanceState.getSerializable("_locations"));
+			_body = savedInstanceState.getString("_body");
+			_latitude = savedInstanceState.getDouble("_latitude");
+			_longitude = savedInstanceState.getDouble("_longitude");
+			_fixAccuracyMeters = savedInstanceState.getDouble("_fixAccuracyMeters");
+			_photoFile = (File)(savedInstanceState.getSerializable("_photoFile"));
 
 		} else {
-			_state = State.DATA_ENTRY;
+			// The activity is being started.
+			
+			// Note that the 'savedInstanceState' bundle is not the 'extras' from the intent that launched the activity.
+			// They are available in 'onNewIntent'.
+			// Get some details from the previous capture step. We assume they are valid, the API will check for us.
+			Intent startingIntent = getIntent();
+			_body = startingIntent.getStringExtra("body");
+			if (null == _body) {
+				throw new RuntimeException("This activity should only be started by the CaptureTextPhoto activity (with the details from that step filled in as intent extras).");
+			}
+			_latitude = startingIntent.getDoubleExtra("latitude", 9999); // The default value will eventually be rejected by the API if it is used.
+			_longitude = startingIntent.getDoubleExtra("longitude", 9999); // The default value will eventually be rejected by the API if it is used.
+			_photoFile = (File)startingIntent.getSerializableExtra("photoFile");
+			_fixAccuracyMeters = startingIntent.getDoubleExtra("fixAccuracyMeters", -1);
+			
+			// Start the Async task to retrieve the list of places.
+			_state = State.WAITING_FOR_PLACES;
+			_getPlacesTask = new GetPlacesTask(this, _latitude, _longitude, _fixAccuracyMeters);
+			_getPlacesTask.execute((HttpPost[])null);
 		}
 
 		showState();
@@ -136,7 +157,7 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 		Log.d("OHOW", "CaptureLocation.onNewIntent called - terminating");
 		throw new RuntimeException("onNewIntent called!");
 	}
-
+	
 	/**
 	 * Updates the user-interface to represent the state of this activity
 	 * object.
@@ -152,18 +173,31 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 		Resources resources = getResources();
 
 		switch (_state) {
-		case DATA_ENTRY:
-			// Nothing to do.
-			break;
-		case WAITING:
+		case WAITING_FOR_PLACES:
 			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.capture_location_waiting_dialog_title),
-					resources.getString(R.string.capture_location_waiting_dialog_body), true, // Indeterminate.
+			_dialog = ProgressDialog.show(this, resources.getString(R.string.capture_location_places_waiting_dialog_title),
+					resources.getString(R.string.capture_location_places_waiting_dialog_body), true, // Indeterminate.
+					false); // Not cancellable.
+			break;			
+		case DATA_ENTRY:
+			if (null != _locations) {
+				ListAdapter locationAdapter = new LocationForCaptureArrayAdapter(this, 
+						R.layout.location_item, 
+						_locations.toArray(new LocationForCapture[_locations.size()]), 
+						resources.getString(R.string.capture_location_unlisted_place_label));
+				setListAdapter(locationAdapter);
+			} else {
+				setListAdapter(null);
+			}
+			break;
+		case WAITING_FOR_CAPTURE:
+			// Show a 'waiting' dialog.
+			_dialog = ProgressDialog.show(this, resources.getString(R.string.capture_location_capture_waiting_dialog_title),
+					resources.getString(R.string.capture_location_capture_waiting_dialog_body), true, // Indeterminate.
 					false); // Not cancellable.
 			break;
 		case SUCCESS:
-			
-			// TODO - clear stuff so that it isn't here if the user navigates back in history.
+			_locations = null;
 			
 			// Start the 'home' activity.
 			// Credentials/session key has already been stored.
@@ -185,7 +219,6 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 			_dialog = failedDialog;
 			break;
 		case FAILED_INVALID_CREDENTIALS:
-			
 			// Don't redirect more than once.
 			_errorMessage = "";
 			_state = State.DATA_ENTRY;
@@ -209,44 +242,16 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 	protected void onSaveInstanceState(Bundle outState) {
 		tearEverythingDown();
 
-		// TODO: SAVE view states here.
-		
-		// Because we have different layouts for portrait and landscape views,
-		// we need to manually save and restore the state of the TextViews.
-		//saveTextViewInstanceState(outState, R.id.capture_text_photo_edittext_body);
-
-		// Save which view is focused.
-		View focusedView = getCurrentFocus();
-		if (null != focusedView) {
-			outState.putInt("focused_view", focusedView.getId());
-		}
-
+		// Values are allowed to be null.
 		outState.putString("_state", _state.name());
 		outState.putString("_errorMessage", _errorMessage);
-		
-		if (null != _photoFile) {
-			outState.putSerializable("_photoFile", _photoFile);
-		}
+		outState.putSerializable("_locations", _locations);
+		outState.putSerializable("_photoFile", _photoFile);
+		outState.putString("_body", _body);
+		outState.putDouble("_latitude", _latitude);
+		outState.putDouble("_longitude", _longitude);
+		outState.putDouble("_fixAccuracyMeters", _fixAccuracyMeters);
 	}
-
-	// TODO: will need these. They can be refactored into a utility class.
-//	/**
-//	 * Saves the state of the specified TextView.
-//	 */
-//	private void saveTextViewInstanceState(Bundle state, int textViewId) {
-//		Parcelable instanceState = ((TextView) findViewById(textViewId)).onSaveInstanceState();
-//		state.putParcelable("textView_id_" + Integer.toString(textViewId), instanceState);
-//	}
-//
-//	/**
-//	 * Restores the state of the specified TextView.
-//	 */
-//	private void restoreTextViewInstanceState(Bundle state, int textViewId) {
-//		Parcelable instanceState = state.getParcelable("textView_id_" + Integer.toString(textViewId));
-//		if (null != instanceState) {
-//			((TextView) findViewById(textViewId)).onRestoreInstanceState(instanceState);
-//		}
-//	}
 
 	@Override
 	protected void onStart() {
@@ -297,13 +302,22 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 			_captureTask = null;
 		}
 		
-		if (State.WAITING == _state) {
+		if (State.WAITING_FOR_CAPTURE == _state) {
+			_errorMessage = getResources().getString(R.string.dialog_error_task_canceled);
+			_state = State.FAILED;
+		}
+		
+		else if (State.WAITING_FOR_PLACES == _state) {
 			_errorMessage = getResources().getString(R.string.dialog_error_task_canceled);
 			_state = State.FAILED;
 		}
 	}
 	
-	private void captureButtonClicked() {
+	private void captureButtonClicked(LocationForCapture location) {
+		
+		if (null == location) {
+			throw new IllegalArgumentException("location cannot be null.");
+		}
 
 		CredentialStore store = CredentialStore.getInstance(this);
 		if (!store.getHaveVerifiedCredentials()) {
@@ -322,7 +336,6 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 				// source.
 				HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
 				post.setHeader("Accept", "application/json");
-				post.setHeader("X_OHOW_DEBUG_KEY", "sj30fj5X9whE93Bf0tjfhSh3jkfs2w03udj92");
 
 				// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 
 				MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
@@ -335,33 +348,30 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 					entity.addPart(new FormBodyPart("body", new StringBody(_body, textMimeType, utf8))); // The 'body' was validated by the previous activity. We don't validate it again because the API is going to validate it anyway.
 					entity.addPart(new FormBodyPart("longitude", new StringBody(Double.toString(_longitude), textMimeType, utf8)));
 					entity.addPart(new FormBodyPart("latitude", new StringBody(Double.toString(_latitude), textMimeType, utf8)));
+					
+					if (location.getIsListed()) {
+						entity.addPart(new FormBodyPart("location_name", new StringBody(location.getLocationName(), textMimeType, utf8)));
+						entity.addPart(new FormBodyPart("google_location_stable_ref", new StringBody(location.getGoogleLocationStableRef(), textMimeType, utf8)));
+						entity.addPart(new FormBodyPart("google_location_retrieval_ref", new StringBody(location.getGoogleLocationRetrievalRef(), textMimeType, utf8)));
+					}
+					
 				} catch (UnsupportedEncodingException e) {
 					throw new ImprobableCheckedExceptionException(e);
 				}
 				
 				if (null != _photoFile) {
-					FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), _jpegMime, Charset2.getUtf8().name());
+					FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), CaptureTextPhoto.MIME_TYPE_FOR_PHOTO, Charset2.getUtf8().name());
 					entity.addPart("photo", photoFilePart);
 				}
 				post.setEntity(entity);
 				
-				_state = State.WAITING;
+				_state = State.WAITING_FOR_CAPTURE;
 				_captureTask = new CaptureTask(this);
 				_captureTask.execute(post);
 			}
 		}
 
 		showState();
-	}
-
-	public void onClick(View view) {
-		switch (view.getId()) {
-		case R.id.capture_location_button_capture:
-			captureButtonClicked();
-			break;
-		default:
-			throw new UnknownClickableItemException(view.getId());
-		}
 	}
 
 	@Override
@@ -375,8 +385,9 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 			break;
 		case SUCCESS:
 		case DATA_ENTRY:
-		case WAITING:
+		case WAITING_FOR_CAPTURE:
 		case FAILED_INVALID_CREDENTIALS:
+		case WAITING_FOR_PLACES:
 			throw new IllegalStateException();
 		default:
 			throw new UnexpectedEnumValueException(_state);
@@ -384,7 +395,7 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 	}
 
 	/**
-	 * Asynchronously performs a HTTP request.
+	 * Asynchronously performs the Capture HTTP request.
 	 */
 	private class CaptureTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 		private WeakReference<CaptureLocation> _parent;
@@ -438,7 +449,7 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 					// To complete without error is a success.
 					parent._state = State.SUCCESS;
 					
-				} catch (OHOWAPIException e) {
+				} catch (ApiViaHttpException e) {
 					parent._state = State.FAILED;
 					
 					if ((401 == e.getHttpCode()) && (3 == e.getExceptionCode())) {
@@ -456,11 +467,112 @@ public class CaptureLocation extends Activity implements OnClickListener, Dialog
 				// Allow this task to be garbage-collected as it is no longer needed.
 				// I think that for large requests (e.g. images) this helps bring down our memory footprint.
 				parent._captureTask = null;
-
 				parent.showState();
 			}
 		}
 
 	}
+
+	/**
+	 * Asynchronously performs the get places HTTP request.
+	 */
+	private class GetPlacesTask extends AsyncTask<HttpPost, Void, HttpResponse> {
+		
+		private WeakReference<CaptureLocation> _parent;
+		private String _userAgent;		 
+		private double _longitude;
+		private double _latitude;
+		private double _fixAccuracyMeters;
+
+		public GetPlacesTask(CaptureLocation parent, double latitude, double longitude, double fixAccuracyMeters) {
+			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
+			_parent = new WeakReference<CaptureLocation>(parent);
+			_latitude = latitude;
+			_longitude = longitude;
+			_fixAccuracyMeters = fixAccuracyMeters;
+
+			// Whilst we are on the UI thread, build a user-agent string from
+			// the package details.
+			PackageInfo packageInfo;
+			try {
+				packageInfo = parent.getPackageManager().getPackageInfo(parent.getPackageName(), 0);
+			} catch (NameNotFoundException e1) {
+				throw new ImprobableCheckedExceptionException(e1);
+			}
+			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
+		}
+
+		@Override
+		protected HttpResponse doInBackground(HttpPost... arg0) {
+			
+			HttpGet get = new HttpGet("https://maps.googleapis.com/maps/api/place/search/json"
+					+ "?" + "location=" + Double.toString(_latitude) + "," + Double.toString(_longitude)
+					+ "&" + "radius=" + _fixAccuracyMeters
+					+ "&" + "sensor=true"
+					+ "&" + "types=" + Uri.encode(GooglePlacesAPI.getCapturePlaceTypeS())
+					+ "&" + "key=AIzaSyBXytCoZm7Q5fecpiyMVPAup4zoc2a35VM");
+			get.setHeader("Accept", "application/json");
+			
+			// This is executed on a background thread.
+			HttpClient client = new DefaultHttpClient();
+			HttpProtocolParams.setUserAgent(client.getParams(), _userAgent);
+			
+			try {
+				return client.execute(get);
+			} catch (ClientProtocolException e) {
+				return null;
+			} catch (IOException e) {
+				return null;
+			}
+		}
+
+		protected void onPostExecute(HttpResponse response) {
+			// On the main thread.
+			
+			CaptureLocation parent = _parent.get();
+			
+			if (null != parent) {
+				// 'parent' will be null if it has already been garbage collected.
+				if (parent._getPlacesTask == this) {
+					
+					_locations = new ArrayList<LocationForCapture>();
+					
+					try {
+						// ProcessJSONResponse() appropriately handles a null result.
+						_locations.addAll(GooglePlacesAPI.ProcessJSONResponse(response, getResources()));
+		
+						// To complete without error is a success.
+						parent._state = State.DATA_ENTRY;
+						
+					} catch (ApiViaHttpException e) {
+						parent._locations = null;
+						parent._state = State.FAILED;
+						parent._errorMessage = e.getLocalizedMessage();
+					} catch (NoResponseAPIException e) {
+						// If there is no response (possibly because we lost the connection), don't worry
+						// and leave the locations empty. There is always at least one entry anyway - see below.
+						Log.d("OHOW", "No repsonse from Google API.");
+					}
+					
+					// Add the special 'unlisted' entry to the list. 
+					// This means there is an entry to select if the Google request failed, or if the location
+					// is not among the results.
+					_locations.add(LocationForCapture.getUnlisted());
+					
+					// Allow this task to be garbage-collected as it is no longer needed.
+					// I think that for large requests (e.g. images) this helps bring down our memory footprint.
+					parent._getPlacesTask = null;
 	
+					parent.showState();
+				}
+			}
+		}
+
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		captureButtonClicked(_locations.get(position));
+	}
+
 }

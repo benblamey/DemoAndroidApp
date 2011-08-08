@@ -456,7 +456,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 					// Store the credentials.
 					CredentialStore.getInstance(parent).setKnownGoodDetails(_username, _password);
 					
-				} catch (OHOWAPIException e) {
+				} catch (ApiViaHttpException e) {
 					parent._state = State.FAILED;
 					parent._errorMessage = e.getLocalizedMessage();
 				} catch (NoResponseAPIException e) {

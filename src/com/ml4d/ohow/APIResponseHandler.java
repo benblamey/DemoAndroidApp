@@ -27,7 +27,7 @@ public class APIResponseHandler {
 	 * appropriate).
 	 */
 	public static Object ProcessJSONResponse(HttpResponse response, Resources resources) throws NoResponseAPIException,
-			OHOWAPIException {
+			ApiViaHttpException {
 
 		if (null == response) {
 			throw new NoResponseAPIException();
@@ -65,7 +65,7 @@ public class APIResponseHandler {
 				result = responseJson.get("result");
 			} catch (JSONException e) {
 				String friendlyErrorMessage = response.getStatusLine().getReasonPhrase();
-				throw new OHOWAPIException(friendlyErrorMessage, statusCode, e);
+				throw new ApiViaHttpException(friendlyErrorMessage, statusCode, e);
 			}
 
 			if (200 != statusCode) {
@@ -82,17 +82,17 @@ public class APIResponseHandler {
 				// one returned by the API.
 				if (0 == description.length()) {
 					// Use a prefix to make the text seem a bit more friendly.
-					description = resources.getString(R.string.register_unfriendly_error_prefix) + " " + errorMessage;
+					description = resources.getString(R.string.unfriendly_error_prefix) + " " + errorMessage;
 				}
 
 				// If there wasn't a message returned by the API, it means the
 				// response wasn't in JSON etc.
 				// Fall back to the reason phrase in the header.
 				if (0 == description.length()) {
-					description = resources.getString(R.string.register_unfriendly_error_prefix) + " " + response.getStatusLine().getReasonPhrase();
+					description = resources.getString(R.string.unfriendly_error_prefix) + " " + response.getStatusLine().getReasonPhrase();
 				}
 
-				throw new OHOWAPIException(description, statusCode, exceptionCode);
+				throw new ApiViaHttpException(description, statusCode, exceptionCode);
 			} else {
 				return result;
 			}

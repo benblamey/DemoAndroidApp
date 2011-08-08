@@ -40,8 +40,6 @@
     <string name="register_success_dialog_title">Registration</string>
     <string name="register_success_dialog_body">Congratulations, you have successfully registered with Our History of the World!</string>
     <string name="register_error_dialog_title">Error!</string>
-    
-    <string name="register_unfriendly_error_prefix">Error: </string>
 
     
 </resources>

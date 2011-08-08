@@ -58,6 +58,11 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	
 	private static final String _jpegExtensionWithoutDot = "jpg";
 	
+	/**
+	 * The Mime-type that should be used for HTTP-posting photos created by this activity.
+	 */
+	public static final String MIME_TYPE_FOR_PHOTO = "image/jpeg";
+	
 	/** 
 	 * A hint for the GPS location update interval, in milliseconds.
 	 */
@@ -336,6 +341,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			boolean allowCapture;
 			double latitude = -1234;
 			double longitude = -1234;
+			double fixAccuracyMeters = 0;
 			long unixTimestampMs = 0;
 
 			if (null == _location) {
@@ -343,6 +349,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			} else {
 				latitude = _location.getLatitude();
 				longitude = _location.getLongitude();
+				fixAccuracyMeters = _location.getAccuracy();
 				unixTimestampMs = _location.getTime();
 				// Allow capture only if the fix is 'fresh'.
 				allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < _maximumGpsFixAgeMs);
@@ -353,6 +360,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 				longitude = -2.599488; // (Coordinates of Bristol Office.)
 				latitude = 51.453956;
 				unixTimestampMs = System.currentTimeMillis() - 1;
+				fixAccuracyMeters = 200;
 				allowCapture = true;
 				Log.d("OHOW", "NO suitable fix - using dummy GPS coordinates instead (this feature is only enabled on developer builds).");
 			}
@@ -381,6 +389,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 					pickLocationIntent.putExtra("body", body);
 					pickLocationIntent.putExtra("longitude", longitude);
 					pickLocationIntent.putExtra("latitude", latitude);
+					pickLocationIntent.putExtra("fixAccuracyMeters", fixAccuracyMeters);
 					if (null != _photoFile) {
 						pickLocationIntent.putExtra("photoFile", _photoFile);
 					}

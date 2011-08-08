@@ -392,7 +392,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 					// To complete without error is a success.
 					parent._state = State.SUCCESS;
 					
-				} catch (OHOWAPIException e) {
+				} catch (ApiViaHttpException e) {
 					
 					if ((401 == e.getHttpCode()) && (3 == e.getExceptionCode())) {
 						// The password was wrong. Clear any saved credentials or session keys.

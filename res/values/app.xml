@@ -12,10 +12,12 @@
 	<!-- General dialog strings -->	
 	<string name="error_dialog_title">Error!</string>
     <string name="dialog_unfriendly_error_prefix">Error: </string>
-    <string name="dialog_error_rotate_when_busy">Please do not rotate the phone whilst sign-in is active.</string>
+    <string name="dialog_error_rotate_when_busy">Please do not rotate the phone whilst the app is busy.</string>
     <string name="dialog_error_task_canceled">Task was canceled.</string>
     
     <string name="dialog_error_gps_no_fix">No GPS fix available - ensure that you have a view of the sky - and be patient!</string>
     <string name="dialog_error_gps_no_gps">You must have GPS enabled for capture - ensure that GPS is turned on and try again.</string>
+    
+    <string name="unfriendly_error_prefix">Error: </string>
 
 </resources>
