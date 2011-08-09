@@ -37,9 +37,10 @@
 		
 	<EditText
 		android:gravity="top"
-    	android:inputType="text|textImeMultiLine|textLongMessage"
+    	android:inputType="text|textLongMessage|textMultiLine"
     	android:layout_above="@+id/capture_text_photo_button_capture"
     	android:layout_toRightOf="@+id/capture_text_photo_imageview_frame"
+    	android:scrollHorizontally="false"
     	android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
     	android:id="@+id/capture_text_photo_edittext_body"
