@@ -19,7 +19,7 @@ import android.util.Log;
 /*
  * A utility class for handling responses from the OHOW API.
  */
-public class APIResponseHandler {
+public class OHOWAPIResponseHandler {
 
 	/*
 	 * Process a response from the OHOW API. Intended only where the API is

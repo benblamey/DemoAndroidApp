@@ -373,6 +373,11 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			} else {
 				// Validate the user data the same as it will be validated by the OHOW API.
 				String body = ((TextView) findViewById(R.id.capture_text_photo_edittext_body)).getText().toString();
+				
+				// There is a problem with the UI that we seem unable to get wrapping to work, so we use allow multi-line input.
+				// However the API does not allow multi-line input. Note that we remove carriage returns and line feeds before checking the body length.
+				body = body.replaceAll("(\\n|\\r)", "");
+				
 				String validationMessage = "";
 		
 				if (APIConstants.captureBodyMinLength > body.length()) {

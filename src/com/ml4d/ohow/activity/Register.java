@@ -18,7 +18,7 @@ import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.APIConstants;
-import com.ml4d.ohow.APIResponseHandler;
+import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.*;
@@ -452,7 +452,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 				try {
 					// ProcessJSONResponse() appropriately handles a null
 					// result.
-					APIResponseHandler.ProcessJSONResponse(result, getResources());
+					OHOWAPIResponseHandler.ProcessJSONResponse(result, getResources());
 					parent._state = State.SUCCESS;
 					
 					// Store the credentials.

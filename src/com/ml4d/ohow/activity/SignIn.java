@@ -18,7 +18,7 @@ import org.apache.http.protocol.HTTP;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.core.exceptions.UnknownClickableItemException;
-import com.ml4d.ohow.APIResponseHandler;
+import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.*;
@@ -386,7 +386,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 					// ProcessJSONResponse() appropriately handles a null result.
 					
 					// We don't actually care about the response, we just need to ensure there are no errors.
-					APIResponseHandler.ProcessJSONResponse(response, getResources());
+					OHOWAPIResponseHandler.ProcessJSONResponse(response, getResources());
 
 					// Store the credentials now that they have been verified.
 					auth.setKnownGoodDetails(_username, _password);

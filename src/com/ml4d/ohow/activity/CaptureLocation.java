@@ -22,7 +22,7 @@ import org.apache.http.params.HttpProtocolParams;
 import com.ml4d.core.Charset2;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
-import com.ml4d.ohow.APIResponseHandler;
+import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.GooglePlacesAPI;
 import com.ml4d.ohow.LocationForCapture;
@@ -445,7 +445,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 					// ProcessJSONResponse() appropriately handles a null result.
 					
 					// We don't actually care about the response, we just need to ensure there are no errors.
-					APIResponseHandler.ProcessJSONResponse(response, getResources());
+					OHOWAPIResponseHandler.ProcessJSONResponse(response, getResources());
 
 					// To complete without error is a success.
 					parent._state = State.SUCCESS;
