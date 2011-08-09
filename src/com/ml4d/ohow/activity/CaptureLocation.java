@@ -514,7 +514,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 					// See: PT#16732227
 					+ "&" + "radius=300" 
 					+ "&" + "sensor=true"
-					+ "&" + "types=" + Uri.encode(GooglePlacesAPI.getCapturePlaceTypeS())
+					+ "&" + "types=" + Uri.encode(GooglePlacesAPI.getCapturePlaceTypes())
 					+ "&" + "key=AIzaSyBXytCoZm7Q5fecpiyMVPAup4zoc2a35VM");
 			get.setHeader("Accept", "application/json");
 			
@@ -540,11 +540,11 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 				// 'parent' will be null if it has already been garbage collected.
 				if (parent._getPlacesTask == this) {
 					
-					_locations = new ArrayList<LocationForCapture>();
+					ArrayList<LocationForCapture> locations = new ArrayList<LocationForCapture>();
 					
 					try {
 						// ProcessJSONResponse() appropriately handles a null result.
-						_locations.addAll(GooglePlacesAPI.ProcessJSONResponse(response, getResources()));
+						locations.addAll(GooglePlacesAPI.ProcessJSONResponse(response, getResources()));
 		
 						// To complete without error is a success.
 						parent._state = State.DATA_ENTRY;
@@ -556,18 +556,20 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 					} catch (NoResponseAPIException e) {
 						// If there is no response (possibly because we lost the connection), don't worry
 						// and leave the locations empty. There is always at least one entry anyway - see below.
-						Log.d("OHOW", "No repsonse from Google API.");
+						parent._locations = null;
+						parent._state = State.FAILED;
+						parent._errorMessage = parent.getResources().getString(R.string.capture_location_google_no_response);
 					}
 					
 					// Add the special 'unlisted' entry to the list. 
 					// This means there is an entry to select if the Google request failed, or if the location
 					// is not among the results.
-					_locations.add(LocationForCapture.getUnlisted());
+					locations.add(LocationForCapture.getUnlisted());
 					
 					// Allow this task to be garbage-collected as it is no longer needed.
 					// I think that for large requests (e.g. images) this helps bring down our memory footprint.
 					parent._getPlacesTask = null;
-	
+					parent._locations = locations;
 					parent.showState();
 				}
 			}

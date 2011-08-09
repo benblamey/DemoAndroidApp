@@ -34,5 +34,7 @@
     <string name="capture_location_unlisted_place_label">(My location is not listed)</string>
     
     <string name="capture_location_waiting_dialog_success">Your capture was successful, thank you for your contribution!</string>
+    
+    <string name="capture_location_google_no_response">Could not communicate with Google Places.</string>
 
 </resources>
