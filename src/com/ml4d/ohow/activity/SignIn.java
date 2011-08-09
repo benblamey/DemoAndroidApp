@@ -147,6 +147,8 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
 		ensureTaskIsStopped();
 		
 		if (State.WAITING == _state) {

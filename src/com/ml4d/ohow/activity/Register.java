@@ -151,6 +151,8 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
 		switch (_state) {
 		case DATA_ENTRY:
 			break;

@@ -139,6 +139,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	}
 	
 	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
 		tearEverythingDown();
 
 		// Because we have different layouts for portrait and landscape views,

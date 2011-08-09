@@ -240,6 +240,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
 		tearEverythingDown();
 
 		// Values are allowed to be null.
