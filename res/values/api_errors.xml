@@ -3,8 +3,8 @@
 <!-- Strings for the OHOW API Errors. -->
 <resources>
 
-	<string name="comms_error">Could not communicate with the OHOW servers. Please check your internet connection and try again.</string>
-
+	<string name="comms_error">Could not communicate with the OHOW servers. Please check your Internet connection and try again.</string>
+	<string name="error_ohow_garbage_response">Could not understand response from OHOW API - this might be a temporary problem with the server, or you might need to update the app.</string>
 
 	<!-- The strings here should be user friendly descriptions of the exceptions thrown by the API. -->
 

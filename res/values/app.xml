@@ -16,7 +16,8 @@
     <string name="dialog_error_task_canceled">Task was canceled.</string>
     
     <string name="dialog_error_gps_no_fix">No GPS fix available - ensure that you have a view of the sky - and be patient!</string>
-    <string name="dialog_error_gps_no_gps">You must have GPS enabled for capture - ensure that GPS is turned on and try again.</string>
+    <string name="dialog_error_gps_no_gps">You must have GPS enabled to use OHOW.</string>
+    <string name="general_waiting">Please wait...</string>
     
     <string name="unfriendly_error_prefix">Error: </string>
 
