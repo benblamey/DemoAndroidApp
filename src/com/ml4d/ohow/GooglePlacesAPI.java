@@ -141,7 +141,7 @@ public class GooglePlacesAPI {
 	/**
 	 * Gets a string of the form "type1|type2|type3" for all the types that are suitable for use in a capture.
 	 */
-	public static String getCapturePlaceTypeS() {
+	public static String getCapturePlaceTypes() {
 		// We don't assign the string until the end, this makes the method thread-safe.
 		if (null == _capturePlaceTypes) {
 			String capturePlaceTypes = "";
