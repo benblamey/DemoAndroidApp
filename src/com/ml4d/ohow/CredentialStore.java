@@ -59,6 +59,7 @@ public class CredentialStore {
 	private void saveState() {
 		Editor editor = _preferences.edit();
 		editor.putBoolean("_haveVerifiedCredentials", _haveVerifiedCredentials);
+		editor.putInt("version", 1); // A version might be useful in the future.
 		
 		if (_haveVerifiedCredentials) {
 			editor.putString("_username", _username);
