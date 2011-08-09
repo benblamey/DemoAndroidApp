@@ -482,6 +482,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 		private String _userAgent;		 
 		private double _longitude;
 		private double _latitude;
+		@SuppressWarnings("unused")
 		private double _fixAccuracyMeters;
 
 		public GetPlacesTask(CaptureLocation parent, double latitude, double longitude, double fixAccuracyMeters) {
@@ -507,7 +508,10 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			
 			HttpGet get = new HttpGet("https://maps.googleapis.com/maps/api/place/search/json"
 					+ "?" + "location=" + Double.toString(_latitude) + "," + Double.toString(_longitude)
-					+ "&" + "radius=" + _fixAccuracyMeters
+					// It is suggested that the GPS fix accuracy is used for the radius. However, under testing the search results were poor.
+					// We'll see if using a larger search radius helps things.
+					// See: PT#16732227
+					+ "&" + "radius=300" 
 					+ "&" + "sensor=true"
 					+ "&" + "types=" + Uri.encode(GooglePlacesAPI.getCapturePlaceTypeS())
 					+ "&" + "key=AIzaSyBXytCoZm7Q5fecpiyMVPAup4zoc2a35VM");
