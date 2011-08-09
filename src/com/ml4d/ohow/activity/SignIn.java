@@ -378,7 +378,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			SignIn parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
-			if (parent._signInTask == this) {
+			if ((null != parent ) && (parent._signInTask == this)) {
 
 				CredentialStore auth = CredentialStore.getInstance(parent);
 				

@@ -437,7 +437,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			CaptureLocation parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
-			if (parent._captureTask == this) {
+			if ((null != parent) && (parent._captureTask == this)) {
 
 				CredentialStore auth = CredentialStore.getInstance(parent);
 				

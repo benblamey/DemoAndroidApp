@@ -447,7 +447,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			Register parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
-			if (parent._registerTask == this) {
+			if ((null != parent) && (parent._registerTask == this)) {
 
 				try {
 					// ProcessJSONResponse() appropriately handles a null
