@@ -27,7 +27,7 @@ public class CredentialStore {
 	private CredentialStore(Context context) {
 		
 		_context = context;
-		_preferences = context.getSharedPreferences("APIAuthentication", Context.MODE_PRIVATE);
+		_preferences = context.getSharedPreferences("CredentialStore", Context.MODE_PRIVATE);
 		_haveVerifiedCredentials = _preferences.getBoolean("_haveVerifiedCredentials", false);
 
 		if (_haveVerifiedCredentials) {
