@@ -74,7 +74,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	/** 
 	 * A hint for the GPS location update interval, in milliseconds.
 	 */
-	private static final int _gpsSuggestedUpdateIntervalMS = 10000;
+	private static final int _gpsSuggestedUpdateIntervalMS = 5000;
 
 	/**
 	 * The minimum distance interval for update, in metres.
