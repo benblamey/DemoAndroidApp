@@ -20,7 +20,7 @@
     
     
     <!-- Strings used by the 'capturelocation' activity (it is this activity that actually does the capture API call. -->
-	<string name="capture_location_activity_label">Pick Location</string>
+	<string name="capture_location_activity_label">Please choose your location...</string>
 	<string name="capture_location_button_capture_text">Capture!</string>    
     
     
