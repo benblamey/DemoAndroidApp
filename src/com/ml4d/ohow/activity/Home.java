@@ -388,7 +388,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 			_latitude = latitude;
 			_longitude = longitude;
 
-			// Whilst we are on the UI thread, build a user-agent string from
+			// While we are on the UI thread, build a user-agent string from
 			// the package details.
 			PackageInfo packageInfo;
 			try {

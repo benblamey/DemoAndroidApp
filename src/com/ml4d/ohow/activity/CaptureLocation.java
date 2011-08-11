@@ -406,7 +406,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<CaptureLocation>(parent);
 
-			// Whilst we are on the UI thread, build a user-agent string from
+			// While we are on the UI thread, build a user-agent string from
 			// the package details.
 			PackageInfo packageInfo;
 			try {
@@ -493,7 +493,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			_longitude = longitude;
 			_fixAccuracyMeters = fixAccuracyMeters;
 
-			// Whilst we are on the UI thread, build a user-agent string from
+			// While we are on the UI thread, build a user-agent string from
 			// the package details.
 			PackageInfo packageInfo;
 			try {

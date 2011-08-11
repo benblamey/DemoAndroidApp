@@ -416,7 +416,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			_username = username;
 			_password = password;
 			
-			// Whilst we are on the UI thread, build a user-agent string from
+			// While we are on the UI thread, build a user-agent string from
 			// the package details.
 			PackageInfo packageInfo;
 			try {
