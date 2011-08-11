@@ -50,6 +50,7 @@ Note that deviation from this format will cause the app to throw an exception on
         </activity>
         
         <activity android:name=".activity.CaptureLocation"
+        		  android:noHistory="true"
                   android:label="@string/capture_location_activity_label">
         </activity>
         
