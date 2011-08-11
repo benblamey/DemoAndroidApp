@@ -303,15 +303,17 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 			
 			// If GPS is not available, fail outright immediately (unless we're busy, showing another error, etc.).
-			if ((State.DATA_ENTRY == _state) && (!locationManager.isProviderEnabled("gps"))) {
-				_state = State.FAILED_NO_GPS_SERVICE;
+			if (!locationManager.isProviderEnabled("gps")) {
+				if (State.DATA_ENTRY == _state) {
+					_state = State.FAILED_NO_GPS_SERVICE;
+				}
+			} else {
+				// Begin listening for further GPS location updates.
+				locationManager.requestLocationUpdates("gps", _gpsSuggestedUpdateIntervalMS, _gpsSuggestedUpdateDistanceMetres, this, getMainLooper());
+				_gettingLocationUpdates = true;
 			}
 			
 			_location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-			
-			// Begin listening for further GPS location updates.
-			locationManager.requestLocationUpdates("gps", _gpsSuggestedUpdateIntervalMS, _gpsSuggestedUpdateDistanceMetres, this, getMainLooper());
-			_gettingLocationUpdates = true;
 		}
 	}
 	
