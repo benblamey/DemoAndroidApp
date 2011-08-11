@@ -35,6 +35,9 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
@@ -261,6 +264,33 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 		ensureTaskIsStopped();
 	}
 
+	// The Options menu.
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    case R.id.menu_item_slideshow:
+	    	showSlideShow();
+	        return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}
+
+	private void showSlideShow() {
+		Intent intent = new Intent(this, SlideShow.class);
+		// When the slide show is finished, come back to this activity.
+		intent.putExtra(SlideShow.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, Register.class));
+		startActivity(intent);
+	}
+	
 	private void registerButtonClicked() {
 
 		Resources resources = this.getResources();

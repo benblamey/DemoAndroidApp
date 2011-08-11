@@ -242,8 +242,11 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	}
 
 	private void registerButtonClicked() {
-		// Start the 'register' activity.
-		startActivity(new Intent(this, Register.class));
+		// Start the 'SlideShow' activity. 
+		Intent intent = new Intent(this, SlideShow.class);
+		// We want to direct the user to the register page after the slideshow is finished.
+		intent.putExtra(SlideShow.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, Register.class));
+		startActivity(intent);
 	}
 	
 	private void signInButtonClicked() {
