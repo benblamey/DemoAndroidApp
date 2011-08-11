@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Resources for the splash screen activity. -->
+<resources>
+
+	<string name="slide_show_activity_label">Introduction to OHOW</string>
+	
+	<string name="slide_show_instructions">Touch the screen for the next slide.</string>
+
+</resources>

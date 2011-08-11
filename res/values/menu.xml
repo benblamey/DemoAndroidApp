@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Resources for the options menu (i.e. the one that appears when you press the menu key). -->
+<resources>
+
+	<string name="menu_item_slide_show">Introduction to OHOW</string>
+  
+</resources>

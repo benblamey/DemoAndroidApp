@@ -53,6 +53,10 @@ Note that deviation from this format will cause the app to throw an exception on
                   android:label="@string/capture_location_activity_label">
         </activity>
         
+        <activity android:name=".activity.SlideShow"
+                  android:label="@string/slide_show_activity_label">
+        </activity>
+        
     </application>
     
     <uses-permission android:name="android.permission.INTERNET" />

@@ -38,6 +38,9 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -210,6 +213,33 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// Nothing to do.
+	}
+	
+	// The Options menu.
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	    case R.id.menu_item_slideshow:
+	    	showSlideShow();
+	        return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}
+
+	private void showSlideShow() {
+		Intent i = new Intent(this, SlideShow.class);
+		// When the slide show is finished, come back to this activity.
+		i.putExtra(SlideShow.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, Home.class));
+		startActivity(i);
 	}
 	
 	private void getEntryIfAppropriate() {
