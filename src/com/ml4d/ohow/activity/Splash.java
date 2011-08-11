@@ -42,21 +42,21 @@ public class Splash extends Activity {
 	}
 	
     protected void onPause() {
+    	super.onPause();
     	// We run an asynchronous task to time the splash screen. Ensure that we don't leak any resources when leaving the activity.
     	ensureTaskIsStopped();
-    	super.onPause();
     }
 
     protected void onStop() {
+    	super.onStop();
     	// We run an asynchronous task to time the splash screen. Ensure that we don't leak any resources when leaving the activity.
     	ensureTaskIsStopped();
-    	super.onStop();
     }
 
     protected void onDestroy() {
+    	super.onDestroy();
     	// We run an asynchronous task to time the splash screen. Ensure that we don't leak any resources when leaving the activity.
     	ensureTaskIsStopped();
-    	super.onDestroy();
     }
 
 	private void proceedToNextActivity() {
