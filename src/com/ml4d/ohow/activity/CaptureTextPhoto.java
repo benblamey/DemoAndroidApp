@@ -279,7 +279,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			// Show a dialog.
 			AlertDialog noGpsfailedDialog = new AlertDialog.Builder(this).create();
 			noGpsfailedDialog.setTitle(resources.getString(R.string.error_dialog_title));
-			noGpsfailedDialog.setMessage(resources.getString(R.string.dialog_error_gps_no_gps));
+			noGpsfailedDialog.setMessage(resources.getString(R.string.error_gps_no_gps));
 			noGpsfailedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
 			noGpsfailedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
 			noGpsfailedDialog.show();
@@ -368,7 +368,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			
 			if (!allowCapture) {
 				// There was no GPS fix or else it was too old.
-				_errorMessage = resources.getString(R.string.dialog_error_gps_no_fix);
+				_errorMessage = resources.getString(R.string.error_gps_no_fix);
 				_state = State.FAILED;
 			} else {
 				// Validate the user data the same as it will be validated by the OHOW API.

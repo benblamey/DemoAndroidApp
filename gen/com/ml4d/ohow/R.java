@@ -110,14 +110,14 @@ public final class R {
         public static final int capture_text_photo_photo_button_toggle_add=0x7f04001a;
         public static final int capture_text_photo_photo_button_toggle_remove=0x7f04001b;
         public static final int comms_error=0x7f040000;
-        public static final int dialog_error_gps_no_fix=0x7f040011;
-        public static final int dialog_error_gps_no_gps=0x7f040012;
         public static final int dialog_error_rotate_when_busy=0x7f04000f;
         public static final int dialog_error_task_canceled=0x7f040010;
         public static final int dialog_unfriendly_error_prefix=0x7f04000e;
         /**  General dialog strings 
          */
         public static final int error_dialog_title=0x7f04000d;
+        public static final int error_gps_no_fix=0x7f040011;
+        public static final int error_gps_no_gps=0x7f040012;
         public static final int error_ohow_garbage_response=0x7f040001;
         /**  getExternalStorageState() returns MEDIA_BAD_REMOVAL if the media was removed before it was unmounted. 
          */

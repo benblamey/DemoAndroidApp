@@ -315,7 +315,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 			// If the user has disabled GPS - tell them to turn it back on.
 			location = "";
 			details = "";
-			body = resources.getString(R.string.dialog_error_gps_no_gps);
+			body = resources.getString(R.string.error_gps_no_gps);
 		}
 		else if (null != _entry) {
 			// Otherwise, if we have an entry, we show it. We do this even if we failed to get a new entry.
@@ -348,7 +348,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 					body = resources.getString(R.string.home_no_history_here);
 					break;
 				case WAITING_FOR_FIRST_GPS_UPDATE:
-					body = resources.getString(R.string.dialog_error_gps_no_fix);
+					body = resources.getString(R.string.error_gps_no_fix);
 					break;
 				case WAITING_FOR_API:
 					body = resources.getString(R.string.general_waiting);
