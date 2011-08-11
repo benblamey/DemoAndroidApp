@@ -1,4 +1,4 @@
-package com.ml4d.ohow;
+package com.ml4d.ohow.activity;
 
 import android.test.ActivityInstrumentationTestCase2;
 
@@ -9,13 +9,13 @@ import android.test.ActivityInstrumentationTestCase2;
  * <p/>
  * To run this test, you can type:
  * adb shell am instrument -w \
- * -e class com.ml4d.ohow.SignInTest \
+ * -e class com.ml4d.ohow.activity.SplashTest \
  * com.ml4d.ohow.tests/android.test.InstrumentationTestRunner
  */
-public class SignInTest extends ActivityInstrumentationTestCase2<SignIn> {
+public class SplashTest extends ActivityInstrumentationTestCase2<Splash> {
 
-    public SignInTest() {
-        super("com.ml4d.ohow", SignIn.class);
+    public SplashTest() {
+        super("com.ml4d.ohow", Splash.class);
     }
 
 }
