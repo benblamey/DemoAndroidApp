@@ -321,6 +321,11 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 			// Otherwise, if we have an entry, we show it. We do this even if we failed to get a new entry.
 
 			location = _entry.getLocationName();
+			if ((null == location) || (0 == location.length())) {
+				location = Double.toString(_entry.getLongitude()) + ", " + 
+					Double.toString(_entry.getLatitude());
+			}
+
 			// Not that the 'default' locale means the 'local culture'.
 			body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), _entry.getBody()); 
 			
