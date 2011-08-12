@@ -9,6 +9,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ml4d.core.JSONHelper;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.ohow.exceptions.*;
 
@@ -61,7 +62,8 @@ public class OHOWAPIResponseHandler {
 			try {
 				responseJson = new JSONObject(content);
 				exceptionCode = responseJson.getInt("exception_code");
-				errorMessage = responseJson.getString("error_message");
+				// There are some issues with JSONObject.GetString() - we use our helper instead.
+				errorMessage = JSONHelper.getStringOrNull(responseJson, "error_message");
 				result = responseJson.get("result");
 			} catch (JSONException e) {
 				String friendlyErrorMessage = response.getStatusLine().getReasonPhrase();

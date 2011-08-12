@@ -12,6 +12,8 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ml4d.core.JSONHelper;
+
 /**
  * An OHOW Entry, as received from the OHOW API.
  */
@@ -59,23 +61,24 @@ public class Entry implements Serializable {
      * @throws JSONException
      */
 	public Entry(JSONObject json) throws JSONException {
+
+		// There are some issues with JSONObject.GetString() - we use our helper instead.
 		_id = json.getInt("id");
-		_username = json.getString("username");
+		_username =  JSONHelper.getStringOrNull(json, "username");
 		_latitude = json.getDouble("latitude");
 		_longitude = json.getDouble("longitude");
-		_locationName = json.getString("location_name");
-		_body = json.getString("body");
+		_locationName = JSONHelper.getStringOrNull(json, "location_name"); 
+		_body = JSONHelper.getStringOrNull(json, "body");
 
-		
-		String dateCreatedUTCString = json.getString("date_created_utc");
+		String dateCreatedUTCString = JSONHelper.getStringOrNull(json, "date_created_utc");
 	    try {
 			_dateCreatedUTC = (Date)_dateFormatterUTC.parse(dateCreatedUTCString);
 		} catch (ParseException e) {
-			throw new JSONException("Could not parse date: " + json.getString(dateCreatedUTCString));
+			throw new JSONException("Could not parse date: " + dateCreatedUTCString);
 		}
 		
-		_googleLocationRetrievalRef = json.getString("google_location_retrieval_ref");
-		_googleLocationStableRef = json.getString("google_location_stable_ref");
+		_googleLocationRetrievalRef = JSONHelper.getStringOrNull(json, "google_location_retrieval_ref");
+		_googleLocationStableRef = JSONHelper.getStringOrNull(json, "google_location_stable_ref");
 	}
 	
 	public int getId() {

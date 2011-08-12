@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ml4d.core.JSONHelper;
 import com.ml4d.ohow.exceptions.*;
 
 import android.content.res.Resources;
@@ -94,7 +95,8 @@ public class GooglePlacesAPI {
 				
 				// These accessors throw a JSONException if the particular JSON property doesn't exist.
 				responseJson = new JSONObject(content);
-				status = responseJson.getString("status");
+				// There are some issues with JSONObject.GetString() - we use our helper instead.
+				status = JSONHelper.getStringOrNull(responseJson, "status");
 				result = responseJson.getJSONArray("results"); 
 				
 				if (GOOGLE_API_STATUS_ZERO_RESULTS.equals(status)) {

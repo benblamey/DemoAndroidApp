@@ -7,6 +7,8 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ml4d.core.JSONHelper;
+
 import junit.framework.TestCase;
 
 public class EntryTest extends TestCase {
@@ -24,7 +26,6 @@ public class EntryTest extends TestCase {
 		+ "         \"google_location_stable_ref\":\"1cad10ae13131df22bf54d493e2538461793549c\","
 		+ "         \"has_photo\":true"
 		+ "      }";
-	
 	
 	public void test1() throws JSONException {
 		
@@ -53,6 +54,27 @@ public class EntryTest extends TestCase {
 				entry.getGoogleLocationStableRef());
 		
 		assertEquals(true, entryJson.getBoolean("has_photo"));
+	}
+	
+	private static final String _exampleJson2 = 
+		  "      {"
+		+ "         \"id\":157,"
+		+ "         \"username\":\"benb\","
+		+ "         \"latitude\":51.453956604,"
+		+ "         \"longitude\":-2.59948801994,"
+		+ "         \"location_name\":null,"
+		+ "         \"body\":\"fffjdd\","
+		+ "         \"date_created_utc\":\"2011-08-09 15:17:25\","
+		+ "         \"google_location_retrieval_ref\":\"CnRkAAAA1UOwHJEWG0PuZT7hTTpJKNa0lI2FsuvackvzyFJSfyRNRj0zH8jSAMGBN_cp2dJyDkogdWpgqxMkCfybCnCt6I9gEoJiicZoYNomWFoIEqTAj6DU6Sx_JaPSnBm1VtAArTU1DwXoOTHcNY58Ag9BGRIQvo2uW7A1BdOxmLaz-JwWnhoUc4oRxqRS5GP-eVveQfDaj5Fxods\","
+		+ "         \"google_location_stable_ref\":\"1cad10ae13131df22bf54d493e2538461793549c\","
+		+ "         \"has_photo\":true"
+		+ "      }";
+	
+	public void test2() throws JSONException {
+		JSONObject entryJson = new JSONObject(_exampleJson2);
+		Entry entry = new Entry(entryJson);
+		
+		assertEquals(null, entry.getLocationName());
 	}
 	
 }

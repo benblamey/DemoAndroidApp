@@ -5,6 +5,8 @@ import java.io.Serializable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ml4d.core.JSONHelper;
+
 /**
  * A location (excluding latitude and longitude) for an OHOW capture.
  * 
@@ -30,9 +32,10 @@ public class LocationForCapture implements Serializable {
      * @throws JSONException
      */
 	public LocationForCapture(JSONObject json) throws JSONException {
-		_locationName = json.getString("name");
-		_googleLocationRetrievalRef = json.getString("reference");
-		_googleLocationStableRef = json.getString("id");
+		// There are some issues with JSONObject.GetString() - we use our helper instead.
+		_locationName = JSONHelper.getStringOrNull(json, "name");
+		_googleLocationRetrievalRef = JSONHelper.getStringOrNull(json, "reference");
+		_googleLocationStableRef = JSONHelper.getStringOrNull(json, "id");
 		_isListed = true;
 	}
 	
