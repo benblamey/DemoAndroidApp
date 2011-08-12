@@ -7,8 +7,6 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.ml4d.core.JSONHelper;
-
 import junit.framework.TestCase;
 
 public class EntryTest extends TestCase {

@@ -16,6 +16,7 @@ public class OfficialBuild {
 	
 	private static OfficialBuild _instance;
 	private boolean _isOfficialBuild;
+	private boolean _isLiveOfficialBuild;
 
 	/**
 	 * Class is single instance, we do not allow direct instantiation.
@@ -32,9 +33,8 @@ public class OfficialBuild {
 		
 		String versionName = packageInfo.versionName;
 		
-		boolean matchesVersionNameForOfficialBuild = Pattern.matches(("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+ .*"), versionName);
-		
-		_isOfficialBuild = matchesVersionNameForOfficialBuild;
+		_isOfficialBuild = Pattern.matches(("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+.*"), versionName);
+		_isLiveOfficialBuild = Pattern.matches(("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+ (Live)"), versionName);
 	}
 
 	/**
@@ -71,5 +71,16 @@ public class OfficialBuild {
 	 */
 	public boolean isOfficialBuild() {
 		return _isOfficialBuild;
+	}
+	
+	/**
+	 * Get whether the LIVE OHOW server API should be used.
+	 * 
+	 * 'LIVE' official builds use the 'LIVE' Server API. Other official builds use the 'DEV' Server API.
+	 * @param activity
+	 * @return whether this is an official/server build.
+	 */
+	public boolean useLiveOHOWApi() {
+		return _isLiveOfficialBuild;
 	}
 }

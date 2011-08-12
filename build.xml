@@ -47,29 +47,29 @@
     <target name="-pre-build" depends="ml4d-updatemanifest">
     </target>
 	
-	<!-- The 'if' says to only execute the target if the TeamCity build number property has been set.
-		 Note that this is a one-way change. It is assumed that the target is only executed on the build server, in which case
-		 the source will be cleaned before the next build.
+	<!-- We update the manifest file to include the official build number (if there is one) 
+		 and the build tag. Developers should not set the build number themselves,
+		 only the build server does this.
 	-->
-	<target name="ml4d-updatemanifest" depends="-ml4d-updatemanifest-debug, -ml4d-updatemanifest-release" if="build.number">
-
+	<target name="ml4d-updatemanifest" depends="-ml4d-updatemanifest-developer, -ml4d-updatemanifest-official">
+	    <!-- Retrieve the full version name from the manifest XML -->
+        <xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
+               output="ml4d-packageversion"/>
+    </target>
+    
+    <target name="-ml4d-updatemanifest-official" if="build.number">
+		<replaceregexp file="${basedir}/AndroidManifest.xml"
+               match="android:versionName=&quot;([0-9]+)\.([0-9]+)\.([0-9]+)\.[^&quot;]*&quot;"
+               replace="android:versionName=&quot;\1\.\2\.\3\.${build.number} (${ml4d.build.tag})&quot;"
+               byline="true"/>	
+	</target>
+	
+	<target name="-ml4d-updatemanifest-developer"  >
 		<!-- Update the manifest XML file to include the build number. -->
 		<replaceregexp file="${basedir}/AndroidManifest.xml"
                match="android:versionName=&quot;([0-9]+)\.([0-9]+)\.([0-9]+)\.[^&quot;]*&quot;"
-               replace="android:versionName=&quot;\1\.\2\.\3\.${build.number} (${ml4d-updatemanifest-build-quality})&quot;"
+               replace="android:versionName=&quot;\1\.\2\.\3\.\[UNOFFICIAL BUILD - DO NOT USE\]&quot;"
                byline="true"/>
-
-        <!-- Retrieve the full version name from the manifest XML -->
-        <xpath input="AndroidManifest.xml" expression="/manifest/@android:versionName"
-               output="ml4d-packageversion"/>
-	</target>
-
-	<target name="-ml4d-updatemanifest-debug" if="build.mode.debug">
-		<property name="ml4d-updatemanifest-build-quality" value="Debug" />
-	</target>
-
-	<target name="-ml4d-updatemanifest-release" if="build.mode.release">
-		<property name="ml4d-updatemanifest-build-quality" value="Release" />
 	</target>
 	
 <!--
