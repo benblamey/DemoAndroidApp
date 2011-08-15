@@ -13,8 +13,10 @@ import com.ml4d.core.JSONHelper;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.ohow.exceptions.*;
 
+import android.app.Activity;
 import android.content.res.Resources;
 import android.content.res.Resources.NotFoundException;
+import android.provider.Settings.Secure;
 import android.util.Log;
 
 /*
@@ -120,6 +122,36 @@ public class OHOWAPIResponseHandler {
 		}
 
 		return friendlyMessage;
+	}
+	
+	public static String getBaseUrl(Activity activity, boolean secure) {
+		
+		String baseUrl;
+		OfficialBuild officialBuild = OfficialBuild.getInstance(activity);
+		String foo = "cpanel02.lhc.uk.networkeq.net/~soberfun/";
+		
+		if (officialBuild.useLiveOHOWApi()) {
+			baseUrl = foo + "live_v1/"; 
+		} else if (officialBuild.isOfficialBuild()) {
+			// All official builds that do not use the live server use the main dev server.
+			baseUrl = foo + "dev/";
+		} else {
+			String phoneID = Secure.getString(activity.getContentResolver(), Secure.ANDROID_ID); 
+			if ("20013fc7bad6deee".equals(phoneID)) {
+				// Use Ben's dev server API stream for Ben's phone.
+				baseUrl = foo + "dev_ben/";	
+			} else {
+				baseUrl = foo + "dev/";
+			}
+		}
+		
+		if (secure) {
+			baseUrl = "https://" + baseUrl;
+		} else {
+			baseUrl = "http://" + baseUrl;
+		}
+		
+		return baseUrl;
 	}
 
 }

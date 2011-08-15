@@ -355,7 +355,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 
 			// The HttpClient will verify the certificate is signed by a trusted
 			// source.
-			HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/register.php");
+			HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrl(this, true) + "register.php");
 			post.setHeader("Accept", "application/json");
 
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -394,7 +394,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	}
 
 	private void viewTermsAndConditionsClicked() {
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://cpanel02.lhc.uk.networkeq.net/~soberfun/terms.html"));
+		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(OHOWAPIResponseHandler.getBaseUrl(this, true) + "terms.html"));
 		startActivity(browserIntent);
 	}
 

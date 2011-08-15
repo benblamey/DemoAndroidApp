@@ -335,7 +335,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 
 				// The HttpClient will verify the certificate is signed by a trusted
 				// source.
-				HttpPost post = new HttpPost("https://cpanel02.lhc.uk.networkeq.net/~soberfun/1/capture.php");
+				HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrl(this, true) + "capture.php");
 				post.setHeader("Accept", "application/json");
 
 				// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 

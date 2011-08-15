@@ -45,6 +45,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import android.provider.Settings.Secure;
+
 /*
  * Interactive logic for the sign in activity.
  */
@@ -386,6 +388,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		private String _userAgent;		 
 		private double _longitude;
 		private double _latitude;
+		private HttpGet _get;
 
 		public GetEntryTask(Home parent, double latitude, double longitude) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
@@ -402,24 +405,22 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 				throw new ImprobableCheckedExceptionException(e1);
 			}
 			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
-		}
-
-		@Override
-		protected HttpResponse doInBackground(Void... arg0) {
-			
-			HttpGet get = new HttpGet("http://cpanel02.lhc.uk.networkeq.net/~soberfun/1/entry_location_recent_search.php"
+			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrl(parent, false) + "entry_location_recent_search.php"
 					+ "?" + "latitude=" + Double.toString(_latitude)
 					+ "&" + "longitude=" + Double.toString(_longitude)
 					+ "&" + "max_results=1"
 					+ "&" + "radius_meters=1000");
-			get.setHeader("Accept", "application/json");
-			
+			_get.setHeader("Accept", "application/json");
+		}
+
+		@Override
+		protected HttpResponse doInBackground(Void... arg0) {
 			// This is executed on a background thread.
 			HttpClient client = new DefaultHttpClient();
 			HttpProtocolParams.setUserAgent(client.getParams(), _userAgent);
 			
 			try {
-				return client.execute(get);
+				return client.execute(_get);
 			} catch (ClientProtocolException e) {
 				return null;
 			} catch (IOException e) {
