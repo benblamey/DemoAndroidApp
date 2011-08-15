@@ -10,7 +10,7 @@ Note that deviation from this format will cause the app to throw an exception on
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.ml4d.ohow"
       android:versionCode="1"
-      android:versionName="1.0.0.[UNOFFICIAL BUILD - DO NOT USE]">
+      android:versionName="1.0.1.[UNOFFICIAL BUILD - DO NOT USE]">
     <uses-sdk android:minSdkVersion="7" />
 
 	<!-- The 'android:debuggable' attribute no longer needs to be set, 
