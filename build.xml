@@ -88,7 +88,7 @@
 
 		<!-- Create a directory to hold the output file -->
 		<ftp action="mkdir"
-			server="89.145.116.4"
+			server="soberfun.co.uk"
 			port="21"
 			userid="${ml4d.ohow.ftp.username}"
 			password="${ml4d.ohow.ftp.password}"
@@ -98,7 +98,7 @@
 	
 		<!-- Upload the output file to the FTP server. -->
 		<ftp 
-			server="89.145.116.4"
+			server="soberfun.co.uk"
 			port="21"
 			remotedir="/ei95hc83hs84hfgh59wj2iaoclr496uhshx/android/${ml4d-packageversion}"
 			userid="${ml4d.ohow.ftp.username}"
