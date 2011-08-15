@@ -1,10 +1,12 @@
 package com.ml4d.ohow.activity;
 
 import java.io.*;
+import java.util.UUID;
 
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.APIConstants;
+import com.ml4d.ohow.CapturedMoments;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.ExternalStorageUtilities;
 import com.ml4d.ohow.OfficialBuild;
@@ -43,7 +45,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_ENTRY, FAILED, FAILED_INVALID_CREDENTIALS, FAILED_NO_GPS_SERVICE
+		DATA_ENTRY, FAILED_ALLOW_ACK, FAILED_ALREADY_CAPTURED, FAILED_INVALID_CREDENTIALS, FAILED_NO_GPS_SERVICE
 	}
 
 	/**
@@ -55,6 +57,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	private Location _location;
 	private boolean _gettingLocationUpdates;
 	private File _photoFile;
+	private String _captureUniqueId;
 	
 	private static final String _jpegExtensionWithoutDot = "jpg";
 	
@@ -98,6 +101,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
 			_photoFile = (File)savedInstanceState.getSerializable("_photoFile");
+			_captureUniqueId = savedInstanceState.getString("_captureUniqueId");
 			
 			if (State.FAILED_INVALID_CREDENTIALS == _state) {
 				// When the credentials are invalid, we immediately redirect to the sign in page.
@@ -126,6 +130,8 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 
 		} else {
 			_state = State.DATA_ENTRY;
+			// This is a new moment - generate a new unique ID to associate with it.
+			_captureUniqueId = UUID.randomUUID().toString();
 		}
 
 		showState();
@@ -223,6 +229,10 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	 */
 	private void showState() {
 
+		if (CapturedMoments.getInstance(this).hasMomentBeenCapturedRecently(_captureUniqueId)) {
+			_state = State.FAILED_ALREADY_CAPTURED;
+		}
+		
 		// If a dialog is being displayed, remove it.
 		if (_dialog != null) {
 			_dialog.dismiss();
@@ -248,7 +258,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 		case DATA_ENTRY:
 			// Nothing to do.
 			break;
-		case FAILED:
+		case FAILED_ALLOW_ACK:
 			// Show a 'failed' dialog.
 			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
 			failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
@@ -257,6 +267,19 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			failedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
 			failedDialog.show();
 			_dialog = failedDialog;
+			break;
+		case FAILED_ALREADY_CAPTURED:
+			// The user has navigated back in history - we need to prevent them re-capturing the moment.
+			// We can't show a dialog, because we would need to make it non-cancellable,
+			// and that prevents the user from navigating any further back using the back button.
+			// Neither do we re-direct to a different activity, because this prevents the user accessing previous items in the history stack.
+			// Instead, we disable all the controls on the page and show some toast.
+			findViewById(R.id.capture_text_photo_edittext_body).setEnabled(false);
+			findViewById(R.id.capture_text_photo_button_capture).setEnabled(false);
+			findViewById(R.id.capture_text_photo_button_toggle_photo).setEnabled(false);
+			
+			Toast alreadyCapturedToast = Toast.makeText(this, resources.getString(R.string.capture_already_captured), Toast.LENGTH_LONG);
+			alreadyCapturedToast.show();
 			break;
 		case FAILED_INVALID_CREDENTIALS:
 			
@@ -333,6 +356,11 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	}
 	
 	private void captureButtonClicked() {
+		
+		if (CapturedMoments.getInstance(this).hasMomentBeenCapturedRecently(_captureUniqueId)) {
+			throw new IllegalStateException("This entry has already been captured.");
+		}
+		
 		Resources resources = getResources();
 
 		CredentialStore store = CredentialStore.getInstance(this);
@@ -371,7 +399,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			if (!allowCapture) {
 				// There was no GPS fix or else it was too old.
 				_errorMessage = resources.getString(R.string.error_gps_no_fix);
-				_state = State.FAILED;
+				_state = State.FAILED_ALLOW_ACK;
 			} else {
 				// Validate the user data the same as it will be validated by the OHOW API.
 				String body = ((TextView) findViewById(R.id.capture_text_photo_edittext_body)).getText().toString();
@@ -398,6 +426,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 					pickLocationIntent.putExtra("longitude", longitude);
 					pickLocationIntent.putExtra("latitude", latitude);
 					pickLocationIntent.putExtra("fixAccuracyMeters", fixAccuracyMeters);
+					pickLocationIntent.putExtra("captureUniqueID", _captureUniqueId);
 					if (null != _photoFile) {
 						pickLocationIntent.putExtra("photoFile", _photoFile);
 					}
@@ -425,7 +454,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		switch (_state) {
-		case FAILED:
+		case FAILED_ALLOW_ACK:
 			// Something was wrong, go back to data-entry to let the user try again.
 			_errorMessage = "";
 			_state = State.DATA_ENTRY;
@@ -437,7 +466,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			_state = State.DATA_ENTRY;
 			startActivity(new Intent(this, Home.class));
 			break;
-		/*case SUCCESS:*/
+		case FAILED_ALREADY_CAPTURED:
 		case DATA_ENTRY:
 		case FAILED_INVALID_CREDENTIALS:
 			throw new IllegalStateException();
@@ -486,7 +515,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			    cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(_photoFile));
 			    startActivityForResult(cameraIntent, _takePhotoIntentUId);
 			} catch (IOException e) {
-				_state = State.FAILED;
+				_state = State.FAILED_ALLOW_ACK;
 				_errorMessage = e.getLocalizedMessage();
 			}
 		}

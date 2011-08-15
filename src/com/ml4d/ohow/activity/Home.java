@@ -45,8 +45,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import android.provider.Settings.Secure;
-
 /*
  * Interactive logic for the sign in activity.
  */

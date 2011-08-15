@@ -84,6 +84,7 @@ public final class R {
 		gets truncated when the app is shown in the matrix of available apps. 
          */
         public static final int app_name=0x7f04000b;
+        public static final int capture_already_captured=0x7f040025;
         /**  Strings used by the 'capturelocation' activity (it is this activity that actually does the capture API call. 
          */
         public static final int capture_location_activity_label=0x7f04001c;
@@ -121,100 +122,100 @@ public final class R {
         public static final int error_ohow_garbage_response=0x7f040001;
         /**  getExternalStorageState() returns MEDIA_BAD_REMOVAL if the media was removed before it was unmounted. 
          */
-        public static final int external_storage_MEDIA_BAD_REMOVAL=0x7f040025;
+        public static final int external_storage_MEDIA_BAD_REMOVAL=0x7f040026;
         /**  getExternalStorageState() returns MEDIA_CHECKING if the media is present and being disk-checked 
          */
-        public static final int external_storage_MEDIA_CHECKING=0x7f040026;
+        public static final int external_storage_MEDIA_CHECKING=0x7f040027;
         /**  getExternalStorageState() returns MEDIA_MOUNTED_READ_ONLY if the media is present and mounted at its mount point with read only access. 
          */
-        public static final int external_storage_MEDIA_MOUNTED_READ_ONLY=0x7f040027;
+        public static final int external_storage_MEDIA_MOUNTED_READ_ONLY=0x7f040028;
         /**   getExternalStorageState() returns MEDIA_NOFS if the media is present but is blank or is using an unsupported filesystem. 
          */
-        public static final int external_storage_MEDIA_NOFS=0x7f040028;
+        public static final int external_storage_MEDIA_NOFS=0x7f040029;
         /**   getExternalStorageState() returns MEDIA_REMOVED if the media is not present. 
          */
-        public static final int external_storage_MEDIA_REMOVED=0x7f040029;
+        public static final int external_storage_MEDIA_REMOVED=0x7f04002a;
         /**   getExternalStorageState() returns MEDIA_SHARED if the media is present not mounted, and shared via USB mass storage. 
          */
-        public static final int external_storage_MEDIA_SHARED=0x7f04002a;
+        public static final int external_storage_MEDIA_SHARED=0x7f04002b;
         /**  getExternalStorageState() returns MEDIA_UNMOUNTABLE if the media is present but cannot be mounted. 
          */
-        public static final int external_storage_MEDIA_UNMOUNTABLE=0x7f04002b;
+        public static final int external_storage_MEDIA_UNMOUNTABLE=0x7f04002c;
         /**  getExternalStorageState() returns MEDIA_UNMOUNTED if the media is present but not mounted. 
          */
-        public static final int external_storage_MEDIA_UNMOUNTED=0x7f04002c;
+        public static final int external_storage_MEDIA_UNMOUNTED=0x7f04002d;
         /**  If getExternalStorageState() returns an unknown string, use this error message.
          */
-        public static final int external_storage_UNKNOWN_STATE=0x7f04002d;
+        public static final int external_storage_UNKNOWN_STATE=0x7f04002e;
         public static final int general_waiting=0x7f040013;
-        public static final int home_activity_label=0x7f04002e;
+        public static final int home_activity_label=0x7f04002f;
         /**  Format strings for displaying an entry. 
  Parameter #1 is the entry body. 
          */
-        public static final int home_body_format=0x7f040033;
-        public static final int home_capture_label=0x7f04002f;
+        public static final int home_body_format=0x7f040034;
+        public static final int home_capture_label=0x7f040030;
         /**  Parameter #1 is the author username, #2 is a date/time in local format & timezone. 
          */
-        public static final int home_detail_format=0x7f040034;
-        public static final int home_no_history_here=0x7f040031;
-        public static final int home_recent_activity_label=0x7f040032;
-        public static final int home_sign_out_label=0x7f040030;
-        public static final int menu_item_slide_show=0x7f040035;
+        public static final int home_detail_format=0x7f040035;
+        public static final int home_no_history_here=0x7f040032;
+        public static final int home_recent_activity_label=0x7f040033;
+        public static final int home_sign_out_label=0x7f040031;
+        public static final int menu_item_slide_show=0x7f040036;
         public static final int ok_button_label=0x7f04000c;
-        public static final int register_activity_label=0x7f040036;
-        public static final int register_button_label=0x7f04003d;
-        public static final int register_checkbox_terms_label=0x7f04003c;
-        public static final int register_error_dialog_title=0x7f04004c;
-        public static final int register_first_name_too_long=0x7f040041;
+        public static final int register_activity_label=0x7f040037;
+        public static final int register_button_label=0x7f04003e;
+        public static final int register_checkbox_terms_label=0x7f04003d;
+        public static final int register_error_dialog_title=0x7f04004d;
+        public static final int register_first_name_too_long=0x7f040042;
         /**  Messages regarding invalid registration fields 
          */
-        public static final int register_first_name_too_short=0x7f040040;
-        public static final int register_hint_email=0x7f040039;
+        public static final int register_first_name_too_short=0x7f040041;
+        public static final int register_hint_email=0x7f04003a;
         /**  Hint text for the various fields 
          */
-        public static final int register_hint_first_name=0x7f040037;
-        public static final int register_hint_last_name=0x7f040038;
-        public static final int register_hint_password=0x7f04003b;
-        public static final int register_hint_username=0x7f04003a;
-        public static final int register_invalid_email_address=0x7f040044;
-        public static final int register_invalid_password=0x7f040046;
-        public static final int register_invalid_username=0x7f040045;
-        public static final int register_last_name_too_long=0x7f040043;
-        public static final int register_last_name_too_short=0x7f040042;
-        public static final int register_must_accept_terms=0x7f040047;
-        public static final int register_success_dialog_body=0x7f04004b;
-        public static final int register_success_dialog_title=0x7f04004a;
-        public static final int register_view_terms_and_conditions_button_label=0x7f04003e;
-        public static final int register_view_terms_and_conditions_button_label_land=0x7f04003f;
-        public static final int register_waiting_dialog_body=0x7f040049;
+        public static final int register_hint_first_name=0x7f040038;
+        public static final int register_hint_last_name=0x7f040039;
+        public static final int register_hint_password=0x7f04003c;
+        public static final int register_hint_username=0x7f04003b;
+        public static final int register_invalid_email_address=0x7f040045;
+        public static final int register_invalid_password=0x7f040047;
+        public static final int register_invalid_username=0x7f040046;
+        public static final int register_last_name_too_long=0x7f040044;
+        public static final int register_last_name_too_short=0x7f040043;
+        public static final int register_must_accept_terms=0x7f040048;
+        public static final int register_success_dialog_body=0x7f04004c;
+        public static final int register_success_dialog_title=0x7f04004b;
+        public static final int register_view_terms_and_conditions_button_label=0x7f04003f;
+        public static final int register_view_terms_and_conditions_button_label_land=0x7f040040;
+        public static final int register_waiting_dialog_body=0x7f04004a;
         /**  Dialog messages 
          */
-        public static final int register_waiting_dialog_title=0x7f040048;
-        public static final int sign_in_activity_label=0x7f04004d;
-        public static final int sign_in_hint_password=0x7f040052;
+        public static final int register_waiting_dialog_title=0x7f040049;
+        public static final int sign_in_activity_label=0x7f04004e;
+        public static final int sign_in_hint_password=0x7f040053;
         /**  The hints for the text fields 
          */
-        public static final int sign_in_hint_username=0x7f040051;
-        public static final int sign_in_invalid_password=0x7f040054;
+        public static final int sign_in_hint_username=0x7f040052;
+        public static final int sign_in_invalid_password=0x7f040055;
         /**  Messages regarding invalid registration fields 
          */
-        public static final int sign_in_invalid_username=0x7f040053;
-        public static final int sign_in_redirected_because_credentials_invalid=0x7f040057;
+        public static final int sign_in_invalid_username=0x7f040054;
+        public static final int sign_in_redirected_because_credentials_invalid=0x7f040058;
         /**  The label for the buttons 
          */
-        public static final int sign_in_register_label=0x7f04004f;
-        public static final int sign_in_sign_in_label=0x7f040050;
-        public static final int sign_in_waiting_dialog_body=0x7f040056;
+        public static final int sign_in_register_label=0x7f040050;
+        public static final int sign_in_sign_in_label=0x7f040051;
+        public static final int sign_in_waiting_dialog_body=0x7f040057;
         /**  Dialog messages 
          */
-        public static final int sign_in_waiting_dialog_title=0x7f040055;
+        public static final int sign_in_waiting_dialog_title=0x7f040056;
         /**  The welcome text 
          */
-        public static final int sign_in_welcome=0x7f04004e;
-        public static final int slide_show_activity_label=0x7f040058;
-        public static final int slide_show_instructions=0x7f040059;
-        public static final int splash_activity_label=0x7f04005a;
-        public static final int splash_text=0x7f04005b;
+        public static final int sign_in_welcome=0x7f04004f;
+        public static final int slide_show_activity_label=0x7f040059;
+        public static final int slide_show_instructions=0x7f04005a;
+        public static final int splash_activity_label=0x7f04005b;
+        public static final int splash_text=0x7f04005c;
         public static final int unfriendly_error_prefix=0x7f040014;
     }
 }

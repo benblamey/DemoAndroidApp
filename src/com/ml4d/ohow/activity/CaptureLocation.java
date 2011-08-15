@@ -22,6 +22,7 @@ import org.apache.http.params.HttpProtocolParams;
 import com.ml4d.core.Charset2;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
+import com.ml4d.ohow.CapturedMoments;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.GooglePlacesAPI;
@@ -68,7 +69,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		WAITING_FOR_PLACES, DATA_ENTRY, WAITING_FOR_CAPTURE, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS
+		WAITING_FOR_PLACES, DATA_ENTRY, WAITING_FOR_CAPTURE, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS 
 	}
 
 	/**
@@ -85,6 +86,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 	private double _fixAccuracyMeters;
 	private File _photoFile;
 	private ArrayList<LocationForCapture> _locations;
+	private String _captureUniqueID;
 
 	
 	/** Called when the activity is first created. */
@@ -126,6 +128,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			_longitude = savedInstanceState.getDouble("_longitude");
 			_fixAccuracyMeters = savedInstanceState.getDouble("_fixAccuracyMeters");
 			_photoFile = (File)(savedInstanceState.getSerializable("_photoFile"));
+			_captureUniqueID = savedInstanceState.getString("captureUniqueID");
 
 		} else {
 			// The activity is being started.
@@ -142,6 +145,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			_longitude = startingIntent.getDoubleExtra("longitude", 9999); // The default value will eventually be rejected by the API if it is used.
 			_photoFile = (File)startingIntent.getSerializableExtra("photoFile");
 			_fixAccuracyMeters = startingIntent.getDoubleExtra("fixAccuracyMeters", -1);
+			_captureUniqueID = startingIntent.getStringExtra("captureUniqueID");
 			
 			// Start the Async task to retrieve the list of places.
 			_state = State.WAITING_FOR_PLACES;
@@ -316,6 +320,13 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 	
 	private void captureButtonClicked(LocationForCapture location) {
 		
+		// The 'CaptureLocation' activity is marked in the manifest XML as not appearing
+		// in history. Therefore, we should never arrive at this activity for a moment
+		// that has already been captured.
+		if (CapturedMoments.getInstance(this).hasMomentBeenCapturedRecently(_captureUniqueID)) {
+			throw new IllegalStateException("This entry has already been captured.");
+		}
+		
 		if (null == location) {
 			throw new IllegalArgumentException("location cannot be null.");
 		}
@@ -449,6 +460,9 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 
 					// To complete without error is a success.
 					parent._state = State.SUCCESS;
+					// We want to record the fact that this moment has been captured -
+					// This means we can prevent the user from capturing it again by going back through the activity history.
+					CapturedMoments.getInstance(parent).momentHasBeenCaptured(parent._captureUniqueID);
 					
 				} catch (ApiViaHttpException e) {
 					parent._state = State.FAILED;
