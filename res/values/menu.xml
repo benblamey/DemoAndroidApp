@@ -4,5 +4,6 @@
 <resources>
 
 	<string name="menu_item_slide_show">Introduction to OHOW</string>
+	<string name="menu_item_local_timeline">Local Timeline</string>
   
 </resources>

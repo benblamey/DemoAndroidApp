@@ -230,6 +230,9 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	    case R.id.menu_item_slideshow:
 	    	showSlideShow();
 	        return true;
+	    case R.id.menu_item_local_timeline:
+	    	showLocalTimeline();
+	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
@@ -240,6 +243,14 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		// When the slide show is finished, come back to this activity.
 		i.putExtra(SlideShow.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, Home.class));
 		startActivity(i);
+	}
+	
+	private void showLocalTimeline() {
+		Intent i = new Intent(this, LocalTimeline.class);
+		i.putExtra(LocalTimeline.EXTRA_LATITUDE, this._gpsLocation.getLatitude());
+		i.putExtra(LocalTimeline.EXTRA_LONGITUDE, this._gpsLocation.getLongitude());
+		
+		startActivity(i);		
 	}
 	
 	private void getEntryIfAppropriate() {

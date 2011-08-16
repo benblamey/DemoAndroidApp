@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Strings for the 'local_timeline' activity. -->
+<resources>
+    <string name="local_timeline_activity_label">Local Timeline</string>
+</resources>
