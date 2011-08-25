@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.ml4d.ohow;
 
 import java.text.DateFormat;
