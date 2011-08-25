@@ -23,6 +23,7 @@ import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.Entry;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
+import com.ml4d.ohow.OfficialBuild;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
 import com.ml4d.ohow.exceptions.NoResponseAPIException;
@@ -44,6 +45,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /*
  * Interactive logic for the sign in activity.
@@ -246,11 +248,31 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	}
 	
 	private void showLocalTimeline() {
-		Intent i = new Intent(this, LocalTimeline.class);
-		i.putExtra(LocalTimeline.EXTRA_LATITUDE, this._gpsLocation.getLatitude());
-		i.putExtra(LocalTimeline.EXTRA_LONGITUDE, this._gpsLocation.getLongitude());
+		double longitude = 999;
+		double latitude = 999;
+		boolean startActivity;
 		
-		startActivity(i);		
+		if (null != _gpsLocation) {
+			longitude = _gpsLocation.getLatitude();
+			longitude = _gpsLocation.getLongitude();
+			startActivity = true;
+		} else if (!OfficialBuild.getInstance(this).isOfficialBuild()) {
+			// This is an unofficial (i.e. developer) build. Provide some dummy co-ordinates.
+			longitude = -2.599488; // (Coordinates of Bristol Office.)
+			latitude = 51.453956;
+			Log.d("OHOW", "NO suitable fix - using dummy GPS coordinates instead (this feature is only enabled on developer builds).");
+			startActivity = true;
+		} else {
+			Toast.makeText(this, this.getResources().getString(R.string.error_gps_no_fix), Toast.LENGTH_SHORT);
+			startActivity = false;
+		}
+		
+		if (startActivity) {
+			Intent i = new Intent(this, LocalTimeline.class);
+			i.putExtra(LocalTimeline.EXTRA_LATITUDE, longitude);
+			i.putExtra(LocalTimeline.EXTRA_LONGITUDE, latitude);
+			startActivity(i);	
+		}
 	}
 	
 	private void getEntryIfAppropriate() {
