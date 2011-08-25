@@ -124,7 +124,7 @@ public class OHOWAPIResponseHandler {
 		return friendlyMessage;
 	}
 	
-	public static String getBaseUrl(Activity activity, boolean secure) {
+	public static String getBaseUrlIncludingTrailingSlash(Activity activity, boolean secure) {
 		
 		String baseUrl;
 		OfficialBuild officialBuild = OfficialBuild.getInstance(activity);
