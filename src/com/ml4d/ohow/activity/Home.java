@@ -269,8 +269,8 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		
 		if (startActivity) {
 			Intent i = new Intent(this, LocalTimeline.class);
-			i.putExtra(LocalTimeline.EXTRA_LATITUDE, longitude);
-			i.putExtra(LocalTimeline.EXTRA_LONGITUDE, latitude);
+			i.putExtra(LocalTimeline.EXTRA_LATITUDE, latitude);
+			i.putExtra(LocalTimeline.EXTRA_LONGITUDE, longitude);
 			startActivity(i);	
 		}
 	}
