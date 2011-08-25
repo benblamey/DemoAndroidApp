@@ -161,11 +161,12 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 			ListAdapter locationAdapter = new EntryArrayAdapter(this, 
 				R.layout.local_timeline_item, 
 				_entries.toArray(new Entry[_entries.size()]));
+			
 			setListAdapter(locationAdapter);
 		} else if (State.WAITING_FOR_API == _state) { 
 			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.register_waiting_dialog_title),
-					resources.getString(R.string.register_waiting_dialog_body), true, // Indeterminate.
+			_dialog = ProgressDialog.show(this, resources.getString(R.string.local_timeline_activity_label),
+					resources.getString(R.string.general_waiting), true, // Indeterminate.
 					false); // Not cancellable.
 		} else {
 			String messsage;
@@ -196,7 +197,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 			
 			// Show a 'failed' dialog.
 			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
-			failedDialog.setTitle(resources.getString(R.string.register_error_dialog_title));
+			failedDialog.setTitle(resources.getString(R.string.local_timeline_activity_label));
 			failedDialog.setMessage(messsage);
 			failedDialog.show();
 			_dialog = failedDialog;
