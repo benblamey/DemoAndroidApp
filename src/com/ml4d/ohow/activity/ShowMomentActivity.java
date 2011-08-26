@@ -285,7 +285,7 @@ public class ShowMomentActivity extends Activity {
 				throw new ImprobableCheckedExceptionException(e1);
 			}
 			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "show_moment.php"
+			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "show_moment.php"
 					+ "?" + "id=" + Double.toString(_momentId));
 			_get.setHeader("Accept", "application/json");
 		}
@@ -379,7 +379,7 @@ public class ShowMomentActivity extends Activity {
 				throw new ImprobableCheckedExceptionException(e1);
 			}
 			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "photo.php"
+			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" + "id=" + Double.toString(_momentId));
 			// We need to accept any kind of image, or JSON - so for simplicity just accept anything.
 			_get.setHeader("Accept", "*/*");

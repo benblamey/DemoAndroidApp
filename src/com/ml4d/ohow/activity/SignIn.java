@@ -273,7 +273,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 
 			// The HttpClient will verify the certificate is signed by a trusted
 			// source.
-			HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(this, true) + "check_credentials.php");
+			HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "check_credentials.php");
 			post.setHeader("Accept", "application/json");
 
 			List<NameValuePair> params = new ArrayList<NameValuePair>();

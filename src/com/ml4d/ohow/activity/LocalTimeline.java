@@ -242,7 +242,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 				throw new ImprobableCheckedExceptionException(e);
 			}
 			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "moment_location_recent_search.php"
+			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
 					+ "?" + "latitude=" + Double.toString(_latitude)
 					+ "&" + "longitude=" + Double.toString(_longitude)
 					+ "&" + "max_results=30"
