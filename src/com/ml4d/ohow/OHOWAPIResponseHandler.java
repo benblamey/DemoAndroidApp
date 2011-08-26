@@ -127,7 +127,7 @@ public class OHOWAPIResponseHandler {
 	public static String getBaseUrlIncludingTrailingSlash(Activity activity, boolean secure) {
 		
 		String baseUrl;
-		OfficialBuild officialBuild = OfficialBuild.getInstance(activity);
+		OfficialBuild officialBuild = OfficialBuild.getInstance();
 		String foo = "cpanel02.lhc.uk.networkeq.net/~soberfun/";
 		
 		if (officialBuild.useLiveOHOWApi()) {

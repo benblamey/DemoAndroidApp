@@ -256,7 +256,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 			longitude = _gpsLocation.getLatitude();
 			longitude = _gpsLocation.getLongitude();
 			startActivity = true;
-		} else if (!OfficialBuild.getInstance(this).isOfficialBuild()) {
+		} else if (!OfficialBuild.getInstance().isOfficialBuild()) {
 			// This is an unofficial (i.e. developer) build. Provide some dummy co-ordinates.
 			longitude = -2.599488; // (Coordinates of Bristol Office.)
 			latitude = 51.453956;

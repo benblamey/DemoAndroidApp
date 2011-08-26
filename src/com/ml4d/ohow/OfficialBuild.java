@@ -1,11 +1,7 @@
 package com.ml4d.ohow;
 
 import java.util.regex.Pattern;
-
-import com.ml4d.core.exceptions.CalledFromWrongThreadException;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
-
-import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 
@@ -16,17 +12,17 @@ public class OfficialBuild {
 	
 	private static OfficialBuild _instance;
 	private boolean _isOfficialBuild;
-	private boolean _isLiveOfficialBuild;
+	private boolean _isLiveOfficialBuild; 
 
 	/**
 	 * Class is single instance, we do not allow direct instantiation.
 	 * @param context
 	 */
-	private OfficialBuild(Activity activity) {
+	private OfficialBuild() {
 		
 		PackageInfo packageInfo;
 		try {
-			packageInfo = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0);
+			packageInfo = App.Instance.getPackageManager().getPackageInfo(App.Instance.getPackageName(), 0);
 		} catch (NameNotFoundException e) {
 			throw new ImprobableCheckedExceptionException(e);
 		}
@@ -42,16 +38,11 @@ public class OfficialBuild {
 	 * @param activity 
 	 * @return The single instance of this class.
 	 */
-	public static OfficialBuild getInstance(Activity activity)
+	public synchronized static OfficialBuild getInstance()
 	{
-		// This method may only be called from the main looper thread.
-		if (Thread.currentThread() != activity.getMainLooper().getThread()) {
-			throw new CalledFromWrongThreadException();
-		}
-
 		// We have ensured we are running on the UI thread, so there is no need for locking here. 
 		if (null == _instance) {
-			_instance = new OfficialBuild(activity);
+			_instance = new OfficialBuild();
 		}
 		return _instance;
 	}

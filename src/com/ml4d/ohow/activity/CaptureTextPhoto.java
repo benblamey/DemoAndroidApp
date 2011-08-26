@@ -386,7 +386,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 				allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < _maximumGpsFixAgeMs);
 			}
 			
-			if (!OfficialBuild.getInstance(this).isOfficialBuild() && !allowCapture) {
+			if (!OfficialBuild.getInstance().isOfficialBuild() && !allowCapture) {
 				// This is an unofficial (i.e. developer) build. Provide some dummy co-ordinates and allow the capture to proceed.
 				longitude = -2.599488; // (Coordinates of Bristol Office.)
 				latitude = 51.453956;
