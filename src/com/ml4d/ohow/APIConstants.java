@@ -31,4 +31,7 @@ public class APIConstants
 	public static final String captureBodyFailRegex = "[\\n|\\r]";
 	public static final int captureBodyMinLength = 3;
 	public static final int captureBodyMaxLength = 9999;
+	
+	// Photos.
+	public static final int photoSizeMaxBytes = 5 * 1024 * 1024;
 }

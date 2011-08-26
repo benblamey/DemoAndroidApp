@@ -189,14 +189,12 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 				case API_HAS_NO_MOMENTS:
 					messsage = resources.getString(R.string.home_no_history_here);
 					break;
-				case WAITING_FOR_API:
-					messsage = resources.getString(R.string.general_waiting);
-					break;
 				case FAILED_ROTATE:
 					messsage = resources.getString(R.string.dialog_error_rotate_when_busy);
 					break;
+				case WAITING_FOR_API:
 				case HAVE_MOMENT:
-					throw new RuntimeException("We shouldn't be in the HAVE_MOMENT state if we have no moment (programmer mistake).");
+					throw new RuntimeException("Case has been handled above (programmer mistake).");
 				default:
 					throw new UnexpectedEnumValueException(_state);
 			}

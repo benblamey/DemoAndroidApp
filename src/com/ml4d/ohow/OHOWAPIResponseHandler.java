@@ -102,7 +102,7 @@ public class OHOWAPIResponseHandler {
 			}
 		}
 	}
-
+	
 	private static String getFriendlyErrorDescription(int httpCode, int exceptionCode, Resources resources) {
 		String friendlyMessage = "";
 		String fieldName = "api_error_" + Integer.toString(httpCode) + "_" + Integer.toString(exceptionCode);
