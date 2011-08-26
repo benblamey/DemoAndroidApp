@@ -35,6 +35,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 
 /*
  * Interactive logic for the 'LocalTimeline' activity.
@@ -66,7 +67,12 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
+		
+		ListView listView = getListView();
+		listView.setTextFilterEnabled(false); // We don't support text-filtering for entries.
+		listView.setOnItemClickListener(this);
 		
 		startSignInActivityIfNotSignedIn();
 
@@ -206,7 +212,10 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		// Do nothing.
+		// Show the particular moment.
+		Intent i = new Intent(this, ShowMomentActivity.class);
+		i.putExtra(ShowMomentActivity.EXTRA_ENTRY_ID, _entries.get(position).getId());
+		startActivity(i);
 	}
 	
 	/**

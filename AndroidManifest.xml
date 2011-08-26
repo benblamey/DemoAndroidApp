@@ -62,6 +62,10 @@ Note that deviation from this format will cause the app to throw an exception on
         		  android:label="@string/local_timeline_activity_label">
         </activity>
         
+        <activity android:name=".activity.ShowMomentActivity"
+        		  android:label="@string/entry_activity_label">
+        </activity>
+        
     </application>
     
     <uses-permission android:name="android.permission.INTERNET" />

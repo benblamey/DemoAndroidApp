@@ -2,5 +2,5 @@
 
 <!-- Strings for the 'local_timeline' activity. -->
 <resources>
-    <string name="local_timeline_activity_label">Local Timeline</string>
+    <string name="local_timeline_activity_label">Local History</string>
 </resources>

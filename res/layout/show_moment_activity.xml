@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal">
+
+	<TextView
+		android:id="@+id/show_moment_activity_text_view_capture_location"
+		android:layout_centerHorizontal="true" 
+	    android:layout_height="wrap_content"
+	    android:layout_width="wrap_content"
+	    android:textStyle="bold"
+		android:gravity="center_horizontal"
+		android:textSize="20dip"/>
+		
+	<TextView
+		android:id="@+id/show_moment_activity_text_view_details" 
+	    android:layout_height="wrap_content"
+	    android:layout_width="wrap_content"
+	    android:layout_alignParentBottom="true" 
+		android:layout_alignParentRight="true"
+		android:textSize="20dip"/>
+
+	<!-- Under testing, I couldn't get ellipsis for text trimming. I think this is an Android bug. -->
+	<TextView
+		android:id="@+id/show_moment_activity_activity_text_view_body" 
+	    android:layout_height="wrap_content"
+	    android:layout_width="wrap_content"
+	    android:layout_above="@id/show_moment_activity_text_view_details" 
+	    android:layout_below="@+id/show_moment_activity_text_view_capture_location"
+	    android:gravity="center_horizontal"
+	    android:textSize="20dip"/>
+	
+</RelativeLayout>

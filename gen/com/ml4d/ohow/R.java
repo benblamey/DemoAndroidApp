@@ -32,8 +32,8 @@ public final class R {
         public static final int local_timeline_text_view_body=0x7f06000c;
         public static final int local_timeline_text_view_capture_location=0x7f06000b;
         public static final int local_timeline_text_view_details=0x7f06000d;
-        public static final int menu_item_local_timeline=0x7f06001f;
-        public static final int menu_item_slideshow=0x7f06001e;
+        public static final int menu_item_local_timeline=0x7f060022;
+        public static final int menu_item_slideshow=0x7f060021;
         public static final int register_checkbox_terms=0x7f060013;
         public static final int register_edittext_email=0x7f060010;
         public static final int register_edittext_first_name=0x7f06000e;
@@ -42,14 +42,17 @@ public final class R {
         public static final int register_edittext_username=0x7f060011;
         public static final int register_register_button=0x7f060014;
         public static final int register_view_terms_and_conditions_button=0x7f060015;
-        public static final int sign_in_register_button=0x7f060019;
-        public static final int sign_in_sign_in_button=0x7f060018;
-        public static final int signin_edittext_password=0x7f060017;
-        public static final int signin_edittext_username=0x7f060016;
-        public static final int slide_show_image_view=0x7f06001c;
-        public static final int slide_show_root_view=0x7f06001a;
-        public static final int slide_show_text_view=0x7f06001b;
-        public static final int splash_text_view_version_number=0x7f06001d;
+        public static final int show_moment_activity_activity_text_view_body=0x7f060018;
+        public static final int show_moment_activity_text_view_capture_location=0x7f060016;
+        public static final int show_moment_activity_text_view_details=0x7f060017;
+        public static final int sign_in_register_button=0x7f06001c;
+        public static final int sign_in_sign_in_button=0x7f06001b;
+        public static final int signin_edittext_password=0x7f06001a;
+        public static final int signin_edittext_username=0x7f060019;
+        public static final int slide_show_image_view=0x7f06001f;
+        public static final int slide_show_root_view=0x7f06001d;
+        public static final int slide_show_text_view=0x7f06001e;
+        public static final int splash_text_view_version_number=0x7f060020;
     }
     public static final class layout {
         public static final int capturetextphoto=0x7f030000;
@@ -57,9 +60,10 @@ public final class R {
         public static final int local_timeline_item=0x7f030002;
         public static final int location_item=0x7f030003;
         public static final int register=0x7f030004;
-        public static final int signin=0x7f030005;
-        public static final int slide_show=0x7f030006;
-        public static final int splash=0x7f030007;
+        public static final int show_moment_activity=0x7f030005;
+        public static final int signin=0x7f030006;
+        public static final int slide_show=0x7f030007;
+        public static final int splash=0x7f030008;
     }
     public static final class menu {
         public static final int menu=0x7f050000;
@@ -119,6 +123,7 @@ public final class R {
         public static final int dialog_error_rotate_when_busy=0x7f04000f;
         public static final int dialog_error_task_canceled=0x7f040010;
         public static final int dialog_unfriendly_error_prefix=0x7f04000e;
+        public static final int entry_activity_label=0x7f040050;
         /**  General dialog strings 
          */
         public static final int error_dialog_title=0x7f04000d;
@@ -198,31 +203,31 @@ public final class R {
         /**  Dialog messages 
          */
         public static final int register_waiting_dialog_title=0x7f04004b;
-        public static final int sign_in_activity_label=0x7f040050;
-        public static final int sign_in_hint_password=0x7f040055;
+        public static final int sign_in_activity_label=0x7f040051;
+        public static final int sign_in_hint_password=0x7f040056;
         /**  The hints for the text fields 
          */
-        public static final int sign_in_hint_username=0x7f040054;
-        public static final int sign_in_invalid_password=0x7f040057;
+        public static final int sign_in_hint_username=0x7f040055;
+        public static final int sign_in_invalid_password=0x7f040058;
         /**  Messages regarding invalid registration fields 
          */
-        public static final int sign_in_invalid_username=0x7f040056;
-        public static final int sign_in_redirected_because_credentials_invalid=0x7f04005a;
+        public static final int sign_in_invalid_username=0x7f040057;
+        public static final int sign_in_redirected_because_credentials_invalid=0x7f04005b;
         /**  The label for the buttons 
          */
-        public static final int sign_in_register_label=0x7f040052;
-        public static final int sign_in_sign_in_label=0x7f040053;
-        public static final int sign_in_waiting_dialog_body=0x7f040059;
+        public static final int sign_in_register_label=0x7f040053;
+        public static final int sign_in_sign_in_label=0x7f040054;
+        public static final int sign_in_waiting_dialog_body=0x7f04005a;
         /**  Dialog messages 
          */
-        public static final int sign_in_waiting_dialog_title=0x7f040058;
+        public static final int sign_in_waiting_dialog_title=0x7f040059;
         /**  The welcome text 
          */
-        public static final int sign_in_welcome=0x7f040051;
-        public static final int slide_show_activity_label=0x7f04005b;
-        public static final int slide_show_instructions=0x7f04005c;
-        public static final int splash_activity_label=0x7f04005d;
-        public static final int splash_text=0x7f04005e;
+        public static final int sign_in_welcome=0x7f040052;
+        public static final int slide_show_activity_label=0x7f04005c;
+        public static final int slide_show_instructions=0x7f04005d;
+        public static final int splash_activity_label=0x7f04005e;
+        public static final int splash_text=0x7f04005f;
         public static final int unfriendly_error_prefix=0x7f040014;
     }
 }
