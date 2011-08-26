@@ -486,7 +486,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 					parent._state = State.SUCCESS;
 					
 					// Store the credentials.
-					CredentialStore.getInstance(parent).setKnownGoodDetails(_username, _password);
+					CredentialStore.getInstance().setKnownGoodDetails(_username, _password);
 					
 				} catch (ApiViaHttpException e) {
 					parent._state = State.FAILED;

@@ -138,7 +138,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	}
 
 	private void startSignInActivityIfNotSignedIn() {
-		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
 		}
@@ -288,7 +288,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			_state = State.DATA_MOMENT;
 			
 			// Clear credentials saved in the store.
-			CredentialStore.getInstance(this).clear();
+			CredentialStore.getInstance().clear();
 			
 			// Go back to the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
@@ -363,7 +363,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 		
 		Resources resources = getResources();
 
-		CredentialStore store = CredentialStore.getInstance(this);
+		CredentialStore store = CredentialStore.getInstance();
 		if (!store.getHaveVerifiedCredentials()) {
 			_errorMessage = "";
 			_state = State.FAILED_INVALID_CREDENTIALS;

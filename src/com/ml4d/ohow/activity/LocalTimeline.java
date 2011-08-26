@@ -98,7 +98,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	}
 	
 	private void startSignInActivityIfNotSignedIn() {
-		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
 		}

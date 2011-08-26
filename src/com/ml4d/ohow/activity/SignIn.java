@@ -108,7 +108,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.signin);
 		
-		if (CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+		if (CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the home activity.
 			startActivity(new Intent(this, Home.class));
 		}
@@ -383,7 +383,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			// 'parent' will be null if it has already been garbage collected.
 			if ((null != parent ) && (parent._signInTask == this)) {
 
-				CredentialStore auth = CredentialStore.getInstance(parent);
+				CredentialStore auth = CredentialStore.getInstance();
 				
 				try {
 					// ProcessJSONResponse() appropriately handles a null result.

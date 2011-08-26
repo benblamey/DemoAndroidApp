@@ -99,7 +99,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 		listView.setTextFilterEnabled(true);
 		listView.setOnItemClickListener(this);
 		
-		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
 		}
@@ -228,7 +228,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			_state = State.DATA_MOMENT;
 			
 			// Clear credentials saved in the store.
-			CredentialStore.getInstance(this).clear();
+			CredentialStore.getInstance().clear();
 			
 			// Go back to the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
@@ -331,7 +331,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			throw new IllegalArgumentException("location cannot be null.");
 		}
 
-		CredentialStore store = CredentialStore.getInstance(this);
+		CredentialStore store = CredentialStore.getInstance();
 		if (!store.getHaveVerifiedCredentials()) {
 			_errorMessage = "";
 			_state = State.FAILED_INVALID_CREDENTIALS;
@@ -450,7 +450,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			// 'parent' will be null if it has already been garbage collected.
 			if ((null != parent) && (parent._captureTask == this)) {
 
-				CredentialStore auth = CredentialStore.getInstance(parent);
+				CredentialStore auth = CredentialStore.getInstance();
 				
 				try {
 					// ProcessJSONResponse() appropriately handles a null result.

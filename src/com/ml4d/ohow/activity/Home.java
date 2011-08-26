@@ -110,7 +110,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	}
 	
 	private void startSignInActivityIfNotSignedIn() {
-		if (!CredentialStore.getInstance(this).getHaveVerifiedCredentials()) {
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
 			startActivity(new Intent(this, SignIn.class));
 		}
@@ -118,7 +118,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 
 	private void signOutButtonClicked() {
 		// Clear the saved credentials.
-		CredentialStore.getInstance(this).clear();
+		CredentialStore.getInstance().clear();
 		
 		// Start the sign in activity.
 		startActivity(new Intent(this, SignIn.class));
