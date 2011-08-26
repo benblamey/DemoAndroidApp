@@ -69,7 +69,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		WAITING_FOR_PLACES, DATA_ENTRY, WAITING_FOR_CAPTURE, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS 
+		WAITING_FOR_PLACES, DATA_MOMENT, WAITING_FOR_CAPTURE, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS 
 	}
 
 	/**
@@ -110,16 +110,16 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
 			
-			// If we have previously successfully logged in, go back to the data-entry state.
+			// If we have previously successfully logged in, go back to the data-moment state.
 			// Otherwise we will redirect immediately back to the home activity.
 			if (State.SUCCESS == _state) {
-				_state = State.DATA_ENTRY;
+				_state = State.DATA_MOMENT;
 				_errorMessage = "";
 			} else if (State.FAILED_INVALID_CREDENTIALS == _state) {
 				// When the credentials are invalid, we immediately redirect to the sign in page.
 				// We don't want to do this automatically if the user reaches the activity from history.
 				_errorMessage = "";
-				_state = State.DATA_ENTRY;
+				_state = State.DATA_MOMENT;
 			}
 			
 			_locations = (ArrayList<LocationForCapture>)(savedInstanceState.getSerializable("_locations"));
@@ -183,7 +183,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 					resources.getString(R.string.capture_location_places_waiting_dialog_body), true, // Indeterminate.
 					false); // Not cancellable.
 			break;			
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 			if (null != _locations) {
 				ListAdapter locationAdapter = new LocationForCaptureArrayAdapter(this, 
 						R.layout.location_item, 
@@ -210,7 +210,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			// Show the user some toast to inform them of the success.
 			Toast.makeText(this, resources.getString(R.string.capture_location_waiting_dialog_success), Toast.LENGTH_LONG).show();
 			
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 			break;
 		case FAILED:
 			// Show a 'failed' dialog.
@@ -225,7 +225,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 		case FAILED_INVALID_CREDENTIALS:
 			// Don't redirect more than once.
 			_errorMessage = "";
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 			
 			// Clear credentials saved in the store.
 			CredentialStore.getInstance(this).clear();
@@ -324,7 +324,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 		// in history. Therefore, we should never arrive at this activity for a moment
 		// that has already been captured.
 		if (CapturedMoments.getInstance(this).hasMomentBeenCapturedRecently(_captureUniqueID)) {
-			throw new IllegalStateException("This entry has already been captured.");
+			throw new IllegalStateException("This moment has already been captured.");
 		}
 		
 		if (null == location) {
@@ -390,13 +390,13 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 	public void onClick(DialogInterface dialog, int which) {
 		switch (_state) {
 		case FAILED:
-			// Something was wrong, go back to data-entry to let the user try again.
+			// Something was wrong, go back to data-moment to let the user try again.
 			_errorMessage = "";
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 			showState();
 			break;
 		case SUCCESS:
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 		case WAITING_FOR_CAPTURE:
 		case FAILED_INVALID_CREDENTIALS:
 		case WAITING_FOR_PLACES:
@@ -561,7 +561,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 						locations.addAll(GooglePlacesAPI.ProcessJSONResponse(response, getResources()));
 		
 						// To complete without error is a success.
-						parent._state = State.DATA_ENTRY;
+						parent._state = State.DATA_MOMENT;
 						
 					} catch (ApiViaHttpException e) {
 						parent._locations = null;
@@ -569,14 +569,14 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 						parent._errorMessage = e.getLocalizedMessage();
 					} catch (NoResponseAPIException e) {
 						// If there is no response (possibly because we lost the connection), don't worry
-						// and leave the locations empty. There is always at least one entry anyway - see below.
+						// and leave the locations empty. There is always at least one moment anyway - see below.
 						parent._locations = null;
 						parent._state = State.FAILED;
 						parent._errorMessage = parent.getResources().getString(R.string.capture_location_google_no_response);
 					}
 					
-					// Add the special 'unlisted' entry to the list. 
-					// This means there is an entry to select if the Google request failed, or if the location
+					// Add the special 'unlisted' moment to the list. 
+					// This means there is an moment to select if the Google request failed, or if the location
 					// is not among the results.
 					locations.add(LocationForCapture.getUnlisted());
 					

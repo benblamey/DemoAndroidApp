@@ -13,9 +13,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 /**
- * An ArrayAdapter<T> specifically for 'Entry' objects for display the 'location_item_view'.
+ * An ArrayAdapter<T> specifically for 'Moment' objects for display the 'location_item_view'.
  */
-public class EntryArrayAdapter extends ArrayAdapter<Entry> {
+public class MomentArrayAdapter extends ArrayAdapter<Moment> {
 	
 	// Field names are as in parent class - and otherwise I've kept the code as similar as possible.
 	
@@ -37,7 +37,7 @@ public class EntryArrayAdapter extends ArrayAdapter<Entry> {
      *                 instantiating views.
      * @param layoutResourceId The id of the TextView within the layout resource to be populated
      */
-    public EntryArrayAdapter(Context context, int layoutResourceId,  Entry[] objects) {
+    public MomentArrayAdapter(Context context, int layoutResourceId,  Moment[] objects) {
     	super(context, layoutResourceId, objects);
         init(context, layoutResourceId, 0);
 	}
@@ -66,25 +66,25 @@ public class EntryArrayAdapter extends ArrayAdapter<Entry> {
             view = convertView;
         }
 
-        Entry entry = getItem(position);
+        Moment moment = getItem(position);
         
-		String location = entry.getLocationName();
+		String location = moment.getLocationName();
 		if ((null == location) || (0 == location.length())) {
-			location = Double.toString(entry.getLongitude()) + ", " + 
-				Double.toString(entry.getLatitude());
+			location = Double.toString(moment.getLongitude()) + ", " + 
+				Double.toString(moment.getLatitude());
 		}
 
 		Resources resources = mContext.getResources();
 		
 		// Not that the 'default' locale means the 'local culture'.
-		String body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), entry.getBody()); 
+		String body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), moment.getBody()); 
 		
 		// The 'default' locale (used by getDateTimeInstance()) is suitable for the local culture, and should not be used for persistence, etc.
 		DateFormat localDateFormat = DateFormat.getDateTimeInstance(
 				DateFormat.SHORT, // Date.
 				DateFormat.MEDIUM); // Time.
 		localDateFormat.setTimeZone(TimeZone.getDefault());
-		String details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), entry.getUsername(), localDateFormat.format(entry.getDateCreatedUTC()));
+		String details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), moment.getUsername(), localDateFormat.format(moment.getDateCreatedUTC()));
 		
 		TextView bodyTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_body);
 		TextView locationTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_capture_location);

@@ -45,7 +45,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_ENTRY, FAILED_ALLOW_ACK, FAILED_ALREADY_CAPTURED, FAILED_INVALID_CREDENTIALS, FAILED_NO_GPS_SERVICE
+		DATA_MOMENT, FAILED_ALLOW_ACK, FAILED_ALREADY_CAPTURED, FAILED_INVALID_CREDENTIALS, FAILED_NO_GPS_SERVICE
 	}
 
 	/**
@@ -107,12 +107,12 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 				// When the credentials are invalid, we immediately redirect to the sign in page.
 				// We don't want to do this automatically if the user reaches the activity from history.
 				_errorMessage = "";
-				_state = State.DATA_ENTRY;
+				_state = State.DATA_MOMENT;
 			} else if (State.FAILED_NO_GPS_SERVICE == _state) {
 				// There was a problem with GPS the last time this activity was running - that
 				// may no longer be the case.
 				_errorMessage = "";
-				_state = State.DATA_ENTRY;
+				_state = State.DATA_MOMENT;
 			}
 
 			// Because we may have different layouts for portrait and landscape
@@ -129,7 +129,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			ensureGettingGPSUpdates();
 
 		} else {
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 			// This is a new moment - generate a new unique ID to associate with it.
 			_captureUniqueId = UUID.randomUUID().toString();
 		}
@@ -255,7 +255,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 		((android.widget.Button)findViewById(R.id.capture_text_photo_button_toggle_photo)).setText(togglePhotoButtonText); 
 
 		switch (_state) {
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 			// Nothing to do.
 			break;
 		case FAILED_ALLOW_ACK:
@@ -285,7 +285,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			
 			// Don't redirect more than once.
 			_errorMessage = "";
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 			
 			// Clear credentials saved in the store.
 			CredentialStore.getInstance(this).clear();
@@ -327,7 +327,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			
 			// If GPS is not available, fail outright immediately (unless we're busy, showing another error, etc.).
 			if (!locationManager.isProviderEnabled("gps")) {
-				if (State.DATA_ENTRY == _state) {
+				if (State.DATA_MOMENT == _state) {
 					_state = State.FAILED_NO_GPS_SERVICE;
 				}
 			} else {
@@ -358,7 +358,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	private void captureButtonClicked() {
 		
 		if (CapturedMoments.getInstance(this).hasMomentBeenCapturedRecently(_captureUniqueId)) {
-			throw new IllegalStateException("This entry has already been captured.");
+			throw new IllegalStateException("This moment has already been captured.");
 		}
 		
 		Resources resources = getResources();
@@ -455,19 +455,19 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	public void onClick(DialogInterface dialog, int which) {
 		switch (_state) {
 		case FAILED_ALLOW_ACK:
-			// Something was wrong, go back to data-entry to let the user try again.
+			// Something was wrong, go back to data-moment to let the user try again.
 			_errorMessage = "";
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 			showState();
 			break;
 		case FAILED_NO_GPS_SERVICE:
 			// Next time the activity starts, don't assume there is still a problem with GPS.
 			_errorMessage = "";
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 			startActivity(new Intent(this, Home.class));
 			break;
 		case FAILED_ALREADY_CAPTURED:
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 		case FAILED_INVALID_CREDENTIALS:
 			throw new IllegalStateException();
 		default:

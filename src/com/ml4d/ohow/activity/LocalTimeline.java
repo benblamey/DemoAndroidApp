@@ -15,8 +15,8 @@ import org.json.JSONObject;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.ohow.CredentialStore;
-import com.ml4d.ohow.Entry;
-import com.ml4d.ohow.EntryArrayAdapter;
+import com.ml4d.ohow.Moment;
+import com.ml4d.ohow.MomentArrayAdapter;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
@@ -45,16 +45,16 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	// These fields are persisted.
 	private State _state;
 	private String _ohowAPIError; // If the state is 'API_ERROR_RESPONSE', details of the error.
-	private ArrayList<Entry> _entries; 
+	private ArrayList<Moment> _moments; 
 	
 	// These fields are not persisted.
-	private GetEntriesTask _getEntryTask;
+	private GetMomentsTask _getMomentTask;
 	private Dialog _dialog;
 
 	private enum State {
 		WAITING_FOR_API,
-		HAVE_ENTRY,
-		API_HAS_NO_ENTRIES,
+		HAVE_MOMENT,
+		API_HAS_NO_MOMENTS,
 		NO_API_RESPONSE, 
 		API_ERROR_RESPONSE, 
 		API_GARBAGE_RESPONSE,
@@ -71,13 +71,13 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 		super.onCreate(savedInstanceState);
 		
 		ListView listView = getListView();
-		listView.setTextFilterEnabled(false); // We don't support text-filtering for entries.
+		listView.setTextFilterEnabled(false); // We don't support text-filtering for moments.
 		listView.setOnItemClickListener(this);
 		
 		startSignInActivityIfNotSignedIn();
 
 		if (null != savedInstanceState) {
-			_entries = (ArrayList<Entry>)savedInstanceState.getSerializable("_entries");
+			_moments = (ArrayList<Moment>)savedInstanceState.getSerializable("_moments");
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
 			
@@ -89,8 +89,8 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 			double latitude = startingIntent.getDoubleExtra(EXTRA_LATITUDE, -1);
 			double longitude = startingIntent.getDoubleExtra(EXTRA_LONGITUDE, -1);
 
-			_getEntryTask = new GetEntriesTask(this, latitude, longitude);
-			_getEntryTask.execute((Void[])null);
+			_getMomentTask = new GetMomentsTask(this, latitude, longitude);
+			_getMomentTask.execute((Void[])null);
 			_state = State.WAITING_FOR_API;
 		}
 
@@ -145,14 +145,14 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		outState.putSerializable("_entries", _entries);
+		outState.putSerializable("_moments", _moments);
 		outState.putString("_state", _state.name());
 		outState.putString(_ohowAPIError, _ohowAPIError);
 	}
 
 	private void tearEverythingDown() {
 		// We don't cancel() the task, as the results are difficult to predict.
-		_getEntryTask = null;
+		_getMomentTask = null;
 	}
 
 	private void showState() {
@@ -163,10 +163,10 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 		
 		Resources resources = getResources();
 		
-		if (null != _entries) {
-			ListAdapter locationAdapter = new EntryArrayAdapter(this, 
+		if (null != _moments) {
+			ListAdapter locationAdapter = new MomentArrayAdapter(this, 
 				R.layout.local_timeline_item, 
-				_entries.toArray(new Entry[_entries.size()]));
+				_moments.toArray(new Moment[_moments.size()]));
 			
 			setListAdapter(locationAdapter);
 		} else if (State.WAITING_FOR_API == _state) { 
@@ -186,7 +186,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 				case NO_API_RESPONSE:
 					messsage = resources.getString(R.string.comms_error);
 					break;
-				case API_HAS_NO_ENTRIES:
+				case API_HAS_NO_MOMENTS:
 					messsage = resources.getString(R.string.home_no_history_here);
 					break;
 				case WAITING_FOR_API:
@@ -195,8 +195,8 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 				case FAILED_ROTATE:
 					messsage = resources.getString(R.string.dialog_error_rotate_when_busy);
 					break;
-				case HAVE_ENTRY:
-					throw new RuntimeException("We shouldn't be in the HAVE_ENTRY state if we have no entry (programmer mistake).");
+				case HAVE_MOMENT:
+					throw new RuntimeException("We shouldn't be in the HAVE_MOMENT state if we have no moment (programmer mistake).");
 				default:
 					throw new UnexpectedEnumValueException(_state);
 			}
@@ -214,14 +214,14 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		// Show the particular moment.
 		Intent i = new Intent(this, ShowMomentActivity.class);
-		i.putExtra(ShowMomentActivity.EXTRA_ENTRY_ID, _entries.get(position).getId());
+		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_ID, _moments.get(position).getId());
 		startActivity(i);
 	}
 	
 	/**
 	 * Asynchronously performs the get places HTTP request.
 	 */
-	private class GetEntriesTask extends AsyncTask<Void, Void, HttpResponse> {
+	private class GetMomentsTask extends AsyncTask<Void, Void, HttpResponse> {
 		
 		private WeakReference<LocalTimeline> _parent;
 		private String _userAgent;		 
@@ -229,7 +229,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 		private double _latitude;
 		private HttpGet _get;
 
-		public GetEntriesTask(LocalTimeline parent, double latitude, double longitude) {
+		public GetMomentsTask(LocalTimeline parent, double latitude, double longitude) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<LocalTimeline>(parent);
 			_latitude = latitude;
@@ -244,7 +244,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 				throw new ImprobableCheckedExceptionException(e);
 			}
 			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "entry_location_recent_search.php"
+			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "moment_location_recent_search.php"
 					+ "?" + "latitude=" + Double.toString(_latitude)
 					+ "&" + "longitude=" + Double.toString(_longitude)
 					+ "&" + "max_results=30"
@@ -274,7 +274,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 			
 			if (null != parent) {
 				// 'parent' will be null if it has already been garbage collected.
-				if (parent._getEntryTask == this) {
+				if (parent._getMomentTask == this) {
 					
 					State error; 
 					String apiErrorMessage = "";
@@ -287,26 +287,26 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 							JSONArray resultArray = (JSONArray)result;
 							
 							if (resultArray.length() > 0) {
-								error = State.HAVE_ENTRY;
-								ArrayList<Entry> entries = new ArrayList<Entry>();
+								error = State.HAVE_MOMENT;
+								ArrayList<Moment> moments = new ArrayList<Moment>();
 								for (int i = 0; i < resultArray.length(); i++) {
 									Object resultItem = resultArray.get(i);
 									if (resultItem instanceof JSONObject) {
 										JSONObject resultItemObject = (JSONObject)resultItem;
-										entries.add(new Entry(resultItemObject));
+										moments.add(new Moment(resultItemObject));
 									} else {
 										Log.d("OHOW", "Result array item not an object..");
 										error = State.API_GARBAGE_RESPONSE;
 										break;
 									}
 								}
-								if (State.HAVE_ENTRY == error) {
-									parent._entries = entries;
+								if (State.HAVE_MOMENT == error) {
+									parent._moments = moments;
 								}
 									
 							} else {
-								Log.d("OHOW", "Result array has zero entries.");
-								error = State.API_HAS_NO_ENTRIES;
+								Log.d("OHOW", "Result array has zero moments.");
+								error = State.API_HAS_NO_MOMENTS;
 							}
 						} else {
 							Log.d("OHOW", "Result was not a JSONArray");
@@ -328,7 +328,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 					
 					// Allow this task to be garbage-collected as it is no longer needed.
 					// I think that for large requests (e.g. images) this helps bring down our memory footprint.
-					parent._getEntryTask = null;
+					parent._getMomentTask = null;
 					parent._ohowAPIError = apiErrorMessage;
 					parent._state = error;
 					 

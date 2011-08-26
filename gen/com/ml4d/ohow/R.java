@@ -123,7 +123,6 @@ public final class R {
         public static final int dialog_error_rotate_when_busy=0x7f04000f;
         public static final int dialog_error_task_canceled=0x7f040010;
         public static final int dialog_unfriendly_error_prefix=0x7f04000e;
-        public static final int entry_activity_label=0x7f040050;
         /**  General dialog strings 
          */
         public static final int error_dialog_title=0x7f04000d;
@@ -159,8 +158,8 @@ public final class R {
         public static final int external_storage_UNKNOWN_STATE=0x7f04002e;
         public static final int general_waiting=0x7f040013;
         public static final int home_activity_label=0x7f04002f;
-        /**  Format strings for displaying an entry. 
- Parameter #1 is the entry body. 
+        /**  Format strings for displaying an moment. 
+ Parameter #1 is the moment body. 
          */
         public static final int home_body_format=0x7f040034;
         public static final int home_capture_label=0x7f040030;
@@ -173,6 +172,7 @@ public final class R {
         public static final int local_timeline_activity_label=0x7f040036;
         public static final int menu_item_local_timeline=0x7f040038;
         public static final int menu_item_slide_show=0x7f040037;
+        public static final int moment_activity_label=0x7f040050;
         public static final int ok_button_label=0x7f04000c;
         public static final int register_activity_label=0x7f040039;
         public static final int register_button_label=0x7f040040;

@@ -57,7 +57,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_ENTRY, WAITING, SUCCESS, FAILED
+		DATA_MOMENT, WAITING, SUCCESS, FAILED
 	}
 
 	private String _errorMessage;
@@ -80,7 +80,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 		Resources resources = getResources();
 
 		switch (_state) {
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 			// Nothing to do.
 			break;
 		case WAITING:
@@ -147,7 +147,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			}
 
 		} else {
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 		}
 
 		showState();
@@ -157,7 +157,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 		super.onSaveInstanceState(outState);
 		
 		switch (_state) {
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 			break;
 		case WAITING:
 			// Cancel the operation.
@@ -407,7 +407,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			// When the user clicks on the success confirmation, go back to the
 			// sign_in page.
 			if (DialogInterface.BUTTON_POSITIVE == which) {
-				_state = State.DATA_ENTRY;
+				_state = State.DATA_MOMENT;
 				showState();
 			} else {
 				throw new IllegalStateException();
@@ -423,7 +423,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			} else {
 				throw new IllegalStateException();
 			}
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 		case WAITING:
 			throw new IllegalStateException();
 		default:

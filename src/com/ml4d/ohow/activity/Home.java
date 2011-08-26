@@ -21,7 +21,7 @@ import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.CredentialStore;
-import com.ml4d.ohow.Entry;
+import com.ml4d.ohow.Moment;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.OfficialBuild;
 import com.ml4d.ohow.R;
@@ -56,19 +56,19 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	private State _state;
 	private String _ohowAPIError; // If the state is 'API_ERROR_RESPONSE', details of the error. 
 	private boolean _subscribedToLocationUpdates;
-	private GetEntryTask _getEntryTask;
+	private GetMomentTask _getMomentTask;
 	
 	// These fields are persisted.
 	private Location _gpsLocation;
-	private Entry _entry; 
-	private Date _entryTimestamp;
+	private Moment _moment; 
+	private Date _momentTimestamp;
 
 	private enum State {
 		COULD_NOT_START_GPS,
 		WAITING_FOR_FIRST_GPS_UPDATE,
 		WAITING_FOR_API,
-		HAVE_ENTRY,
-		API_HAS_NO_ENTRIES,
+		HAVE_MOMENT,
+		API_HAS_NO_MOMENTS,
 		NO_API_RESPONSE, 
 		API_ERROR_RESPONSE, 
 		API_GARBAGE_RESPONSE };
@@ -84,9 +84,9 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	private static final int _gpsSuggestedUpdateDistanceMetres = 1;
 	
 	/**
-	 * The minimum interval in seconds for fetching a new entry from OHOW.
+	 * The minimum interval in seconds for fetching a new moment from OHOW.
 	 */
-	private static final int _minimumFetchEntryIntervalSeconds = 19;
+	private static final int _minimumFetchMomentIntervalSeconds = 19;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -99,13 +99,13 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		
 		if (null != savedInstanceState) {
 			_gpsLocation = savedInstanceState.getParcelable("_gpsLocation");
-			_entryTimestamp = (Date)savedInstanceState.getSerializable("_entryTimestamp");
-			_entry = (Entry)savedInstanceState.getSerializable("_entry");
+			_momentTimestamp = (Date)savedInstanceState.getSerializable("_momentTimestamp");
+			_moment = (Moment)savedInstanceState.getSerializable("_moment");
 		}
 		
 		startSignInActivityIfNotSignedIn();
 		ensureSubscribedToGpsUpdates();
-		getEntryIfAppropriate();
+		getMomentIfAppropriate();
 		showState();
 	}
 	
@@ -187,8 +187,8 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		
 		if (null != outState) {
 			outState.putParcelable("_gpsLocation", _gpsLocation);
-			outState.putSerializable("_entryTimestamp", _entryTimestamp);
-			outState.putSerializable("_entry", _entry);
+			outState.putSerializable("_momentTimestamp", _momentTimestamp);
+			outState.putSerializable("_moment", _moment);
 		}
 	}
 	
@@ -198,7 +198,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	public void onLocationChanged(Location location) {
 		// A GPS fix has been obtained, store it.
 		_gpsLocation = location;
-		getEntryIfAppropriate();
+		getMomentIfAppropriate();
 		showState();
 	}
 
@@ -275,27 +275,27 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		}
 	}
 	
-	private void getEntryIfAppropriate() {
-		if ((null != _gpsLocation) && (null == _getEntryTask))
+	private void getMomentIfAppropriate() {
+		if ((null != _gpsLocation) && (null == _getMomentTask))
 		{
 			// Create a new culture-independent calendar initialised to the current date and time.
 			GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"), Locale.US); 
 			Date now = calendar.getTime();
 			
-			boolean needToGetEntry;
-			if ((null == _entryTimestamp)) {
-				needToGetEntry = true;
+			boolean needToGetMoment;
+			if ((null == _momentTimestamp)) {
+				needToGetMoment = true;
 			} else {
-				calendar.setTime(_entryTimestamp);
-				calendar.add(Calendar.SECOND, _minimumFetchEntryIntervalSeconds);
-				needToGetEntry = calendar.before(now);
+				calendar.setTime(_momentTimestamp);
+				calendar.add(Calendar.SECOND, _minimumFetchMomentIntervalSeconds);
+				needToGetMoment = calendar.before(now);
 			}
 			
-			if (needToGetEntry) {
-				_getEntryTask = new GetEntryTask(this, _gpsLocation.getLatitude(), _gpsLocation.getLongitude());
-				_getEntryTask.execute((Void[])null);
+			if (needToGetMoment) {
+				_getMomentTask = new GetMomentTask(this, _gpsLocation.getLatitude(), _gpsLocation.getLongitude());
+				_getMomentTask.execute((Void[])null);
 				_state = State.WAITING_FOR_API;
-				_entryTimestamp = now;
+				_momentTimestamp = now;
 			}
 		}
 	}
@@ -350,24 +350,24 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 			details = "";
 			body = resources.getString(R.string.error_gps_no_gps);
 		}
-		else if (null != _entry) {
-			// Otherwise, if we have an entry, we show it. We do this even if we failed to get a new entry.
+		else if (null != _moment) {
+			// Otherwise, if we have an moment, we show it. We do this even if we failed to get a new moment.
 
-			location = _entry.getLocationName();
+			location = _moment.getLocationName();
 			if ((null == location) || (0 == location.length())) {
-				location = Double.toString(_entry.getLongitude()) + ", " + 
-					Double.toString(_entry.getLatitude());
+				location = Double.toString(_moment.getLongitude()) + ", " + 
+					Double.toString(_moment.getLatitude());
 			}
 
 			// Not that the 'default' locale means the 'local culture'.
-			body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), _entry.getBody()); 
+			body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), _moment.getBody()); 
 			
 			// The 'default' locale (used by getDateTimeInstance()) is suitable for the local culture, and should not be used for persistence, etc.
 			DateFormat localDateFormat = DateFormat.getDateTimeInstance(
 					DateFormat.SHORT, // Date.
 					DateFormat.MEDIUM); // Time.
 			localDateFormat.setTimeZone(TimeZone.getDefault());
-			details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), _entry.getUsername(), localDateFormat.format( _entry.getDateCreatedUTC())); 
+			details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC())); 
 		} else {
 			
 			switch (_state) {
@@ -382,7 +382,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 				case NO_API_RESPONSE:
 					body = resources.getString(R.string.comms_error);
 					break;
-				case API_HAS_NO_ENTRIES:
+				case API_HAS_NO_MOMENTS:
 					body = resources.getString(R.string.home_no_history_here);
 					break;
 				case WAITING_FOR_FIRST_GPS_UPDATE:
@@ -391,8 +391,8 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 				case WAITING_FOR_API:
 					body = resources.getString(R.string.general_waiting);
 					break;
-				case HAVE_ENTRY:
-					throw new RuntimeException("We shouldn't be in the HAVE_ENTRY state if we have no entry (programmer mistake).");
+				case HAVE_MOMENT:
+					throw new RuntimeException("We shouldn't be in the HAVE_MOMENT state if we have no moment (programmer mistake).");
 				default:
 					throw new UnexpectedEnumValueException(_state);
 			}
@@ -413,7 +413,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	/**
 	 * Asynchronously performs the get places HTTP request.
 	 */
-	private class GetEntryTask extends AsyncTask<Void, Void, HttpResponse> {
+	private class GetMomentTask extends AsyncTask<Void, Void, HttpResponse> {
 		
 		private WeakReference<Home> _parent;
 		private String _userAgent;		 
@@ -421,7 +421,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		private double _latitude;
 		private HttpGet _get;
 
-		public GetEntryTask(Home parent, double latitude, double longitude) {
+		public GetMomentTask(Home parent, double latitude, double longitude) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<Home>(parent);
 			_latitude = latitude;
@@ -436,7 +436,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 				throw new ImprobableCheckedExceptionException(e1);
 			}
 			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "entry_location_recent_search.php"
+			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "moment_location_recent_search.php"
 					+ "?" + "latitude=" + Double.toString(_latitude)
 					+ "&" + "longitude=" + Double.toString(_longitude)
 					+ "&" + "max_results=1"
@@ -466,7 +466,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 			
 			if (null != parent) {
 				// 'parent' will be null if it has already been garbage collected.
-				if (parent._getEntryTask == this) {
+				if (parent._getMomentTask == this) {
 					
 					State error; 
 					String apiErrorMessage = "";
@@ -483,15 +483,15 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 								
 								if (resultItem instanceof JSONObject) {
 									JSONObject resultItemObject = (JSONObject)resultItem;
-									_entry = new Entry(resultItemObject);
-									error = State.HAVE_ENTRY;
+									_moment = new Moment(resultItemObject);
+									error = State.HAVE_MOMENT;
 								} else {
 									Log.d("OHOW", "Result array 1st item not an object..");
 									error = State.API_GARBAGE_RESPONSE;
 								}
 							} else {
-								Log.d("OHOW", "Result array has zero entries.");
-								error = State.API_HAS_NO_ENTRIES;
+								Log.d("OHOW", "Result array has zero moments.");
+								error = State.API_HAS_NO_MOMENTS;
 							}
 						} else {
 							Log.d("OHOW", "Result was not a JSONArray");
@@ -513,7 +513,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 					
 					// Allow this task to be garbage-collected as it is no longer needed.
 					// I think that for large requests (e.g. images) this helps bring down our memory footprint.
-					parent._getEntryTask = null;
+					parent._getMomentTask = null;
 					parent._ohowAPIError = apiErrorMessage;
 					parent._state = error; 
 					parent.showState();

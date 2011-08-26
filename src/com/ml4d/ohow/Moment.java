@@ -15,9 +15,9 @@ import org.json.JSONObject;
 import com.ml4d.core.JSONHelper;
 
 /**
- * An OHOW Entry, as received from the OHOW API.
+ * An OHOW Moment, as received from the OHOW API.
  */
-public class Entry implements Serializable {
+public class Moment implements Serializable {
 
 // Example JSON:
 //    {
@@ -60,7 +60,7 @@ public class Entry implements Serializable {
      * @param json
      * @throws JSONException
      */
-	public Entry(JSONObject json) throws JSONException {
+	public Moment(JSONObject json) throws JSONException {
 
 		// There are some issues with JSONObject.GetString() - we use our helper instead.
 		_id = json.getInt("id");

@@ -1,4 +1,4 @@
 
     <resources>
-        <string name="entry_activity_label">Show Entry</string>
+        <string name="moment_activity_label">Show Moment</string>
     </resources>

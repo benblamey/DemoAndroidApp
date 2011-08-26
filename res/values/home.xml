@@ -9,8 +9,8 @@
 	<string name="home_no_history_here">Could not understand response from OHOW API - this is either a temporary problem our end, or you need to update the app.</string>
 	<string name="home_recent_activity_label">Recent activity:</string>
 	
-	<!-- Format strings for displaying an entry. -->
-	<!-- Parameter #1 is the entry body. -->
+	<!-- Format strings for displaying an moment. -->
+	<!-- Parameter #1 is the moment body. -->
 	<string name="home_body_format">&quot;%1$s&quot;</string>
 	<!-- Parameter #1 is the author username, #2 is a date/time in local format & timezone. -->
 	<string name="home_detail_format">- %1$s, %2$s</string>

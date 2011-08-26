@@ -50,7 +50,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_ENTRY, WAITING, SUCCESS, FAILED
+		DATA_MOMENT, WAITING, SUCCESS, FAILED
 	}
 
 	private String _errorMessage;
@@ -73,7 +73,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		Resources resources = getResources();
 
 		switch (_state) {
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 			// Nothing to do.
 			break;
 		case WAITING:
@@ -120,10 +120,10 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
 			
-			// If we have previously successfully logged in, go back to the data-entry state.
+			// If we have previously successfully logged in, go back to the data-moment state.
 			// Otherwise we will redirect immediately back to the home activity.
 			if (State.SUCCESS == _state) {
-				_state = State.DATA_ENTRY;
+				_state = State.DATA_MOMENT;
 				_errorMessage = "";
 			}
 
@@ -140,7 +140,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			}
 
 		} else {
-			_state = State.DATA_ENTRY;
+			_state = State.DATA_MOMENT;
 		}
 
 		showState();
@@ -320,14 +320,14 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 			// When the user clicks on the success confirmation, go back to the
 			// sign_in page.
 			if (DialogInterface.BUTTON_POSITIVE == which) {
-				_state = State.DATA_ENTRY;
+				_state = State.DATA_MOMENT;
 				showState();
 			} else {
 				throw new IllegalStateException();
 			}
 			break;
 		case SUCCESS:
-		case DATA_ENTRY:
+		case DATA_MOMENT:
 		case WAITING:
 			throw new IllegalStateException();
 		default:

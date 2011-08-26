@@ -16,7 +16,7 @@ import org.json.JSONObject;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.ohow.CredentialStore;
-import com.ml4d.ohow.Entry;
+import com.ml4d.ohow.Moment;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
@@ -37,23 +37,23 @@ import android.widget.TextView;
 public class ShowMomentActivity extends Activity {
 
 	// These fields are not persisted.
-	private GetEntryTask _getEntryTask;
+	private GetMomentTask _getMomentTask;
 	
 	// These fields are persisted.
 	private State _state;
 	private String _ohowAPIError; // If the state is 'API_ERROR_RESPONSE', details of the error.
-	private Entry _entry; 
-	private int _entryId;
+	private Moment _moment; 
+	private int _momentId;
 
 	/**
-	 * The name of the intent extra that needs to be set to the ID of the entry to show when
+	 * The name of the intent extra that needs to be set to the ID of the moment to show when
 	 * starting the activity.
 	 */
-	public static String EXTRA_ENTRY_ID = "entry_id"; 
+	public static String EXTRA_MOMENT_ID = "moment_id"; 
 
 	private enum State {
 		WAITING_FOR_API,
-		HAVE_ENTRY,
+		HAVE_MOMENT,
 		NO_API_RESPONSE, 
 		API_ERROR_RESPONSE, 
 		API_GARBAGE_RESPONSE };
@@ -66,21 +66,21 @@ public class ShowMomentActivity extends Activity {
 
 		if (null != savedInstanceState) {
 			// The activity is being restored from serialised state.
-			_entryId = savedInstanceState.getInt("_entryId");
-			_entry = (Entry)savedInstanceState.getSerializable("_entry");
+			_momentId = savedInstanceState.getInt("_momentId");
+			_moment = (Moment)savedInstanceState.getSerializable("_moment");
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
 		} else {
 			// The activity is being started.
 			Intent startingIntent = getIntent();
-			_entryId = startingIntent.getIntExtra(EXTRA_ENTRY_ID, -1); // Moments always have positive IDs.
+			_momentId = startingIntent.getIntExtra(EXTRA_MOMENT_ID, -1); // Moments always have positive IDs.
 			
-			if (-1 == _entryId) {
-				throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the entry ID.");
+			if (-1 == _momentId) {
+				throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
 			}
 			
-			_getEntryTask = new GetEntryTask(this, _entryId);
-			_getEntryTask.execute((Void[])null);
+			_getMomentTask = new GetMomentTask(this, _momentId);
+			_getMomentTask.execute((Void[])null);
 			_state = State.WAITING_FOR_API;
 			_ohowAPIError = "";
 		}
@@ -135,8 +135,8 @@ public class ShowMomentActivity extends Activity {
 		super.onSaveInstanceState(outState);
 		
 		if (null != outState) {
-			outState.putInt("_entryId", _entryId);
-			outState.putSerializable("_entry", _entry);
+			outState.putInt("_momentId", _momentId);
+			outState.putSerializable("_moment", _moment);
 			outState.putString("_state", _state.name());
 			outState.putString("_ohowAPIError", _ohowAPIError);
 		}
@@ -147,11 +147,11 @@ public class ShowMomentActivity extends Activity {
 	 */
 	private void ensureTaskIsStopped() {
 		if (State.WAITING_FOR_API == _state) {
-			if (this._getEntryTask != null) {
-				_getEntryTask.cancel(false); // Don't interrupt the operation if
+			if (this._getMomentTask != null) {
+				_getMomentTask.cancel(false); // Don't interrupt the operation if
 												// it has started. The results
 												// are difficult to predict.
-				_getEntryTask = null;
+				_getMomentTask = null;
 			}
 			
 			_ohowAPIError = getResources().getString(R.string.dialog_error_task_canceled);
@@ -165,17 +165,17 @@ public class ShowMomentActivity extends Activity {
 		String details;
 		Resources resources = getResources();
 		
-		if (null != _entry) {
-			// Otherwise, if we have an entry, we show it. We do this even if we failed to get a new entry.
+		if (null != _moment) {
+			// Otherwise, if we have an moment, we show it. We do this even if we failed to get a new moment.
 
-			location = _entry.getLocationName();
+			location = _moment.getLocationName();
 			if ((null == location) || (0 == location.length())) {
-				location = Double.toString(_entry.getLongitude()) + ", " + 
-					Double.toString(_entry.getLatitude());
+				location = Double.toString(_moment.getLongitude()) + ", " + 
+					Double.toString(_moment.getLatitude());
 			}
 
 			// Not that the 'default' locale means the 'local culture'. We format the string in the same way as the home activity.
-			body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), _entry.getBody()); 
+			body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), _moment.getBody()); 
 			
 			// The 'default' locale (used by getDateTimeInstance()) is suitable for the local culture, and should not be used for persistence, etc.
 			DateFormat localDateFormat = DateFormat.getDateTimeInstance(
@@ -183,7 +183,7 @@ public class ShowMomentActivity extends Activity {
 					DateFormat.MEDIUM); // Time.
 			localDateFormat.setTimeZone(TimeZone.getDefault());
 			// We format the string in the same way as the home activity.
-			details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), _entry.getUsername(), localDateFormat.format( _entry.getDateCreatedUTC())); 
+			details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC())); 
 		} else {
 			
 			switch (_state) {
@@ -199,8 +199,8 @@ public class ShowMomentActivity extends Activity {
 				case WAITING_FOR_API:
 					body = resources.getString(R.string.general_waiting);
 					break;
-				case HAVE_ENTRY:
-					throw new RuntimeException("We shouldn't be in the HAVE_ENTRY state if we have no entry (programmer mistake).");
+				case HAVE_MOMENT:
+					throw new RuntimeException("We shouldn't be in the HAVE_MOMENT state if we have no moment (programmer mistake).");
 				default:
 					throw new UnexpectedEnumValueException(_state);
 			}
@@ -221,17 +221,17 @@ public class ShowMomentActivity extends Activity {
 	/**
 	 * Asynchronously performs the get places HTTP request.
 	 */
-	private class GetEntryTask extends AsyncTask<Void, Void, HttpResponse> {
+	private class GetMomentTask extends AsyncTask<Void, Void, HttpResponse> {
 		
 		private WeakReference<ShowMomentActivity> _parent;
 		private String _userAgent;
-		private int _entryId;
+		private int _momentId;
 		private HttpGet _get;
 
-		public GetEntryTask(ShowMomentActivity parent, int entryId) {
+		public GetMomentTask(ShowMomentActivity parent, int momentId) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<ShowMomentActivity>(parent);
-			_entryId = entryId;
+			_momentId = momentId;
 
 			// While we are on the UI thread, build a user-agent string from
 			// the package details.
@@ -242,8 +242,8 @@ public class ShowMomentActivity extends Activity {
 				throw new ImprobableCheckedExceptionException(e1);
 			}
 			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "show_entry.php"
-					+ "?" + "id=" + Double.toString(_entryId));
+			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(parent, false) + "show_moment.php"
+					+ "?" + "id=" + Double.toString(_momentId));
 			_get.setHeader("Accept", "application/json");
 		}
 
@@ -269,7 +269,7 @@ public class ShowMomentActivity extends Activity {
 			
 			if (null != parent) {
 				// 'parent' will be null if it has already been garbage collected.
-				if (parent._getEntryTask == this) {
+				if (parent._getMomentTask == this) {
 					
 					State error; 
 					String apiErrorMessage = "";
@@ -280,8 +280,8 @@ public class ShowMomentActivity extends Activity {
 						
 						if (result instanceof JSONObject) {
 							JSONObject resultObject = (JSONObject)result;
-							_entry = new Entry(resultObject);
-							error = State.HAVE_ENTRY;
+							_moment = new Moment(resultObject);
+							error = State.HAVE_MOMENT;
 						} else {
 							Log.d("OHOW", "Result was not a JSONObject");
 							error = State.API_GARBAGE_RESPONSE;
@@ -302,7 +302,7 @@ public class ShowMomentActivity extends Activity {
 					
 					// Allow this task to be garbage-collected as it is no longer needed.
 					// I think that for large requests (e.g. images) this helps bring down our memory footprint.
-					parent._getEntryTask = null;
+					parent._getMomentTask = null;
 					parent._ohowAPIError = apiErrorMessage;
 					parent._state = error; 
 					parent.showState();
