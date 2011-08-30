@@ -251,7 +251,7 @@ public class HomeActivity extends Activity implements OnClickListener, LocationL
 		boolean startActivity;
 		
 		if (null != _gpsLocation) {
-			longitude = _gpsLocation.getLatitude();
+			latitude = _gpsLocation.getLatitude();
 			longitude = _gpsLocation.getLongitude();
 			startActivity = true;
 		} else if (!OfficialBuild.getInstance().isOfficialBuild()) {
