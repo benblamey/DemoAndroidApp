@@ -37,6 +37,7 @@ public class MomentTest extends TestCase {
 		assertEquals(0, Double.compare(-2.59948801994, moment.getLongitude()));
 		assertEquals("Start The Bus", moment.getLocationName());
 		assertEquals("fffjdd", moment.getBody());
+		assertTrue(moment.getHasPhoto());
 		
 		// Compare the moment creation time. Note that everything is in UTC - not local time.
 		Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC")); 
@@ -50,8 +51,6 @@ public class MomentTest extends TestCase {
 		
 		assertEquals("1cad10ae13131df22bf54d493e2538461793549c",
 				moment.getGoogleLocationStableRef());
-		
-		assertEquals(true, momentJson.getBoolean("has_photo"));
 	}
 	
 	private static final String _exampleJson2 = 

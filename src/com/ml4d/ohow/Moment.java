@@ -69,6 +69,7 @@ public class Moment implements Serializable {
 		_longitude = json.getDouble("longitude");
 		_locationName = JSONHelper.getStringOrNull(json, "location_name"); 
 		_body = JSONHelper.getStringOrNull(json, "body");
+		_hasPhoto = json.getBoolean("has_photo");
 
 		String dateCreatedUTCString = JSONHelper.getStringOrNull(json, "date_created_utc");
 	    try {
