@@ -22,7 +22,7 @@
 		android:layout_alignParentRight="true"
 		android:textSize="20dip"/>
 
-	<ImageView
+	<com.ml4d.core.WebImageView
 		android:id="@+id/show_moment_activity_image_view_photo"
 		android:layout_below="@+id/show_moment_activity_text_view_capture_location"
 	    android:layout_height="175dp"

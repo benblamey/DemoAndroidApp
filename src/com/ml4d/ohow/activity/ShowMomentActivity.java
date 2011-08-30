@@ -1,12 +1,10 @@
 package com.ml4d.ohow.activity;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -15,7 +13,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
+
+import com.ml4d.core.WebImageView;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.ohow.App;
 import com.ml4d.ohow.CredentialStore;
@@ -27,30 +26,24 @@ import com.ml4d.ohow.exceptions.NoResponseAPIException;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-/*
+/**
  * Interactive logic for the sign in activity.
  */
 public class ShowMomentActivity extends Activity {
 
 	// These fields are not persisted.
 	private GetMomentTask _getMomentTask;
-	private GetPhotoTask _getPhotoTask;
 	
 	// These fields are persisted.
 	private State _entryState;
-	private PhotoState _photoState;
 	private String _ohowAPIError; // If the state is 'API_ERROR_RESPONSE', details of the error.
 	private Moment _moment; 
 	private int _momentId;
-	private Bitmap _photoBitmap;
 
 	/**
 	 * The name of the intent extra that needs to be set to the ID of the moment to show when
@@ -65,13 +58,6 @@ public class ShowMomentActivity extends Activity {
 		API_ERROR_RESPONSE, 
 		API_GARBAGE_RESPONSE };
 		
-	private enum PhotoState {
-		WAITING,
-		HAVE_PHOTO,
-		NO_PHOTO,
-		ERROR,
-	}
-	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -84,8 +70,6 @@ public class ShowMomentActivity extends Activity {
 			_moment = (Moment)savedInstanceState.getSerializable("_moment");
 			_entryState = Enum.valueOf(State.class, savedInstanceState.getString("_entryState"));
 			_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
-			_photoState = Enum.valueOf(PhotoState.class, savedInstanceState.getString("_photoState"));
-			_photoBitmap = (Bitmap)savedInstanceState.getParcelable("_photoBitmap");
 		} else {
 			// The activity is being started.
 			Intent startingIntent = getIntent();
@@ -97,10 +81,16 @@ public class ShowMomentActivity extends Activity {
 			
 			_getMomentTask = new GetMomentTask(this, _momentId);
 			_getMomentTask.execute((Void[])null);
-			_getPhotoTask = new GetPhotoTask(this, _momentId);
-			_getPhotoTask.execute((Void[])null);
+
+			// Fetch the photo - there might not be one, but it is faster to try immediately and risk the wasted effort than
+			// wait until we have fetched the moment.
+			String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+				+ "?" 
+				+ "id=" + Double.toString(_momentId)
+				+ "&thumbnail=false"; // Get the full-sized image.
+			((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(url);
+			
 			_entryState = State.WAITING_FOR_API;
-			_photoState = PhotoState.WAITING;
 			_ohowAPIError = "";
 		}
 		
@@ -158,8 +148,6 @@ public class ShowMomentActivity extends Activity {
 			outState.putSerializable("_moment", _moment);
 			outState.putString("_entryState", _entryState.name());
 			outState.putString("_ohowAPIError", _ohowAPIError);
-			outState.putString("_photoState", _photoState.name());
-			outState.putParcelable("_photoBitmap", _photoBitmap);
 		}
 	}
 	
@@ -181,29 +169,8 @@ public class ShowMomentActivity extends Activity {
 	}
 		
 	private void showState() {
-		
 		Resources resources = getResources();
 			
-		// Deal with the photo first.
-		ImageView imageViewPhoto = (ImageView)findViewById(R.id.show_moment_activity_image_view_photo);
-		switch (_photoState) {
-			case ERROR:
-				imageViewPhoto.setBackgroundDrawable(getResources().getDrawable(R.drawable.photo_error));
-				break;
-			case HAVE_PHOTO:
-				imageViewPhoto.setImageBitmap(_photoBitmap);
-				break;
-			case NO_PHOTO:
-				imageViewPhoto.setBackgroundDrawable(getResources().getDrawable(R.drawable.photo_none));
-				break;
-			case WAITING:
-				imageViewPhoto.setBackgroundDrawable(getResources().getDrawable(R.drawable.spinner));
-				break;
-			default:
-				throw new UnexpectedEnumValueException(_photoState);
-		}
-		
-		// Now display the details of the moment itself.
 		String location;
 		String body;
 		String details;
@@ -337,97 +304,6 @@ public class ShowMomentActivity extends Activity {
 					parent._getMomentTask = null;
 					parent._ohowAPIError = apiErrorMessage;
 					parent._entryState = error; 
-					parent.showState();
-				}
-			}
-		}
-	}
-
-	
-	/**
-	 * Asynchronously performs the get moment photo HTTP request.
-	 */
-	private class GetPhotoTask extends AsyncTask<Void, Void, HttpResponse> {
-		
-		private WeakReference<ShowMomentActivity> _parent;
-		private int _momentId;
-		private HttpGet _get;
-
-		public GetPhotoTask(ShowMomentActivity parent, int momentId) {
-			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<ShowMomentActivity>(parent);
-			_momentId = momentId;
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
-					+ "?" + "id=" + Double.toString(_momentId));
-			// We need to accept any kind of image, or JSON - so for simplicity just accept anything.
-			_get.setHeader("Accept", "*/*");
-		}
-
-		@Override
-		protected HttpResponse doInBackground(Void... arg0) {
-			// This is executed on a background thread.
-			HttpClient client = new DefaultHttpClient();
-			HttpProtocolParams.setUserAgent(client.getParams(), App.Instance.getUserAgent());
-			
-			try {
-				return client.execute(_get);
-			} catch (ClientProtocolException e) {
-				return null;
-			} catch (IOException e) {
-				return null;
-			}
-		}
-
-		protected void onPostExecute(HttpResponse response) {
-			// On the main thread.
-			
-			ShowMomentActivity parent = _parent.get();
-			
-			if (null != parent) {
-				// 'parent' will be null if it has already been garbage collected.
-				if (parent._getPhotoTask == this) {
-					
-					Bitmap photoBitmap = null;
-					PhotoState state;
-					
-					if (null == response) {
-						state = PhotoState.ERROR;
-						Log.e("OHOW", "No response when getting photo.");
-					} else {
-						int statusCode = response.getStatusLine().getStatusCode();
-
-						if (404 == statusCode) {
-							// The API returns this when there is no photo for the particular 'moment'.
-							state = PhotoState.NO_PHOTO;
-						} else if (200 != statusCode) {
-							state = PhotoState.ERROR;
-							Log.d("OHOW", "Get photo response error:" + Integer.toString(statusCode));
-						} else {
-							Log.d("OHOW", Integer.toString(statusCode));
-							HttpEntity entity = response.getEntity();
-	
-							if (null == entity) {
-								state = PhotoState.ERROR;
-								Log.e("OHOW", "No response body getting photo.");
-							} else {
-	
-								try {
-									InputStream s = entity.getContent(); 
-									photoBitmap = BitmapFactory.decodeStream(s);
-									state = PhotoState.HAVE_PHOTO;
-									
-								} catch (IllegalStateException e) {
-									throw new ImprobableCheckedExceptionException(e);
-								} catch (IOException e) {
-									throw new ImprobableCheckedExceptionException(e);
-								}
-							}
-						}
-					}
-					
-					parent._getPhotoTask = null;
-					parent._photoBitmap = photoBitmap;
-					parent._photoState = state;
 					parent.showState();
 				}
 			}
