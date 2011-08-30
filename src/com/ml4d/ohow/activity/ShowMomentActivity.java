@@ -184,7 +184,7 @@ public class ShowMomentActivity extends Activity {
 			}
 
 			// Not that the 'default' locale means the 'local culture'. We format the string in the same way as the home activity.
-			body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), _moment.getBody()); 
+			body = String.format(Locale.getDefault(), resources.getString(R.string.moment_body_format), _moment.getBody()); 
 			
 			// The 'default' locale (used by getDateTimeInstance()) is suitable for the local culture, and should not be used for persistence, etc.
 			DateFormat localDateFormat = DateFormat.getDateTimeInstance(
@@ -192,7 +192,7 @@ public class ShowMomentActivity extends Activity {
 					DateFormat.MEDIUM); // Time.
 			localDateFormat.setTimeZone(TimeZone.getDefault());
 			// We format the string in the same way as the home activity.
-			details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC())); 
+			details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC())); 
 		} else {
 			
 			switch (_entryState) {

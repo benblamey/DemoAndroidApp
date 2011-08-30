@@ -5,5 +5,7 @@
 
 	<string name="menu_item_slide_show">Introduction to OHOW</string>
 	<string name="menu_item_local_timeline">Local Timeline</string>
+	<string name="menu_item_capture">Capture</string>
+	<string name="menu_item_sign_out">Sign Out</string>
   
 </resources>

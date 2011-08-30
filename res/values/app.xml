@@ -20,5 +20,12 @@
     <string name="general_waiting">Please wait...</string>
     
     <string name="unfriendly_error_prefix">Error: </string>
+    
+    <!-- Format strings for displaying an moment. -->
+	<!-- Parameter #1 is the moment body. -->
+	<string name="moment_body_format">&quot;%1$s&quot;</string>
+	<!-- Parameter #1 is the author username, #2 is a date/time in local format & timezone. -->
+	<string name="moment_detail_format">- %1$s, %2$s</string>
+    
 
 </resources>

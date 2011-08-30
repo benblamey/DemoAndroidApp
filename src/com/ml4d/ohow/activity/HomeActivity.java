@@ -18,7 +18,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
-import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.App;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.Moment;
@@ -40,15 +39,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
 /*
  * Interactive logic for the sign in activity.
  */
-public class HomeActivity extends Activity implements OnClickListener, LocationListener {
+public class HomeActivity extends Activity implements LocationListener {
 
 	// These fields are not persisted.
 	private State _state;
@@ -90,11 +87,8 @@ public class HomeActivity extends Activity implements OnClickListener, LocationL
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.home);
+		setContentView(R.layout.show_moment_activity);
 
-		findViewById(R.id.home_sign_out_button).setOnClickListener(this);
-		findViewById(R.id.home_capture_button).setOnClickListener(this);
-		
 		if (null != savedInstanceState) {
 			_gpsLocation = savedInstanceState.getParcelable("_gpsLocation");
 			_momentTimestamp = (Date)savedInstanceState.getSerializable("_momentTimestamp");
@@ -127,19 +121,6 @@ public class HomeActivity extends Activity implements OnClickListener, LocationL
 		startActivity(new Intent(this, CaptureTextPhotoActivity.class));
 	}
 
-	public void onClick(View view) {
-		switch (view.getId()) {
-		case R.id.home_sign_out_button:
-			signOutButtonClicked();
-			break;
-		case R.id.home_capture_button:
-			captureButtonClicked();
-			break;
-		default:
-			throw new UnknownClickableItemException(view.getId());
-		}
-	}
-	
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -232,6 +213,12 @@ public class HomeActivity extends Activity implements OnClickListener, LocationL
 	        return true;
 	    case R.id.menu_item_local_timeline:
 	    	showLocalTimeline();
+	    	return true;
+	    case R.id.menu_item_sign_out:
+	    	this.signOutButtonClicked();
+	    	return true;
+	    case R.id.menu_item_capture:
+	    	this.captureButtonClicked();
 	    	return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
@@ -358,14 +345,14 @@ public class HomeActivity extends Activity implements OnClickListener, LocationL
 			}
 
 			// Not that the 'default' locale means the 'local culture'.
-			body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), _moment.getBody()); 
+			body = String.format(Locale.getDefault(), resources.getString(R.string.moment_body_format), _moment.getBody()); 
 			
 			// The 'default' locale (used by getDateTimeInstance()) is suitable for the local culture, and should not be used for persistence, etc.
 			DateFormat localDateFormat = DateFormat.getDateTimeInstance(
 					DateFormat.SHORT, // Date.
 					DateFormat.MEDIUM); // Time.
 			localDateFormat.setTimeZone(TimeZone.getDefault());
-			details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC())); 
+			details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC())); 
 		} else {
 			
 			switch (_state) {
@@ -399,9 +386,9 @@ public class HomeActivity extends Activity implements OnClickListener, LocationL
 			details = "";
 		}
 		
-		TextView textViewLocation = (TextView)findViewById(R.id.home_text_view_capture_location);
-		TextView textViewBody = (TextView)findViewById(R.id.home_text_view_body);
-		TextView textViewDetails = (TextView)findViewById(R.id.home_text_view_details);
+		TextView textViewLocation = (TextView)findViewById(R.id.show_moment_activity_text_view_capture_location);
+		TextView textViewBody = (TextView)findViewById(R.id.show_moment_activity_activity_text_view_body);
+		TextView textViewDetails = (TextView)findViewById(R.id.show_moment_activity_text_view_details);
 		
 		textViewLocation.setText(location);
 		textViewBody.setText(body);

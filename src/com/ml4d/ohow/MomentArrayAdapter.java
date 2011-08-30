@@ -79,14 +79,14 @@ public class MomentArrayAdapter extends ArrayAdapter<Moment> {
 		Resources resources = mContext.getResources();
 		
 		// Not that the 'default' locale means the 'local culture'.
-		String body = String.format(Locale.getDefault(), resources.getString(R.string.home_body_format), moment.getBody()); 
+		String body = String.format(Locale.getDefault(), resources.getString(R.string.moment_body_format), moment.getBody()); 
 		
 		// The 'default' locale (used by getDateTimeInstance()) is suitable for the local culture, and should not be used for persistence, etc.
 		DateFormat localDateFormat = DateFormat.getDateTimeInstance(
 				DateFormat.SHORT, // Date.
 				DateFormat.MEDIUM); // Time.
 		localDateFormat.setTimeZone(TimeZone.getDefault());
-		String details = String.format(Locale.getDefault(), resources.getString(R.string.home_detail_format), moment.getUsername(), localDateFormat.format(moment.getDateCreatedUTC()));
+		String details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), moment.getUsername(), localDateFormat.format(moment.getDateCreatedUTC()));
 		
 		TextView bodyTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_body);
 		TextView locationTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_capture_location);
