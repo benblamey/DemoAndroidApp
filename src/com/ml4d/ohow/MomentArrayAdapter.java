@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import com.ml4d.core.WebImageView;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -93,6 +95,14 @@ public class MomentArrayAdapter extends ArrayAdapter<Moment> {
 		bodyTextView.setText(body);
 		locationTextView.setText(location);
 		detailsTextView.setText(details);
+		
+		if (moment.getHasPhoto()) {
+			String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+				+ "?" 
+				+ "id=" + Double.toString(moment.getId())
+				+ "&thumbnail=true";
+			((WebImageView)view.findViewById(R.id.local_timeline_item_web_image_view)).setUrl(url);
+		}
 		
         return view;
     }
