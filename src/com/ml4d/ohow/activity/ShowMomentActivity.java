@@ -275,7 +275,7 @@ public class ShowMomentActivity extends Activity {
 					
 					try {
 						// ProcessJSONResponse() appropriately handles a null result.
-						Object result = OHOWAPIResponseHandler.ProcessJSONResponse(response, getResources());
+						Object result = OHOWAPIResponseHandler.ProcessJSONResponse(response);
 						
 						if (result instanceof JSONObject) {
 							JSONObject resultObject = (JSONObject)result;

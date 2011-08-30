@@ -267,7 +267,7 @@ public class LocalTimelineActivity extends ListActivity implements AdapterView.O
 					
 					try {
 						// ProcessJSONResponse() appropriately handles a null result.
-						Object result = OHOWAPIResponseHandler.ProcessJSONResponse(response, getResources());
+						Object result = OHOWAPIResponseHandler.ProcessJSONResponse(response);
 						
 						if (result instanceof JSONArray) {
 							JSONArray resultArray = (JSONArray)result;

@@ -470,7 +470,7 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 				try {
 					// ProcessJSONResponse() appropriately handles a null
 					// result.
-					OHOWAPIResponseHandler.ProcessJSONResponse(result, getResources());
+					OHOWAPIResponseHandler.ProcessJSONResponse(result);
 					parent._state = State.SUCCESS;
 					
 					// Store the credentials.

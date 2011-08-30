@@ -28,7 +28,7 @@ public class OHOWAPIResponseHandler {
 	 * expected to return JSON. (i.e. endpoints that return images are not
 	 * appropriate).
 	 */
-	public static Object ProcessJSONResponse(HttpResponse response, Resources resources) throws NoResponseAPIException,
+	public static Object ProcessJSONResponse(HttpResponse response) throws NoResponseAPIException,
 			ApiViaHttpException {
 
 		if (null == response) {
@@ -72,6 +72,9 @@ public class OHOWAPIResponseHandler {
 			}
 
 			if (200 != statusCode) {
+				
+				Resources resources = App.Instance.getResources();
+				
 				// Something went wrong with the request.
 
 				// First, try to get a friendly message for the error. This is

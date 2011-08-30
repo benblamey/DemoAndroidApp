@@ -457,7 +457,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 					// ProcessJSONResponse() appropriately handles a null result.
 					
 					// We don't actually care about the response, we just need to ensure there are no errors.
-					OHOWAPIResponseHandler.ProcessJSONResponse(response, getResources());
+					OHOWAPIResponseHandler.ProcessJSONResponse(response);
 
 					// To complete without error is a success.
 					parent._state = State.SUCCESS;

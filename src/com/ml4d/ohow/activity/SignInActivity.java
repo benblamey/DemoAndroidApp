@@ -377,7 +377,7 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 					// ProcessJSONResponse() appropriately handles a null result.
 					
 					// We don't actually care about the response, we just need to ensure there are no errors.
-					OHOWAPIResponseHandler.ProcessJSONResponse(response, getResources());
+					OHOWAPIResponseHandler.ProcessJSONResponse(response);
 
 					// Store the credentials now that they have been verified.
 					auth.setKnownGoodDetails(_username, _password);
