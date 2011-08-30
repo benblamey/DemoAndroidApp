@@ -229,7 +229,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 */
 	private void showState() {
 
-		if (CapturedMoments.getInstance(this).hasMomentBeenCapturedRecently(_captureUniqueId)) {
+		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueId)) {
 			_state = State.FAILED_ALREADY_CAPTURED;
 		}
 		
@@ -357,7 +357,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	
 	private void captureButtonClicked() {
 		
-		if (CapturedMoments.getInstance(this).hasMomentBeenCapturedRecently(_captureUniqueId)) {
+		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueId)) {
 			throw new IllegalStateException("This moment has already been captured.");
 		}
 		

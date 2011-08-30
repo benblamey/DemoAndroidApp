@@ -323,7 +323,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		// The 'CaptureLocation' activity is marked in the manifest XML as not appearing
 		// in history. Therefore, we should never arrive at this activity for a moment
 		// that has already been captured.
-		if (CapturedMoments.getInstance(this).hasMomentBeenCapturedRecently(_captureUniqueID)) {
+		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueID)) {
 			throw new IllegalStateException("This moment has already been captured.");
 		}
 		
@@ -462,7 +462,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 					parent._state = State.SUCCESS;
 					// We want to record the fact that this moment has been captured -
 					// This means we can prevent the user from capturing it again by going back through the activity history.
-					CapturedMoments.getInstance(parent).momentHasBeenCaptured(parent._captureUniqueID);
+					CapturedMoments.getInstance().momentHasBeenCaptured(parent._captureUniqueID);
 					
 				} catch (ApiViaHttpException e) {
 					parent._state = State.FAILED;
