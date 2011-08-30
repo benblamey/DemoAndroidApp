@@ -48,7 +48,7 @@ import android.widget.Toast;
 /*
  * Interactive logic for the sign in activity.
  */
-public class Home extends Activity implements OnClickListener, LocationListener {
+public class HomeActivity extends Activity implements OnClickListener, LocationListener {
 
 	// These fields are not persisted.
 	private State _state;
@@ -110,7 +110,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	private void startSignInActivityIfNotSignedIn() {
 		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
+			startActivity(new Intent(this, SignInActivity.class));
 		}
 	}
 
@@ -119,12 +119,12 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		CredentialStore.getInstance().clear();
 		
 		// Start the sign in activity.
-		startActivity(new Intent(this, SignIn.class));
+		startActivity(new Intent(this, SignInActivity.class));
 	}
 	
 	private void captureButtonClicked() {	
 		// Start the sign in activity.
-		startActivity(new Intent(this, CaptureTextPhoto.class));
+		startActivity(new Intent(this, CaptureTextPhotoActivity.class));
 	}
 
 	public void onClick(View view) {
@@ -239,9 +239,9 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	}
 
 	private void showSlideShow() {
-		Intent i = new Intent(this, SlideShow.class);
+		Intent i = new Intent(this, SlideShowActivity.class);
 		// When the slide show is finished, come back to this activity.
-		i.putExtra(SlideShow.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, Home.class));
+		i.putExtra(SlideShowActivity.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, HomeActivity.class));
 		startActivity(i);
 	}
 	
@@ -266,9 +266,9 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		}
 		
 		if (startActivity) {
-			Intent i = new Intent(this, LocalTimeline.class);
-			i.putExtra(LocalTimeline.EXTRA_LATITUDE, latitude);
-			i.putExtra(LocalTimeline.EXTRA_LONGITUDE, longitude);
+			Intent i = new Intent(this, LocalTimelineActivity.class);
+			i.putExtra(LocalTimelineActivity.EXTRA_LATITUDE, latitude);
+			i.putExtra(LocalTimelineActivity.EXTRA_LONGITUDE, longitude);
 			startActivity(i);	
 		}
 	}
@@ -413,14 +413,14 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 	 */
 	private class GetMomentTask extends AsyncTask<Void, Void, HttpResponse> {
 		
-		private WeakReference<Home> _parent;		 
+		private WeakReference<HomeActivity> _parent;		 
 		private double _longitude;
 		private double _latitude;
 		private HttpGet _get;
 
-		public GetMomentTask(Home parent, double latitude, double longitude) {
+		public GetMomentTask(HomeActivity parent, double latitude, double longitude) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<Home>(parent);
+			_parent = new WeakReference<HomeActivity>(parent);
 			_latitude = latitude;
 			_longitude = longitude;
  
@@ -450,7 +450,7 @@ public class Home extends Activity implements OnClickListener, LocationListener 
 		protected void onPostExecute(HttpResponse response) {
 			// On the main thread.
 			
-			Home parent = _parent.get();
+			HomeActivity parent = _parent.get();
 			
 			if (null != parent) {
 				// 'parent' will be null if it has already been garbage collected.

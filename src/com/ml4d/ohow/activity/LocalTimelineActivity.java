@@ -38,7 +38,7 @@ import android.widget.ListView;
 /*
  * Interactive logic for the 'LocalTimeline' activity.
  */
-public class LocalTimeline extends ListActivity implements AdapterView.OnItemClickListener {
+public class LocalTimelineActivity extends ListActivity implements AdapterView.OnItemClickListener {
 
 	// These fields are persisted.
 	private State _state;
@@ -98,7 +98,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	private void startSignInActivityIfNotSignedIn() {
 		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
+			startActivity(new Intent(this, SignInActivity.class));
 		}
 	}
 	
@@ -219,14 +219,14 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	 */
 	private class GetMomentsTask extends AsyncTask<Void, Void, HttpResponse> {
 		
-		private WeakReference<LocalTimeline> _parent;
+		private WeakReference<LocalTimelineActivity> _parent;
 		private double _longitude;
 		private double _latitude;
 		private HttpGet _get;
 
-		public GetMomentsTask(LocalTimeline parent, double latitude, double longitude) {
+		public GetMomentsTask(LocalTimelineActivity parent, double latitude, double longitude) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<LocalTimeline>(parent);
+			_parent = new WeakReference<LocalTimelineActivity>(parent);
 			_latitude = latitude;
 			_longitude = longitude;
 
@@ -256,7 +256,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 		protected void onPostExecute(HttpResponse response) {
 			// On the main thread.
 			
-			LocalTimeline parent = _parent.get();
+			LocalTimelineActivity parent = _parent.get();
 			
 			if (null != parent) {
 				// 'parent' will be null if it has already been garbage collected.

@@ -48,7 +48,7 @@ import java.util.regex.Matcher;
 /*
  * Interactive logic for the register activity.
  */
-public class Register extends Activity implements OnClickListener, DialogInterface.OnClickListener {
+public class RegisterActivity extends Activity implements OnClickListener, DialogInterface.OnClickListener {
 
 	/*
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -284,9 +284,9 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	}
 
 	private void showSlideShow() {
-		Intent intent = new Intent(this, SlideShow.class);
+		Intent intent = new Intent(this, SlideShowActivity.class);
 		// When the slide show is finished, come back to this activity.
-		intent.putExtra(SlideShow.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, Register.class));
+		intent.putExtra(SlideShowActivity.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, RegisterActivity.class));
 		startActivity(intent);
 	}
 	
@@ -416,7 +416,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			// When the user clicks on the success confirmation, go to the home activity 
 			// (we have already stored the credentials, and so are 'signed in').
 			if (DialogInterface.BUTTON_POSITIVE == which) {
-				Intent i = new Intent(this, Home.class);
+				Intent i = new Intent(this, HomeActivity.class);
 				startActivity(i);
 				break;
 			} else {
@@ -434,13 +434,13 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	 * Asynchronously performs a HTTP request.
 	 */
 	private class RegisterApiTask extends AsyncTask<HttpPost, Void, HttpResponse> {
-		private WeakReference<Register> _parent;
+		private WeakReference<RegisterActivity> _parent;
 		private String _username;
 		private String _password;
 
-		public RegisterApiTask(Register parent, String username, String password) {
+		public RegisterApiTask(RegisterActivity parent, String username, String password) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<Register>(parent);
+			_parent = new WeakReference<RegisterActivity>(parent);
 			_username = username;
 			_password = password;
 		}
@@ -462,7 +462,7 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 
 		protected void onPostExecute(HttpResponse result) {
 			
-			Register parent = _parent.get();
+			RegisterActivity parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
 			if ((null != parent) && (parent._registerTask == this)) {

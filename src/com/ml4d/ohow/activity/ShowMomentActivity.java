@@ -111,7 +111,7 @@ public class ShowMomentActivity extends Activity {
 	private void startSignInActivityIfNotSignedIn() {
 		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
+			startActivity(new Intent(this, SignInActivity.class));
 		}
 	}
 	

@@ -37,7 +37,7 @@ import android.widget.Toast;
 /*
  * Interactive logic for the 'capturetextphoto' activity.
  */
-public class CaptureTextPhoto extends Activity implements OnClickListener, DialogInterface.OnClickListener, LocationListener {
+public class CaptureTextPhotoActivity extends Activity implements OnClickListener, DialogInterface.OnClickListener, LocationListener {
 
 	/**
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -140,7 +140,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 	private void startSignInActivityIfNotSignedIn() {
 		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
+			startActivity(new Intent(this, SignInActivity.class));
 		}
 	}
 	
@@ -291,7 +291,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			CredentialStore.getInstance().clear();
 			
 			// Go back to the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
+			startActivity(new Intent(this, SignInActivity.class));
 			
 			// Show the user some toast explaining why they have been redirected.
 			Toast.makeText(this, resources.getString(R.string.sign_in_redirected_because_credentials_invalid), Toast.LENGTH_LONG).show();
@@ -421,7 +421,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 				} else {
 					
 					// Start the 'CaptureLocation' activity.
-					Intent pickLocationIntent = new Intent(this, CaptureLocation.class);
+					Intent pickLocationIntent = new Intent(this, CaptureLocationActivity.class);
 					pickLocationIntent.putExtra("body", body);
 					pickLocationIntent.putExtra("longitude", longitude);
 					pickLocationIntent.putExtra("latitude", latitude);
@@ -464,7 +464,7 @@ public class CaptureTextPhoto extends Activity implements OnClickListener, Dialo
 			// Next time the activity starts, don't assume there is still a problem with GPS.
 			_errorMessage = "";
 			_state = State.DATA_MOMENT;
-			startActivity(new Intent(this, Home.class));
+			startActivity(new Intent(this, HomeActivity.class));
 			break;
 		case FAILED_ALREADY_CAPTURED:
 		case DATA_MOMENT:

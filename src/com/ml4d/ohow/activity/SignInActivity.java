@@ -41,7 +41,7 @@ import android.widget.Toast;
 /*
  * Interactive logic for the sign in activity.
  */
-public class SignIn extends Activity implements OnClickListener, DialogInterface.OnClickListener {
+public class SignInActivity extends Activity implements OnClickListener, DialogInterface.OnClickListener {
 
 	/*
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -84,7 +84,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		case SUCCESS:
 			// Start the 'home' activity.
 			// Credentials/session key has already been stored.
-			startActivity(new Intent(this, Home.class));
+			startActivity(new Intent(this, HomeActivity.class));
 			break;
 		case FAILED:
 			// Show a 'failed' dialog.
@@ -109,7 +109,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		
 		if (CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the home activity.
-			startActivity(new Intent(this, Home.class));
+			startActivity(new Intent(this, HomeActivity.class));
 		}
 
 		findViewById(R.id.sign_in_sign_in_button).setOnClickListener(this);
@@ -242,9 +242,9 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 
 	private void registerButtonClicked() {
 		// Start the 'SlideShow' activity. 
-		Intent intent = new Intent(this, SlideShow.class);
+		Intent intent = new Intent(this, SlideShowActivity.class);
 		// We want to direct the user to the register page after the slideshow is finished.
-		intent.putExtra(SlideShow.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, Register.class));
+		intent.putExtra(SlideShowActivity.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, RegisterActivity.class));
 		startActivity(intent);
 	}
 	
@@ -338,13 +338,13 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 	 * Asynchronously performs a HTTP request.
 	 */
 	private class SignInTask extends AsyncTask<HttpPost, Void, HttpResponse> {
-		private WeakReference<SignIn> _parent;
+		private WeakReference<SignInActivity> _parent;
 		private String _username;
 		private String _password;		 
 
-		public SignInTask(SignIn parent, String username, String password) {
+		public SignInTask(SignInActivity parent, String username, String password) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<SignIn>(parent);
+			_parent = new WeakReference<SignInActivity>(parent);
 			_username = username;
 			_password = password;
 		}
@@ -366,7 +366,7 @@ public class SignIn extends Activity implements OnClickListener, DialogInterface
 		protected void onPostExecute(HttpResponse response) {
 			// On the main thread.
 			
-			SignIn parent = _parent.get();
+			SignInActivity parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
 			if ((null != parent ) && (parent._signInTask == this)) {

@@ -16,7 +16,7 @@ import android.widget.TextView;
 /**
  * Logic for the splash screen activity.
  */
-public class Splash extends Activity {
+public class SplashActivity extends Activity {
 
 	private SplashScreenWaitTask _task;
 	private static final Integer _delayMS = 1000; 
@@ -63,9 +63,9 @@ public class Splash extends Activity {
 		CredentialStore auth = CredentialStore.getInstance();
 		Intent nextActivityIntent;
 		if (auth.getHaveVerifiedCredentials()) {
-			nextActivityIntent = new Intent(this, Home.class);	
+			nextActivityIntent = new Intent(this, HomeActivity.class);	
 		} else {
-			nextActivityIntent = new Intent(this, SignIn.class);
+			nextActivityIntent = new Intent(this, SignInActivity.class);
 		}
 		startActivity(nextActivityIntent);
 	}
@@ -82,13 +82,13 @@ public class Splash extends Activity {
 	 * Does a simple wait on another thread.
 	 */
 	private static class SplashScreenWaitTask extends AsyncTask<Object, Object, Object> {
-		private WeakReference<Splash> _parent;
+		private WeakReference<SplashActivity> _parent;
 		private Integer _delayMs;
 		private static final Integer _loopDelayMs = 100;
 		
-		public SplashScreenWaitTask(Splash parent, Integer delayMs) {
+		public SplashScreenWaitTask(SplashActivity parent, Integer delayMs) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<Splash>(parent);
+			_parent = new WeakReference<SplashActivity>(parent);
 			_delayMs = delayMs;
 		}
 
@@ -109,7 +109,7 @@ public class Splash extends Activity {
 		}
 
 		protected void onPostExecute(Object result) {
-			Splash parent = _parent.get();
+			SplashActivity parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
 			// We want to ensure we only take action if the parent is actually 'using' this instance of the task.

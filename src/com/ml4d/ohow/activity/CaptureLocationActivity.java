@@ -61,7 +61,7 @@ import android.widget.Toast;
 /**
  * Interactive logic for the 'capturelocation' activity.
  */
-public class CaptureLocation extends ListActivity implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener {
+public class CaptureLocationActivity extends ListActivity implements DialogInterface.OnClickListener, AdapterView.OnItemClickListener {
 	
 	/**
 	 * With the activity lifecycle an an asynchronous HTTP request to handle,
@@ -101,7 +101,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 		
 		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
+			startActivity(new Intent(this, SignInActivity.class));
 		}
 
 		if (savedInstanceState != null) {
@@ -205,7 +205,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			
 			// Start the 'home' activity.
 			// Credentials/session key has already been stored.
-			startActivity(new Intent(this, Home.class));
+			startActivity(new Intent(this, HomeActivity.class));
 			
 			// Show the user some toast to inform them of the success.
 			Toast.makeText(this, resources.getString(R.string.capture_location_waiting_dialog_success), Toast.LENGTH_LONG).show();
@@ -231,7 +231,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 			CredentialStore.getInstance().clear();
 			
 			// Go back to the sign in activity.
-			startActivity(new Intent(this, SignIn.class));
+			startActivity(new Intent(this, SignInActivity.class));
 			
 			// Show the user some toast explaining why they have been redirected.
 			Toast.makeText(this, resources.getString(R.string.sign_in_redirected_because_credentials_invalid), Toast.LENGTH_LONG).show();
@@ -372,7 +372,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 				}
 				
 				if (null != _photoFile) {
-					FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), CaptureTextPhoto.MIME_TYPE_FOR_PHOTO, Charset2.getUtf8().name());
+					FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), CaptureTextPhotoActivity.MIME_TYPE_FOR_PHOTO, Charset2.getUtf8().name());
 					entity.addPart("photo", photoFilePart);
 				}
 				post.setEntity(entity);
@@ -410,12 +410,12 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 	 * Asynchronously performs the Capture HTTP request.
 	 */
 	private class CaptureTask extends AsyncTask<HttpPost, Void, HttpResponse> {
-		private WeakReference<CaptureLocation> _parent;
+		private WeakReference<CaptureLocationActivity> _parent;
 		private String _userAgent;		 
 
-		public CaptureTask(CaptureLocation parent) {
+		public CaptureTask(CaptureLocationActivity parent) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<CaptureLocation>(parent);
+			_parent = new WeakReference<CaptureLocationActivity>(parent);
 
 			// While we are on the UI thread, build a user-agent string from
 			// the package details.
@@ -445,7 +445,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 		protected void onPostExecute(HttpResponse response) {
 			// On the main thread.
 			
-			CaptureLocation parent = _parent.get();
+			CaptureLocationActivity parent = _parent.get();
 			
 			// 'parent' will be null if it has already been garbage collected.
 			if ((null != parent) && (parent._captureTask == this)) {
@@ -493,16 +493,16 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 	 */
 	private class GetPlacesTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 		
-		private WeakReference<CaptureLocation> _parent;
+		private WeakReference<CaptureLocationActivity> _parent;
 		private String _userAgent;		 
 		private double _longitude;
 		private double _latitude;
 		@SuppressWarnings("unused")
 		private double _fixAccuracyMeters;
 
-		public GetPlacesTask(CaptureLocation parent, double latitude, double longitude, double fixAccuracyMeters) {
+		public GetPlacesTask(CaptureLocationActivity parent, double latitude, double longitude, double fixAccuracyMeters) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<CaptureLocation>(parent);
+			_parent = new WeakReference<CaptureLocationActivity>(parent);
 			_latitude = latitude;
 			_longitude = longitude;
 			_fixAccuracyMeters = fixAccuracyMeters;
@@ -548,7 +548,7 @@ public class CaptureLocation extends ListActivity implements DialogInterface.OnC
 		protected void onPostExecute(HttpResponse response) {
 			// On the main thread.
 			
-			CaptureLocation parent = _parent.get();
+			CaptureLocationActivity parent = _parent.get();
 			
 			if (null != parent) {
 				// 'parent' will be null if it has already been garbage collected.

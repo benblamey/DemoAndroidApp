@@ -12,10 +12,10 @@ import android.test.ActivityInstrumentationTestCase2;
  * -e class com.ml4d.ohow.activity.SplashTest \
  * com.ml4d.ohow.tests/android.test.InstrumentationTestRunner
  */
-public class SplashTest extends ActivityInstrumentationTestCase2<Splash> {
+public class SplashTest extends ActivityInstrumentationTestCase2<SplashActivity> {
 
     public SplashTest() {
-        super("com.ml4d.ohow", Splash.class);
+        super("com.ml4d.ohow", SplashActivity.class);
     }
 
 }

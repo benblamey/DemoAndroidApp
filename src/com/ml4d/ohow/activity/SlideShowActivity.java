@@ -14,7 +14,7 @@ import android.widget.ImageView;
 /**
  * Interactive logic for the slide show activity.
  */
-public class SlideShow extends Activity implements OnClickListener {
+public class SlideShowActivity extends Activity implements OnClickListener {
 
 	/**
 	 * The zero-based index of the slide being shown.
@@ -85,7 +85,7 @@ public class SlideShow extends Activity implements OnClickListener {
 		
 		Intent intent;
 		if (thereIsAnotherSlide) {
-			intent = new Intent(this, SlideShow.class);
+			intent = new Intent(this, SlideShowActivity.class);
 			intent.putExtra(CALLBACK_INTENT_EXTRA_KEY, _intentWhenFinished);
 			intent.putExtra(SLIDE_NUMBER_INTENT_EXTRA_KEY, _slideNumber + 1); 
 		} else {
