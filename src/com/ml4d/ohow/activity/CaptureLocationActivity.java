@@ -128,7 +128,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 			_longitude = savedInstanceState.getDouble("_longitude");
 			_fixAccuracyMeters = savedInstanceState.getDouble("_fixAccuracyMeters");
 			_photoFile = (File)(savedInstanceState.getSerializable("_photoFile"));
-			_captureUniqueID = savedInstanceState.getString("captureUniqueID");
+			_captureUniqueID = savedInstanceState.getString("_captureUniqueID");
 
 		} else {
 			// The activity is being started.
@@ -256,6 +256,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		outState.putDouble("_latitude", _latitude);
 		outState.putDouble("_longitude", _longitude);
 		outState.putDouble("_fixAccuracyMeters", _fixAccuracyMeters);
+		outState.putString("_captureUniqueID", _captureUniqueID);
 	}
 
 	@Override

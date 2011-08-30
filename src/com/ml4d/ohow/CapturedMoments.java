@@ -47,6 +47,11 @@ public class CapturedMoments {
 	 * @param captureUniqueId
 	 */
 	public synchronized void momentHasBeenCaptured(String captureUniqueId) {
+		
+		if (("" == captureUniqueId) || (null == captureUniqueId)) {
+			throw new NullPointerException();
+		}
+		
 		// Adds the ID to the end of the array.
 		_capturedMomentIds.add(captureUniqueId);
 		saveState();

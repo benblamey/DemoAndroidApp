@@ -57,7 +57,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	private Location _location;
 	private boolean _gettingLocationUpdates;
 	private File _photoFile;
-	private String _captureUniqueId;
+	private String _captureUniqueID;
 	
 	private static final String _jpegExtensionWithoutDot = "jpg";
 	
@@ -101,7 +101,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
 			_photoFile = (File)savedInstanceState.getSerializable("_photoFile");
-			_captureUniqueId = savedInstanceState.getString("_captureUniqueId");
+			_captureUniqueID = savedInstanceState.getString("_captureUniqueID");
 			
 			if (State.FAILED_INVALID_CREDENTIALS == _state) {
 				// When the credentials are invalid, we immediately redirect to the sign in page.
@@ -131,7 +131,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 		} else {
 			_state = State.DATA_MOMENT;
 			// This is a new moment - generate a new unique ID to associate with it.
-			_captureUniqueId = UUID.randomUUID().toString();
+			_captureUniqueID = UUID.randomUUID().toString();
 		}
 
 		showState();
@@ -160,6 +160,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 
 		outState.putString("_state", _state.name());
 		outState.putString("_errorMessage", _errorMessage);
+		outState.putString("_captureUniqueID", _captureUniqueID);
 		
 		if (null != _photoFile) {
 			outState.putSerializable("_photoFile", _photoFile);
@@ -229,7 +230,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 */
 	private void showState() {
 
-		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueId)) {
+		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueID)) {
 			_state = State.FAILED_ALREADY_CAPTURED;
 		}
 		
@@ -357,7 +358,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	
 	private void captureButtonClicked() {
 		
-		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueId)) {
+		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueID)) {
 			throw new IllegalStateException("This moment has already been captured.");
 		}
 		
@@ -426,7 +427,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 					pickLocationIntent.putExtra("longitude", longitude);
 					pickLocationIntent.putExtra("latitude", latitude);
 					pickLocationIntent.putExtra("fixAccuracyMeters", fixAccuracyMeters);
-					pickLocationIntent.putExtra("captureUniqueID", _captureUniqueId);
+					pickLocationIntent.putExtra("captureUniqueID", _captureUniqueID);
 					if (null != _photoFile) {
 						pickLocationIntent.putExtra("photoFile", _photoFile);
 					}
