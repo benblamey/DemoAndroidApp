@@ -127,20 +127,20 @@ public class OHOWAPIResponseHandler {
 
 		String baseUrl;
 		OfficialBuild officialBuild = OfficialBuild.getInstance();
-		String foo = "cpanel02.lhc.uk.networkeq.net/~soberfun/";
+		String dommain = "cpanel02.lhc.uk.networkeq.net/~soberfun/";
 		
 		if (officialBuild.useLiveOHOWApi()) {
-			baseUrl = foo + "live_v1/"; 
+			baseUrl = dommain + "live_v1/"; 
 		} else if (officialBuild.isOfficialBuild()) {
 			// All official builds that do not use the live server use the main dev server.
-			baseUrl = foo + "dev/";
+			baseUrl = dommain + "dev/";
 		} else {
 			String phoneID = Secure.getString(App.Instance.getContentResolver(), Secure.ANDROID_ID); 
 			if ("20013fc7bad6deee".equals(phoneID)) {
 				// Use Ben's dev server API stream for Ben's phone.
-				baseUrl = foo + "dev_ben/";	
+				baseUrl = dommain + "dev_ben/";	
 			} else {
-				baseUrl = foo + "dev/";
+				baseUrl = dommain + "dev/";
 			}
 		}
 		
