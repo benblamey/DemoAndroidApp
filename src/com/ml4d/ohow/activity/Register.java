@@ -18,6 +18,7 @@ import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.APIConstants;
+import com.ml4d.ohow.App;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.R;
@@ -28,8 +29,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -436,7 +435,6 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 	 */
 	private class RegisterApiTask extends AsyncTask<HttpPost, Void, HttpResponse> {
 		private WeakReference<Register> _parent;
-		private String _userAgent;
 		private String _username;
 		private String _password;
 
@@ -445,23 +443,13 @@ public class Register extends Activity implements OnClickListener, DialogInterfa
 			_parent = new WeakReference<Register>(parent);
 			_username = username;
 			_password = password;
-			
-			// While we are on the UI thread, build a user-agent string from
-			// the package details.
-			PackageInfo packageInfo;
-			try {
-				packageInfo = parent.getPackageManager().getPackageInfo(parent.getPackageName(), 0);
-			} catch (NameNotFoundException e1) {
-				throw new ImprobableCheckedExceptionException(e1);
-			}
-			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
 		}
 
 		@Override
 		protected HttpResponse doInBackground(HttpPost... arg0) {
 			// This is executed on a background thread.
 			HttpClient client = new DefaultHttpClient();
-			HttpProtocolParams.setUserAgent(client.getParams(), _userAgent);
+			HttpProtocolParams.setUserAgent(client.getParams(), App.Instance.getUserAgent());
 			try {
 				return client.execute(arg0[0]);
 			} catch (ClientProtocolException e) {

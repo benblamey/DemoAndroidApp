@@ -12,8 +12,8 @@ import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
+import com.ml4d.ohow.App;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.Moment;
 import com.ml4d.ohow.MomentArrayAdapter;
@@ -26,8 +26,6 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -222,7 +220,6 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 	private class GetMomentsTask extends AsyncTask<Void, Void, HttpResponse> {
 		
 		private WeakReference<LocalTimeline> _parent;
-		private String _userAgent;		 
 		private double _longitude;
 		private double _latitude;
 		private HttpGet _get;
@@ -233,15 +230,6 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 			_latitude = latitude;
 			_longitude = longitude;
 
-			// While we are on the UI thread, build a user-agent string from
-			// the package details.
-			PackageInfo packageInfo;
-			try {
-				packageInfo = parent.getPackageManager().getPackageInfo(parent.getPackageName(), 0);
-			} catch (NameNotFoundException e) {
-				throw new ImprobableCheckedExceptionException(e);
-			}
-			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
 			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
 					+ "?" + "latitude=" + Double.toString(_latitude)
 					+ "&" + "longitude=" + Double.toString(_longitude)
@@ -254,7 +242,7 @@ public class LocalTimeline extends ListActivity implements AdapterView.OnItemCli
 		protected HttpResponse doInBackground(Void... arg0) {
 			// This is executed on a background thread.
 			HttpClient client = new DefaultHttpClient();
-			HttpProtocolParams.setUserAgent(client.getParams(), _userAgent);
+			HttpProtocolParams.setUserAgent(client.getParams(), App.Instance.getUserAgent());
 			
 			try {
 				return client.execute(_get);

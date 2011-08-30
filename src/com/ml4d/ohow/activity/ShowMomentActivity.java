@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
+import com.ml4d.ohow.App;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.Moment;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
@@ -25,8 +26,6 @@ import com.ml4d.ohow.exceptions.ApiViaHttpException;
 import com.ml4d.ohow.exceptions.NoResponseAPIException;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -267,7 +266,6 @@ public class ShowMomentActivity extends Activity {
 	private class GetMomentTask extends AsyncTask<Void, Void, HttpResponse> {
 		
 		private WeakReference<ShowMomentActivity> _parent;
-		private String _userAgent;
 		private int _momentId;
 		private HttpGet _get;
 
@@ -276,15 +274,6 @@ public class ShowMomentActivity extends Activity {
 			_parent = new WeakReference<ShowMomentActivity>(parent);
 			_momentId = momentId;
 
-			// While we are on the UI thread, build a user-agent string from
-			// the package details.
-			PackageInfo packageInfo;
-			try {
-				packageInfo = parent.getPackageManager().getPackageInfo(parent.getPackageName(), 0);
-			} catch (NameNotFoundException e1) {
-				throw new ImprobableCheckedExceptionException(e1);
-			}
-			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
 			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "show_moment.php"
 					+ "?" + "id=" + Double.toString(_momentId));
 			_get.setHeader("Accept", "application/json");
@@ -294,7 +283,7 @@ public class ShowMomentActivity extends Activity {
 		protected HttpResponse doInBackground(Void... arg0) {
 			// This is executed on a background thread.
 			HttpClient client = new DefaultHttpClient();
-			HttpProtocolParams.setUserAgent(client.getParams(), _userAgent);
+			HttpProtocolParams.setUserAgent(client.getParams(), App.Instance.getUserAgent());
 			
 			try {
 				return client.execute(_get);
@@ -361,7 +350,6 @@ public class ShowMomentActivity extends Activity {
 	private class GetPhotoTask extends AsyncTask<Void, Void, HttpResponse> {
 		
 		private WeakReference<ShowMomentActivity> _parent;
-		private String _userAgent;
 		private int _momentId;
 		private HttpGet _get;
 
@@ -369,16 +357,6 @@ public class ShowMomentActivity extends Activity {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<ShowMomentActivity>(parent);
 			_momentId = momentId;
-
-			// While we are on the UI thread, build a user-agent string from
-			// the package details.
-			PackageInfo packageInfo;
-			try {
-				packageInfo = parent.getPackageManager().getPackageInfo(parent.getPackageName(), 0);
-			} catch (NameNotFoundException e1) {
-				throw new ImprobableCheckedExceptionException(e1);
-			}
-			_userAgent = packageInfo.packageName + " Android App, version: " + packageInfo.versionName;
 			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" + "id=" + Double.toString(_momentId));
 			// We need to accept any kind of image, or JSON - so for simplicity just accept anything.
@@ -389,7 +367,7 @@ public class ShowMomentActivity extends Activity {
 		protected HttpResponse doInBackground(Void... arg0) {
 			// This is executed on a background thread.
 			HttpClient client = new DefaultHttpClient();
-			HttpProtocolParams.setUserAgent(client.getParams(), _userAgent);
+			HttpProtocolParams.setUserAgent(client.getParams(), App.Instance.getUserAgent());
 			
 			try {
 				return client.execute(_get);
