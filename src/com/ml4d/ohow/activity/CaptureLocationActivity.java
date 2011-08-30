@@ -577,7 +577,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 					}
 					
 					// Add the special 'unlisted' moment to the list. 
-					// This means there is an moment to select if the Google request failed, or if the location
+					// This means there is a location to select if the Google request failed, or if the location
 					// is not among the results.
 					locations.add(LocationForCapture.getUnlisted());
 					

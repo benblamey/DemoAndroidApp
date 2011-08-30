@@ -175,7 +175,7 @@ public class ShowMomentActivity extends Activity {
 		String body;
 		String details;
 		if (null != _moment) {
-			// Otherwise, if we have an moment, we show it. We do this even if we failed to get a new moment.
+			// Otherwise, if we have a moment, we show it. We do this even if we failed to get a new moment.
 
 			location = _moment.getLocationName();
 			if ((null == location) || (0 == location.length())) {
