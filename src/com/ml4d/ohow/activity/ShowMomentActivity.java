@@ -1,32 +1,25 @@
 package com.ml4d.ohow.activity;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.ml4d.core.WebImageView;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
-import com.ml4d.ohow.App;
+
 import com.ml4d.ohow.CredentialStore;
+import com.ml4d.ohow.ITaskFinished;
 import com.ml4d.ohow.Moment;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
 import com.ml4d.ohow.exceptions.NoResponseAPIException;
+import com.ml4d.ohow.tasks.ShowMomentTask;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -34,10 +27,10 @@ import android.widget.TextView;
 /**
  * Interactive logic for the sign in activity.
  */
-public class ShowMomentActivity extends Activity {
+public class ShowMomentActivity extends Activity implements ITaskFinished {
 
 	// These fields are not persisted.
-	private GetMomentTask _getMomentTask;
+	private ShowMomentTask _getMomentTask;
 	
 	// These fields are persisted.
 	private State _entryState;
@@ -79,7 +72,7 @@ public class ShowMomentActivity extends Activity {
 				throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
 			}
 			
-			_getMomentTask = new GetMomentTask(this, _momentId);
+			_getMomentTask = new ShowMomentTask(this, _momentId);
 			_getMomentTask.execute((Void[])null);
 
 			// Fetch the photo - there might not be one, but it is faster to try immediately and risk the wasted effort than
@@ -226,87 +219,37 @@ public class ShowMomentActivity extends Activity {
 		textViewBody.setText(body);
 		textViewDetails.setText(details);
 	}
-	
-	/**
-	 * Asynchronously performs the get moment HTTP request.
-	 */
-	private class GetMomentTask extends AsyncTask<Void, Void, HttpResponse> {
-		
-		private WeakReference<ShowMomentActivity> _parent;
-		private int _momentId;
-		private HttpGet _get;
 
-		public GetMomentTask(ShowMomentActivity parent, int momentId) {
-			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<ShowMomentActivity>(parent);
-			_momentId = momentId;
-
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "show_moment.php"
-					+ "?" + "id=" + Double.toString(_momentId));
-			_get.setHeader("Accept", "application/json");
-		}
-
-		@Override
-		protected HttpResponse doInBackground(Void... arg0) {
-			// This is executed on a background thread.
-			HttpClient client = new DefaultHttpClient();
-			HttpProtocolParams.setUserAgent(client.getParams(), App.Instance.getUserAgent());
+	@Override
+	public void CallMeBack(Object sender) {
+		if (sender == _getMomentTask) {
+			State error;
+			String apiErrorMessage = "";
+			Moment moment = null;
 			
 			try {
-				return client.execute(_get);
-			} catch (ClientProtocolException e) {
-				return null;
+				moment = _getMomentTask.getResult();
+				error = State.HAVE_MOMENT;
+			} catch (JSONException e) {
+				Log.d("OHOW", e.toString());
+				error = State.API_GARBAGE_RESPONSE;
+			} catch (ApiViaHttpException e) {
+				Log.d("OHOW", e.toString());
+				error = State.API_ERROR_RESPONSE;
+				apiErrorMessage = e.getLocalizedMessage();
+			} catch (NoResponseAPIException e) {
+				Log.d("OHOW", e.toString());
+				error = State.NO_API_RESPONSE;
 			} catch (IOException e) {
-				return null;
+				Log.d("OHOW", e.toString());
+				error = State.NO_API_RESPONSE;
 			}
-		}
 
-		protected void onPostExecute(HttpResponse response) {
-			// On the main thread.
-			
-			ShowMomentActivity parent = _parent.get();
-			
-			if (null != parent) {
-				// 'parent' will be null if it has already been garbage collected.
-				if (parent._getMomentTask == this) {
-					
-					State error; 
-					String apiErrorMessage = "";
-					
-					try {
-						// ProcessJSONResponse() appropriately handles a null result.
-						Object result = OHOWAPIResponseHandler.ProcessJSONResponse(response);
-						
-						if (result instanceof JSONObject) {
-							JSONObject resultObject = (JSONObject)result;
-							_moment = new Moment(resultObject);
-							error = State.HAVE_MOMENT;
-						} else {
-							Log.d("OHOW", "Result was not a JSONObject");
-							error = State.API_GARBAGE_RESPONSE;
-						}
-					} catch (JSONException e) {
-						Log.d("OHOW", e.toString());
-						error = State.API_GARBAGE_RESPONSE;
-						
-					} catch (ApiViaHttpException e) {
-						Log.d("OHOW", e.toString());
-						error = State.API_ERROR_RESPONSE;
-						apiErrorMessage = e.getLocalizedMessage();
-						
-					} catch (NoResponseAPIException e) {
-						Log.d("OHOW", e.toString());
-						error = State.NO_API_RESPONSE;
-					}
-					
-					// Allow this task to be garbage-collected as it is no longer needed.
-					// I think that for large requests (e.g. images) this helps bring down our memory footprint.
-					parent._getMomentTask = null;
-					parent._ohowAPIError = apiErrorMessage;
-					parent._entryState = error; 
-					parent.showState();
-				}
-			}
+			_entryState = error;
+			_ohowAPIError = apiErrorMessage;
+			_moment = moment;
+			_getMomentTask = null;
+			showState();
 		}
 	}
 

@@ -1,33 +1,25 @@
 package com.ml4d.ohow.activity;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
-import com.ml4d.ohow.App;
 import com.ml4d.ohow.CredentialStore;
+import com.ml4d.ohow.ITaskFinished;
 import com.ml4d.ohow.Moment;
 import com.ml4d.ohow.MomentArrayAdapter;
-import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
 import com.ml4d.ohow.exceptions.NoResponseAPIException;
+import com.ml4d.ohow.tasks.MomentLocationRecentSearchTask;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -38,7 +30,7 @@ import android.widget.ListView;
 /*
  * Interactive logic for the 'LocalTimeline' activity.
  */
-public class LocalTimelineActivity extends ListActivity implements AdapterView.OnItemClickListener {
+public class LocalTimelineActivity extends ListActivity implements ITaskFinished, AdapterView.OnItemClickListener {
 
 	// These fields are persisted.
 	private State _state;
@@ -46,7 +38,7 @@ public class LocalTimelineActivity extends ListActivity implements AdapterView.O
 	private ArrayList<Moment> _moments; 
 	
 	// These fields are not persisted.
-	private GetMomentsTask _getMomentTask;
+	private MomentLocationRecentSearchTask _getMomentTask;
 	private Dialog _dialog;
 
 	private enum State {
@@ -87,7 +79,8 @@ public class LocalTimelineActivity extends ListActivity implements AdapterView.O
 			double latitude = startingIntent.getDoubleExtra(EXTRA_LATITUDE, -1);
 			double longitude = startingIntent.getDoubleExtra(EXTRA_LONGITUDE, -1);
 
-			_getMomentTask = new GetMomentsTask(this, latitude, longitude);
+			// Search for a maximum of 30 results in a radius of 1000 metres.
+			_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 30, 1000);
 			_getMomentTask.execute((Void[])null);
 			_state = State.WAITING_FOR_API;
 		}
@@ -214,113 +207,54 @@ public class LocalTimelineActivity extends ListActivity implements AdapterView.O
 		startActivity(i);
 	}
 	
-	/**
-	 * Asynchronously performs the get places HTTP request.
-	 */
-	private class GetMomentsTask extends AsyncTask<Void, Void, HttpResponse> {
-		
-		private WeakReference<LocalTimelineActivity> _parent;
-		private double _longitude;
-		private double _latitude;
-		private HttpGet _get;
-
-		public GetMomentsTask(LocalTimelineActivity parent, double latitude, double longitude) {
-			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<LocalTimelineActivity>(parent);
-			_latitude = latitude;
-			_longitude = longitude;
-
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
-					+ "?" + "latitude=" + Double.toString(_latitude)
-					+ "&" + "longitude=" + Double.toString(_longitude)
-					+ "&" + "max_results=30"
-					+ "&" + "radius_meters=1000");
-			_get.setHeader("Accept", "application/json");
-		}
-
-		@Override
-		protected HttpResponse doInBackground(Void... arg0) {
-			// This is executed on a background thread.
-			HttpClient client = new DefaultHttpClient();
-			HttpProtocolParams.setUserAgent(client.getParams(), App.Instance.getUserAgent());
+	@Override
+	public void CallMeBack(Object sender) {
+		if (sender == _getMomentTask) {
+			State state;
+			ArrayList<Moment> moments = null;
+			String ohowAPIError = "";
 			
 			try {
-				return client.execute(_get);
-			} catch (ClientProtocolException e) {
-				return null;
-			} catch (IOException e) {
-				return null;
-			}
-		}
-
-		protected void onPostExecute(HttpResponse response) {
-			// On the main thread.
-			
-			LocalTimelineActivity parent = _parent.get();
-			
-			if (null != parent) {
-				// 'parent' will be null if it has already been garbage collected.
-				if (parent._getMomentTask == this) {
-					
-					State error; 
-					String apiErrorMessage = "";
-					
-					try {
-						// ProcessJSONResponse() appropriately handles a null result.
-						Object result = OHOWAPIResponseHandler.ProcessJSONResponse(response);
-						
-						if (result instanceof JSONArray) {
-							JSONArray resultArray = (JSONArray)result;
-							
-							if (resultArray.length() > 0) {
-								error = State.HAVE_MOMENT;
-								ArrayList<Moment> moments = new ArrayList<Moment>();
-								for (int i = 0; i < resultArray.length(); i++) {
-									Object resultItem = resultArray.get(i);
-									if (resultItem instanceof JSONObject) {
-										JSONObject resultItemObject = (JSONObject)resultItem;
-										moments.add(new Moment(resultItemObject));
-									} else {
-										Log.d("OHOW", "Result array item not an object..");
-										error = State.API_GARBAGE_RESPONSE;
-										break;
-									}
-								}
-								if (State.HAVE_MOMENT == error) {
-									parent._moments = moments;
-								}
-									
-							} else {
-								Log.d("OHOW", "Result array has zero moments.");
-								error = State.API_HAS_NO_MOMENTS;
-							}
+				JSONArray resultArray = _getMomentTask.getResult();
+				
+				if (resultArray.length() > 0) {
+					state = State.HAVE_MOMENT;
+					moments = new ArrayList<Moment>();
+					for (int i = 0; i < resultArray.length(); i++) {
+						Object resultItem = resultArray.get(i);
+						if (resultItem instanceof JSONObject) {
+							JSONObject resultItemObject = (JSONObject)resultItem;
+							moments.add(new Moment(resultItemObject));
 						} else {
-							Log.d("OHOW", "Result was not a JSONArray");
-							error = State.API_GARBAGE_RESPONSE;
+							Log.d("OHOW", "Result array item not an object..");
+							state = State.API_GARBAGE_RESPONSE;
+							break;
 						}
-					} catch (JSONException e) {
-						Log.d("OHOW", e.toString());
-						error = State.API_GARBAGE_RESPONSE;
-						
-					} catch (ApiViaHttpException e) {
-						Log.d("OHOW", e.toString());
-						error = State.API_ERROR_RESPONSE;
-						apiErrorMessage = e.getLocalizedMessage();
-						
-					} catch (NoResponseAPIException e) {
-						Log.d("OHOW", e.toString());
-						error = State.NO_API_RESPONSE;
 					}
-					
-					// Allow this task to be garbage-collected as it is no longer needed.
-					// I think that for large requests (e.g. images) this helps bring down our memory footprint.
-					parent._getMomentTask = null;
-					parent._ohowAPIError = apiErrorMessage;
-					parent._state = error;
-					 
-					parent.showState();
+				} else {
+					Log.d("OHOW", "Result array has zero moments.");
+					state = State.API_HAS_NO_MOMENTS;
 				}
+
+			} catch (NoResponseAPIException e) {
+				state = State.NO_API_RESPONSE;
+			} catch (ApiViaHttpException e) {
+				state  = State.API_ERROR_RESPONSE;
+				ohowAPIError = e.getLocalizedMessage();
+			} catch (JSONException e) {
+				state = State.API_GARBAGE_RESPONSE;
+			} catch (IOException e) {
+				state = State.NO_API_RESPONSE;
 			}
+
+			_state = state;
+			if (State.HAVE_MOMENT == state) {
+				_moments = moments;
+			}
+			_ohowAPIError = ohowAPIError;
+			_getMomentTask = null;
+			showState();
 		}
 	}
+		
 }
