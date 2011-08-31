@@ -126,8 +126,8 @@ public final class R {
         /**  General dialog strings 
          */
         public static final int error_dialog_title=0x7f04000d;
-        public static final int error_gps_no_fix=0x7f040011;
-        public static final int error_gps_no_gps=0x7f040012;
+        public static final int error_no_location_fix=0x7f040011;
+        public static final int error_no_location_services=0x7f040012;
         public static final int error_ohow_garbage_response=0x7f040001;
         /**  getExternalStorageState() returns MEDIA_BAD_REMOVAL if the media was removed before it was unmounted. 
          */

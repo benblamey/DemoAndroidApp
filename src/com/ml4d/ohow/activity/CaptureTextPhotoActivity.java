@@ -9,11 +9,10 @@ import com.ml4d.ohow.APIConstants;
 import com.ml4d.ohow.CapturedMoments;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.ExternalStorageUtilities;
-import com.ml4d.ohow.OfficialBuild;
+import com.ml4d.ohow.MultiLocationProvider;
 import com.ml4d.ohow.R;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -22,12 +21,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -45,7 +42,11 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_MOMENT, FAILED_ALLOW_ACK, FAILED_ALREADY_CAPTURED, FAILED_INVALID_CREDENTIALS, FAILED_NO_GPS_SERVICE
+		DATA_MOMENT, 
+		FAILED_ALLOW_ACK, 
+		FAILED_ALREADY_CAPTURED, 
+		FAILED_INVALID_CREDENTIALS, 
+		FAILED_NO_LOCATION_PROVIDERS_ENABLED
 	}
 
 	/**
@@ -54,10 +55,10 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	private String _errorMessage;
 	private State _state;
 	private DialogInterface _dialog;
-	private Location _location;
-	private boolean _gettingLocationUpdates;
+	//private Location _location;
 	private File _photoFile;
 	private String _captureUniqueID;
+	private MultiLocationProvider _multiLocationProvider;
 	
 	private static final String _jpegExtensionWithoutDot = "jpg";
 	
@@ -65,16 +66,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 * The Mime-type that should be used for HTTP-posting photos created by this activity.
 	 */
 	public static final String MIME_TYPE_FOR_PHOTO = "image/jpeg";
-	
-	/** 
-	 * A hint for the GPS location update interval, in milliseconds.
-	 */
-	private static final int _gpsSuggestedUpdateIntervalMS = 5000;
-
-	/**
-	 * The minimum distance interval for update, in metres.
-	 */
-	private static final int _gpsSuggestedUpdateDistanceMetres = 1;
 	
 	/**
 	 * The unique ID that this class uses to identify the task of obtaining a photo.
@@ -108,7 +99,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 				// We don't want to do this automatically if the user reaches the activity from history.
 				_errorMessage = "";
 				_state = State.DATA_MOMENT;
-			} else if (State.FAILED_NO_GPS_SERVICE == _state) {
+			} else if (State.FAILED_NO_LOCATION_PROVIDERS_ENABLED == _state) {
 				// There was a problem with GPS the last time this activity was running - that
 				// may no longer be the case.
 				_errorMessage = "";
@@ -299,11 +290,11 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			
 			// We leave the text field as-is (and let it get its state persisted), then if the user goes back, they can try again with their original text.
 			break;
-		case FAILED_NO_GPS_SERVICE:
+		case FAILED_NO_LOCATION_PROVIDERS_ENABLED:
 			// Show a dialog.
 			AlertDialog noGpsfailedDialog = new AlertDialog.Builder(this).create();
 			noGpsfailedDialog.setTitle(resources.getString(R.string.error_dialog_title));
-			noGpsfailedDialog.setMessage(resources.getString(R.string.error_gps_no_gps));
+			noGpsfailedDialog.setMessage(resources.getString(R.string.error_no_location_services));
 			noGpsfailedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
 			noGpsfailedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
 			noGpsfailedDialog.show();
@@ -318,26 +309,10 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 * Ensure we are getting GPS location updates.
 	 */
 	private void ensureGettingGPSUpdates() {
-		// Obtaining a GPS can take about 30 seconds, so we start the GPS provider as soon as we start the activity,
-		// this way, a fix is hopefully available by the time the user is ready to capture. 
-		
-		if (!_gettingLocationUpdates) {
-		
-			// Get the most recent GPS fix (this might be null or out of date).
-			LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-			
-			// If GPS is not available, fail outright immediately (unless we're busy, showing another error, etc.).
-			if (!locationManager.isProviderEnabled("gps")) {
-				if (State.DATA_MOMENT == _state) {
-					_state = State.FAILED_NO_GPS_SERVICE;
-				}
-			} else {
-				// Begin listening for further GPS location updates.
-				locationManager.requestLocationUpdates("gps", _gpsSuggestedUpdateIntervalMS, _gpsSuggestedUpdateDistanceMetres, this, getMainLooper());
-				_gettingLocationUpdates = true;
-			}
-			
-			_location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		if (null == _multiLocationProvider) {
+			// This activity is both the context and the listener.
+			_multiLocationProvider = new MultiLocationProvider(this, this);
+			_multiLocationProvider.start();
 		}
 	}
 	
@@ -345,19 +320,14 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 * Ensures that we are no longer watching GPS location updates.
 	 */
 	private void tearEverythingDown() {
-		
 		// Ensure we no longer listen to GPS location updates.
-		if (_gettingLocationUpdates) {
-			LocationManager locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-			if (null != locationManager) {
-				locationManager.removeUpdates(this);
-			}
-			_gettingLocationUpdates = false;
+		if (null != _multiLocationProvider) {
+			_multiLocationProvider.stop();
+			_multiLocationProvider = null;
 		}
 	}
 	
 	private void captureButtonClicked() {
-		
 		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueID)) {
 			throw new IllegalStateException("This moment has already been captured.");
 		}
@@ -369,37 +339,31 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			_errorMessage = "";
 			_state = State.FAILED_INVALID_CREDENTIALS;
 		} else {
-			
 			boolean allowCapture;
 			double latitude = -1234;
 			double longitude = -1234;
 			double fixAccuracyMeters = 0;
 			long unixTimestampMs = 0;
 
-			if (null == _location) {
+			if (null == _multiLocationProvider) {
 				allowCapture = false;
 			} else {
-				latitude = _location.getLatitude();
-				longitude = _location.getLongitude();
-				fixAccuracyMeters = _location.getAccuracy();
-				unixTimestampMs = _location.getTime();
-				// Allow capture only if the fix is 'fresh'.
-				allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < _maximumGpsFixAgeMs);
-			}
-			
-			if (!OfficialBuild.getInstance().isOfficialBuild() && !allowCapture) {
-				// This is an unofficial (i.e. developer) build. Provide some dummy co-ordinates and allow the capture to proceed.
-				longitude = -2.599488; // (Coordinates of Bristol Office.)
-				latitude = 51.453956;
-				unixTimestampMs = System.currentTimeMillis() - 1;
-				fixAccuracyMeters = 200;
-				allowCapture = true;
-				Log.d("OHOW", "NO suitable fix - using dummy GPS coordinates instead (this feature is only enabled on developer builds).");
+				Location location = _multiLocationProvider.getLocation();
+				if (null != location) {
+					latitude = location.getLatitude();
+					longitude = location.getLongitude();
+					fixAccuracyMeters = location.getAccuracy();
+					unixTimestampMs = location.getTime();
+					// Allow capture only if the fix is 'fresh'.
+					allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < _maximumGpsFixAgeMs);
+				} else {
+					allowCapture = false;
+				}
 			}
 			
 			if (!allowCapture) {
 				// There was no GPS fix or else it was too old.
-				_errorMessage = resources.getString(R.string.error_gps_no_fix);
+				_errorMessage = resources.getString(R.string.error_no_location_fix);
 				_state = State.FAILED_ALLOW_ACK;
 			} else {
 				// Validate the user data the same as it will be validated by the OHOW API.
@@ -461,7 +425,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			_state = State.DATA_MOMENT;
 			showState();
 			break;
-		case FAILED_NO_GPS_SERVICE:
+		case FAILED_NO_LOCATION_PROVIDERS_ENABLED:
 			// Next time the activity starts, don't assume there is still a problem with GPS.
 			_errorMessage = "";
 			_state = State.DATA_MOMENT;
@@ -480,13 +444,12 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 
 	@Override
 	public void onLocationChanged(Location location) {
-		// A GPS fix has been obtained, store it.
-		_location = location;
+		// Nothing to do.
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		_state = State.FAILED_NO_GPS_SERVICE;
+		_state = State.FAILED_NO_LOCATION_PROVIDERS_ENABLED;
 		showState();
 	}
 
