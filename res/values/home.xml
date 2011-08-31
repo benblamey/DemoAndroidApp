@@ -6,7 +6,7 @@
 	<string name="home_capture_label">Capture</string>
 	<string name="home_sign_out_label">Sign Out</string>
 	
-	<string name="home_no_history_here">Could not understand response from OHOW API - this is either a temporary problem our end, or you need to update the app.</string>
+	<string name="home_no_history_here">There is no local history - be the first to capture!</string>
 	<string name="home_recent_activity_label">Recent activity:</string>
 	
 	
