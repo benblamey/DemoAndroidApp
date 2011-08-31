@@ -12,13 +12,10 @@ public final class R {
     }
     public static final class drawable {
         public static final int icon=0x7f020000;
-        public static final int photo_error=0x7f020001;
-        public static final int photo_none=0x7f020002;
-        public static final int slideshow_0=0x7f020003;
-        public static final int slideshow_1=0x7f020004;
-        public static final int slideshow_2=0x7f020005;
-        public static final int slideshow_3=0x7f020006;
-        public static final int spinner=0x7f020007;
+        public static final int slideshow_0=0x7f020001;
+        public static final int slideshow_1=0x7f020002;
+        public static final int slideshow_2=0x7f020003;
+        public static final int slideshow_3=0x7f020004;
     }
     public static final class id {
         public static final int capture_text_photo_button_capture=0x7f060000;
