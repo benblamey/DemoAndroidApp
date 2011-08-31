@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/menu_item_capture"          
           android:title="@string/menu_item_capture" />
-    <item android:id="@+id/menu_item_slideshow"          
-          android:title="@string/menu_item_slide_show" />
     <item android:id="@+id/menu_item_local_timeline"          
           android:title="@string/menu_item_local_timeline" />
+    <item android:id="@+id/menu_item_slideshow"          
+          android:title="@string/menu_item_slide_show" />
 	<item android:id="@+id/menu_item_sign_out"          
           android:title="@string/menu_item_sign_out" />
 </menu>

@@ -31,9 +31,9 @@ public final class R {
         public static final int local_timeline_text_view_capture_location=0x7f060006;
         public static final int local_timeline_text_view_details=0x7f060008;
         public static final int menu_item_capture=0x7f06001d;
-        public static final int menu_item_local_timeline=0x7f06001f;
+        public static final int menu_item_local_timeline=0x7f06001e;
         public static final int menu_item_sign_out=0x7f060020;
-        public static final int menu_item_slideshow=0x7f06001e;
+        public static final int menu_item_slideshow=0x7f06001f;
         public static final int register_checkbox_terms=0x7f06000e;
         public static final int register_edittext_email=0x7f06000b;
         public static final int register_edittext_first_name=0x7f060009;
