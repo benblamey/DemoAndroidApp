@@ -42,6 +42,8 @@ public class WebImageView extends ImageView {
     }
     
     public void setUrl(String url) {
+    	// If a different image is being shown, remove it.
+    	setImageBitmap(null);
     	if ((null == url) || ("" == url)) {
     		_photoTask = null;
     	} else {
@@ -122,6 +124,7 @@ public class WebImageView extends ImageView {
 				// 'parent' will be null if it has already been garbage collected.
 				if (parent._photoTask == this) {
 					parent._photoTask = null;
+					// Display the image.
 					setImageBitmap(_bitmap);
 				}
 			}

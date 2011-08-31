@@ -96,13 +96,17 @@ public class MomentArrayAdapter extends ArrayAdapter<Moment> {
 		locationTextView.setText(location);
 		detailsTextView.setText(details);
 		
+		// Note - views get re-used. We need to explicitly clear the image if there isn't one for this moment. 
+		String url;
 		if (moment.getHasPhoto()) {
-			String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+			url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 				+ "?" 
 				+ "id=" + Double.toString(moment.getId())
 				+ "&thumbnail=true";
-			((WebImageView)view.findViewById(R.id.local_timeline_item_web_image_view)).setUrl(url);
+		} else {
+			url = null;
 		}
+		((WebImageView)view.findViewById(R.id.local_timeline_item_web_image_view)).setUrl(url);
 		
         return view;
     }
