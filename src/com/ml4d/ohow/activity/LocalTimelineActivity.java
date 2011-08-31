@@ -145,7 +145,7 @@ public class LocalTimelineActivity extends ListActivity implements AdapterView.O
 		
 		outState.putSerializable("_moments", _moments);
 		outState.putString("_state", _state.name());
-		outState.putString(_ohowAPIError, _ohowAPIError);
+		outState.putString("_ohowAPIError", _ohowAPIError);
 	}
 
 	private void tearEverythingDown() {
