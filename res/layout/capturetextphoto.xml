@@ -35,7 +35,11 @@
 						
     </RelativeLayout>
 		
-	<EditText
+<!-- An EditText control that forces the 'Done' action - there is a problem with 
+	  multiline EditText controls (i.e. those for which text wrapping is enabled) 
+	  that the 'return' action is always available. We use a custom control to 
+	  work around this problem. -->
+	<com.ml4d.core.EditText2
 		android:gravity="top"
     	android:inputType="text|textLongMessage|textMultiLine"
     	android:layout_above="@+id/capture_text_photo_button_capture"
@@ -46,5 +50,5 @@
     	android:id="@+id/capture_text_photo_edittext_body"
     	android:hint="@string/capture_text_photo_body_hint"
     	android:freezesText="true"/>
-			
+
 </RelativeLayout>
