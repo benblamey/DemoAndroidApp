@@ -307,7 +307,13 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 					}
 				} else {
 					Log.d("OHOW", "Result array has zero moments.");
-					state = State.API_HAS_NO_MOMENTS;
+					if (_moments != null) {
+						// We were trying to fetch more moments - there are no more moments.
+						state = State.HAVE_MOMENTS_THERE_ARE_NO_MORE;
+					} else {
+						// We were fetching the initial set of moments.
+						state = State.API_HAS_NO_MOMENTS;
+					}
 				}
 
 			} catch (NoResponseAPIException e) {
