@@ -27,7 +27,7 @@ import android.widget.ImageView;
  */
 public class WebImageView extends ImageView {
 	
-	private GetImageTask _photoTask;
+	private String _url;
 
     public WebImageView(Context context) {
         super(context);
@@ -42,13 +42,16 @@ public class WebImageView extends ImageView {
     }
     
     public void setUrl(String url) {
-    	// If a different image is being shown, remove it.
-    	setImageBitmap(null);
-    	if ((null == url) || ("" == url)) {
-    		_photoTask = null;
-    	} else {
-    		_photoTask = new GetImageTask(this, url);
-    		_photoTask.execute((Void[])null);
+    	if (!String2.areEqual(_url, url)) {
+    		
+    		_url = url;
+	    	// If a different image is being shown, remove it.
+	    	setImageBitmap(null);
+	    	
+	    	if ((null != url) && ("" != url)) {
+	    		GetImageTask photoTask = new GetImageTask(this, url);
+	    		photoTask.execute((Void[])null);
+	    	}
     	}
     }
     
@@ -60,10 +63,12 @@ public class WebImageView extends ImageView {
 		private WeakReference<WebImageView> _parent;
 		private HttpGet _httpGet;
 		private Bitmap _bitmap;
+		private String _url;
 
 		public GetImageTask(WebImageView parent, String url) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<WebImageView>(parent);
+			_url = url;
 			
 			_httpGet = new HttpGet(url);
 			// We need to accept any kind of image, or JSON - so for simplicity just accept anything.
@@ -121,9 +126,9 @@ public class WebImageView extends ImageView {
 			// On the main thread.
 			WebImageView parent = _parent.get();
 			if (null != parent) {
-				// 'parent' will be null if it has already been garbage collected.
-				if (parent._photoTask == this) {
-					parent._photoTask = null;
+				
+				if (String2.areEqual(parent._url, _url)) {
+					// 'parent' will be null if it has already been garbage collected.
 					// Display the image.
 					setImageBitmap(_bitmap);
 				}
