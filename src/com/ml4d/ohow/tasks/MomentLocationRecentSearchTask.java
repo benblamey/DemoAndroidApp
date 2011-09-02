@@ -43,7 +43,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 		_get.setHeader("Accept", "application/json");
 	}
 	
-	public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, int radiusMeters, Date noLaterThanUTC, int maxID) {
+	public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, int radiusMeters, Date dateCreatedUTCMax, int maxID) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<ITaskFinished>(parent);
  
@@ -52,7 +52,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 				+ "&" + "longitude=" + Double.toString(longitude)
 				+ "&" + "max_results=" + Integer.toString(maxResults)
 				+ "&" + "radius_meters=" + Integer.toString(radiusMeters)
-				+ "&" + "date_created_utc_min=" + Integer.toString((int)(noLaterThanUTC.getTime()/1000))
+				+ "&" + "date_created_utc_max=" + Integer.toString((int)(dateCreatedUTCMax.getTime()/1000))
 				+ "&" + "max_id=" + Integer.toString(maxID));
 		_get.setHeader("Accept", "application/json");
 	}

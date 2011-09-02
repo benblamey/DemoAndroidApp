@@ -119,11 +119,11 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 			// The last item in the list is the "oldest" moment.
 			Moment oldestMoment = _moments.get(_moments.size() - 1);
 			
-			Date noLaterThanUTC = oldestMoment.getDateCreatedUTC();
+			Date dateCreatedUTCMax = oldestMoment.getDateCreatedUTC();
 			int maxID = oldestMoment.getId();
 			
 			// Search for a maximum of 30 results in a radius of 1000 metres.
-			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime, searchRadiusMetres, noLaterThanUTC, maxID);
+			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime, searchRadiusMetres, dateCreatedUTCMax, maxID);
 			_getMomentTask.execute((Void[])null);
 			_state = State.WAITING_FOR_API;
 			
