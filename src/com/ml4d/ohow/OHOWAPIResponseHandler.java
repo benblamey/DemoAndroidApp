@@ -53,8 +53,10 @@ public class OHOWAPIResponseHandler {
 				throw new NoResponseAPIException();
 			}
 
-			Log.d("OHOW", content);
-
+			String contentString = content.toString();
+			// The adb tool crashes if we give it strings that are too long - I'm not sure exactly what the limit is.
+			Log.d("OHOW", contentString.substring(0, Math.min(1024, contentString.length())));
+			
 			JSONObject responseJson;
 			Object result;
 			String errorMessage;

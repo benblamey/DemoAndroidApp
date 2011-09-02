@@ -2,6 +2,7 @@ package com.ml4d.ohow.activity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,46 +24,60 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 /*
  * Interactive logic for the 'LocalTimeline' activity.
  */
-public class LocalTimelineActivity extends ListActivity implements ITaskFinished, AdapterView.OnItemClickListener {
+public class LocalTimelineActivity extends ListActivity implements ITaskFinished, AdapterView.OnItemClickListener, OnScrollListener {
 
+	private static final int numberOfMomentsToGetAtAtime = 20;
+	private static final int searchRadiusMetres = 1000;
+	
+	/**
+	 * The required intent (double) extra for the latitude.
+	 */
+	public static String EXTRA_LATITUDE = "latitude";
+	
+	/**
+	 * The required intent (double) extra for the longitude.
+	 */
+	public static String EXTRA_LONGITUDE = "longitude";
+	
 	// These fields are persisted.
-	private State _state;
+	private State _state = State.INITIAL_STATE;
 	private String _ohowAPIError; // If the state is 'API_ERROR_RESPONSE', details of the error.
-	private ArrayList<Moment> _moments; 
+	private ArrayList<Moment> _moments;
+	private double _latitude;
+	private double _longitude;
 	
 	// These fields are not persisted.
 	private MomentLocationRecentSearchTask _getMomentTask;
 	private Dialog _dialog;
 
 	private enum State {
+		INITIAL_STATE,
 		WAITING_FOR_API,
-		HAVE_MOMENT,
+    	HAVE_MOMENTS_THERE_ARE_NO_MORE,
+    	HAVE_MOMENTS_THERE_MIGHT_BE_MORE,
 		API_HAS_NO_MOMENTS,
 		NO_API_RESPONSE, 
 		API_ERROR_RESPONSE, 
 		API_GARBAGE_RESPONSE,
 		FAILED_ROTATE};
-	
-	public static String EXTRA_LATITUDE = "latitude";
-	public static String EXTRA_LONGITUDE = "longitude";
 
-	/** Called when the activity is first created. */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
 		
 		ListView listView = getListView();
 		listView.setTextFilterEnabled(false); // We don't support text-filtering for moments.
 		listView.setOnItemClickListener(this);
+		getListView().setOnScrollListener(this);
 		
 		startSignInActivityIfNotSignedIn();
 
@@ -70,22 +85,51 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 			_moments = (ArrayList<Moment>)savedInstanceState.getSerializable("_moments");
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
+			_latitude = savedInstanceState.getDouble("_latitude");
+			_longitude = savedInstanceState.getDouble("_longitude");
 			
 			if (State.WAITING_FOR_API == _state) {
-				_state = State.FAILED_ROTATE;
+				_state = ((null != _moments) && (!_moments.isEmpty())) ?
+						State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE : State.INITIAL_STATE;
+				getSomeMoments();
 			}
 		} else {
 			Intent startingIntent = getIntent();		
-			double latitude = startingIntent.getDoubleExtra(EXTRA_LATITUDE, -1);
-			double longitude = startingIntent.getDoubleExtra(EXTRA_LONGITUDE, -1);
-
-			// Search for a maximum of 30 results in a radius of 1000 metres.
-			_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 30, 1000);
-			_getMomentTask.execute((Void[])null);
-			_state = State.WAITING_FOR_API;
+			_latitude = startingIntent.getDoubleExtra(EXTRA_LATITUDE, -1);
+			_longitude = startingIntent.getDoubleExtra(EXTRA_LONGITUDE, -1);
+			getSomeMoments();
 		}
 
 		showState();
+	}
+
+	private void getSomeMoments() {
+		if (State.INITIAL_STATE == _state)
+		{
+			assert _getMomentTask == null;
+			// Search for a maximum of 30 results in a radius of 1000 metres.
+			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime, searchRadiusMetres);
+			_getMomentTask.execute((Void[])null);
+			_state = State.WAITING_FOR_API;
+		} else if (State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE == _state) {
+			assert _moments != null;
+			assert !_moments.isEmpty();
+			assert _getMomentTask == null;
+			
+			// The last item in the list is the "oldest" moment.
+			Moment oldestMoment = _moments.get(_moments.size() - 1);
+			
+			Date noLaterThanUTC = oldestMoment.getDateCreatedUTC();
+			int maxID = oldestMoment.getId();
+			
+			// Search for a maximum of 30 results in a radius of 1000 metres.
+			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime, searchRadiusMetres, noLaterThanUTC, maxID);
+			_getMomentTask.execute((Void[])null);
+			_state = State.WAITING_FOR_API;
+			
+		} else {
+			// Do nothing.
+		}
 	}
 	
 	private void startSignInActivityIfNotSignedIn() {
@@ -139,6 +183,8 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		outState.putSerializable("_moments", _moments);
 		outState.putString("_state", _state.name());
 		outState.putString("_ohowAPIError", _ohowAPIError);
+		outState.putDouble("_latitude", _latitude);
+		outState.putDouble("_longitude", _longitude);
 	}
 
 	private void tearEverythingDown() {
@@ -153,47 +199,71 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		}
 		
 		Resources resources = getResources();
+		String message = null;
+		switch (_state) {
+			case INITIAL_STATE:
+				throw new RuntimeException("Should have left this state by now!");
+			case API_ERROR_RESPONSE:
+				message = _ohowAPIError;
+				break;
+			case API_GARBAGE_RESPONSE:
+				message = resources.getString(R.string.error_ohow_garbage_response);
+				break;
+			case NO_API_RESPONSE:
+				message = resources.getString(R.string.comms_error);
+				break;
+			case API_HAS_NO_MOMENTS:
+				message = resources.getString(R.string.home_no_history_here);
+				break;
+			case FAILED_ROTATE:
+				message = resources.getString(R.string.dialog_error_rotate_when_busy);
+				break;
+			case WAITING_FOR_API:
+				if (null == _moments) { 
+					// Show a 'waiting' dialog.
+					_dialog = ProgressDialog.show(this, resources.getString(R.string.local_timeline_activity_label),
+							resources.getString(R.string.general_waiting), true, // Indeterminate.
+							false); // Not cancellable.
+					break;
+				}
+				// Fall through...
+			case HAVE_MOMENTS_THERE_ARE_NO_MORE:
+			case HAVE_MOMENTS_THERE_MIGHT_BE_MORE:
+				assert null != _moments;
+				assert false;
+				
+				MomentArrayAdapter listAdapter = (MomentArrayAdapter)this.getListAdapter();
+				MomentArrayAdapter.EndState endState;
+				switch (_state) {
+					case HAVE_MOMENTS_THERE_ARE_NO_MORE:
+						endState = MomentArrayAdapter.EndState.ARE_NO_MORE_MOMENTS; 
+						break;
+					case HAVE_MOMENTS_THERE_MIGHT_BE_MORE:
+						endState = MomentArrayAdapter.EndState.COULD_BE_MORE_MOMENTS;
+						break;
+					case WAITING_FOR_API:
+						endState = MomentArrayAdapter.EndState.WAITING;
+						break;
+					default:
+						throw new RuntimeException("Shouldn't be possible"); 
+				}
+				
+				if (null != listAdapter) {
+					listAdapter.setEndState(endState);
+				} else {
+					listAdapter = new MomentArrayAdapter(this, _moments, endState);
+					setListAdapter(listAdapter);
+				}
+				break;
+			default:
+				throw new UnexpectedEnumValueException(_state);
+		}
 		
-		if (null != _moments) {
-			ListAdapter locationAdapter = new MomentArrayAdapter(this, 
-				R.layout.local_timeline_item, 
-				_moments.toArray(new Moment[_moments.size()]));
-			
-			setListAdapter(locationAdapter);
-		} else if (State.WAITING_FOR_API == _state) { 
-			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.local_timeline_activity_label),
-					resources.getString(R.string.general_waiting), true, // Indeterminate.
-					false); // Not cancellable.
-		} else {
-			String messsage;
-			switch (_state) {
-				case API_ERROR_RESPONSE:
-					messsage = _ohowAPIError;
-					break;
-				case API_GARBAGE_RESPONSE:
-					messsage = resources.getString(R.string.error_ohow_garbage_response);
-					break;
-				case NO_API_RESPONSE:
-					messsage = resources.getString(R.string.comms_error);
-					break;
-				case API_HAS_NO_MOMENTS:
-					messsage = resources.getString(R.string.home_no_history_here);
-					break;
-				case FAILED_ROTATE:
-					messsage = resources.getString(R.string.dialog_error_rotate_when_busy);
-					break;
-				case WAITING_FOR_API:
-				case HAVE_MOMENT:
-					throw new RuntimeException("Case has been handled above (programmer mistake).");
-				default:
-					throw new UnexpectedEnumValueException(_state);
-			}
-			
+		if (null != message) {
 			// Show a 'failed' dialog.
 			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
 			failedDialog.setTitle(resources.getString(R.string.local_timeline_activity_label));
-			failedDialog.setMessage(messsage);
+			failedDialog.setMessage(message);
 			failedDialog.show();
 			_dialog = failedDialog;
 		}
@@ -210,21 +280,25 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 	@Override
 	public void CallMeBack(Object sender) {
 		if (sender == _getMomentTask) {
+			assert _state == State.WAITING_FOR_API;
 			State state;
-			ArrayList<Moment> moments = null;
+			ArrayList<Moment> fetchedMoments = null;
 			String ohowAPIError = "";
 			
 			try {
 				JSONArray resultArray = _getMomentTask.getResult();
 				
 				if (resultArray.length() > 0) {
-					state = State.HAVE_MOMENT;
-					moments = new ArrayList<Moment>();
+
+					state = numberOfMomentsToGetAtAtime == resultArray.length() ?
+							State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE : State.HAVE_MOMENTS_THERE_ARE_NO_MORE; 
+
+					fetchedMoments = new ArrayList<Moment>();
 					for (int i = 0; i < resultArray.length(); i++) {
 						Object resultItem = resultArray.get(i);
 						if (resultItem instanceof JSONObject) {
 							JSONObject resultItemObject = (JSONObject)resultItem;
-							moments.add(new Moment(resultItemObject));
+							fetchedMoments.add(new Moment(resultItemObject));
 						} else {
 							Log.d("OHOW", "Result array item not an object..");
 							state = State.API_GARBAGE_RESPONSE;
@@ -247,14 +321,37 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 				state = State.NO_API_RESPONSE;
 			}
 
-			_state = state;
-			if (State.HAVE_MOMENT == state) {
-				_moments = moments;
+			if (null == this._moments) {
+				_moments = new ArrayList<Moment>();
+			}
+
+			if (null != fetchedMoments) {
+				// Insert the new moments at the end of the list.
+				_moments.addAll(_moments.size(), fetchedMoments);				
 			}
 			_ohowAPIError = ohowAPIError;
 			_getMomentTask = null;
+			_state = state;
 			showState();
 		}
 	}
-		
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		// Nothing to do.
+	}
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+		if (State.INITIAL_STATE != _state) { 
+	        boolean getMoreMoments = (firstVisibleItem + 2 * visibleItemCount) >= totalItemCount;
+
+	        if (getMoreMoments) {
+	        	getSomeMoments();
+	        	showState();
+	        }
+		}
+	}
+
 }

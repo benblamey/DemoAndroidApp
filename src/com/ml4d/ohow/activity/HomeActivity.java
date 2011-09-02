@@ -17,6 +17,7 @@ import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.ITaskFinished;
 import com.ml4d.ohow.MultiLocationProvider;
 import com.ml4d.ohow.Moment;
+import com.ml4d.ohow.OfficialBuild;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
 import com.ml4d.ohow.exceptions.NoResponseAPIException;
@@ -28,6 +29,7 @@ import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -226,8 +228,16 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 			}
 		}
 		
+		if (!startActivity && !OfficialBuild.getInstance().isOfficialBuild()) {
+			// This is an unofficial (i.e. developer) build. Provide some dummy co-ordinates.
+			longitude = -2.599488; // (Coordinates of Bristol Office.)
+			latitude = 51.453956;
+			Log.d("OHOW", "NO suitable fix - using dummy GPS coordinates instead (this feature is only enabled on developer builds).");
+				startActivity = true;
+		}
+
 		if (!startActivity) {
-				Toast.makeText(this, getResources().getString(R.string.error_no_location_fix), Toast.LENGTH_SHORT);
+				Toast.makeText(this, getResources().getString(R.string.error_no_location_fix), Toast.LENGTH_SHORT).show();
 				startActivity = false;
 		}
 		

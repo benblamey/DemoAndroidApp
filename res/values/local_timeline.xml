@@ -3,4 +3,9 @@
 <!-- Strings for the 'local_timeline' activity. -->
 <resources>
     <string name="local_timeline_activity_label">Local History</string>
+    
+    <string name="local_timeline_label_end">There are no earlier moments!</string>
+    <string name="local_timeline_label_waiting">Getting more moments...</string>
+    <string name="local_timeline_label_empty">There is no history in this area.</string>
+    
 </resources>
