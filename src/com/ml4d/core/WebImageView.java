@@ -16,18 +16,19 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.ImageView;
 
 /**
  * An ImageView that obtains its image asynchronously from the web.
- * @author ben
- *
  */
 public class WebImageView extends ImageView {
 	
 	private String _url;
+	private boolean _isWaiting;
 
     public WebImageView(Context context) {
         super(context);
@@ -51,10 +52,34 @@ public class WebImageView extends ImageView {
 	    	if ((null != url) && ("" != url)) {
 	    		GetImageTask photoTask = new GetImageTask(this, url);
 	    		photoTask.execute((Void[])null);
+	    		_isWaiting = true;
 	    	}
     	}
     }
     
+    protected Parcelable onSaveInstanceState() {
+    	WebImageViewState state = new WebImageViewState();
+    	state.url = _url;
+    	state.parentState = super.onSaveInstanceState();
+    	state.isWaiting = _isWaiting;
+    	return state;
+    }
+    
+    protected void onRestoreInstanceState(Parcelable inState) {
+    	WebImageViewState state = (WebImageViewState)inState;
+    	_isWaiting = state.isWaiting;
+    	_url = state.url;
+    	super.onRestoreInstanceState(state.parentState);
+    	
+    	if (_isWaiting) {
+	    	// If a different image is being shown, remove it.
+	    	setImageBitmap(null);
+    		GetImageTask photoTask = new GetImageTask(this, _url);
+    		photoTask.execute((Void[])null);
+    		_isWaiting = true;
+    	}
+    }
+
 	/**
 	 * Asynchronously performs the get moment photo HTTP request.
 	 */
@@ -131,9 +156,56 @@ public class WebImageView extends ImageView {
 					// 'parent' will be null if it has already been garbage collected.
 					// Display the image.
 					setImageBitmap(_bitmap);
+		    		parent._isWaiting = false;
 				}
 			}
 		}
 	}
 
+}
+
+/**
+ * State for the WebImageView.
+ */
+class WebImageViewState implements Parcelable {
+
+	public Parcelable parentState;
+	public String url;
+	public boolean isWaiting;
+	
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeParcelable(parentState, 0);
+		dest.writeString(url);
+		Parcel2.writeBoolean(isWaiting, dest);
+	}
+	
+    public static final Parcelable.Creator<WebImageViewState> CREATOR
+    	= new Parcelable.Creator<WebImageViewState>() {
+			public WebImageViewState createFromParcel(Parcel in) {
+			    return new WebImageViewState(in);
+			}
+			
+			public WebImageViewState[] newArray(int size) {
+			    return new WebImageViewState[size];
+			}
+		};
+
+	private WebImageViewState(Parcel in) {
+		parentState = in.readParcelable(null); // Use the default ClassLoader
+		url = in.readString();
+		try {
+			isWaiting = Parcel2.readBoolean(in);
+		} catch (IOException e) {
+			throw new ImprobableCheckedExceptionException(e);
+		}
+	}
+	
+	public WebImageViewState() {
+	}	
 }
