@@ -12,11 +12,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.ml4d.core.WebImageView;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.ITaskFinished;
 import com.ml4d.ohow.MultiLocationProvider;
 import com.ml4d.ohow.Moment;
+import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.OfficialBuild;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
@@ -328,7 +330,22 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 					DateFormat.SHORT, // Date.
 					DateFormat.MEDIUM); // Time.
 			localDateFormat.setTimeZone(TimeZone.getDefault());
-			details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC())); 
+			details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC()));
+
+			// Get the photo associated with the moment.			
+			String photoUrl;
+			if (_moment.getHasPhoto()) {
+				photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+					+ "?" 
+					+ "id=" + Double.toString(_moment.getId())
+					+ "&thumbnail=false"; // Get the full-sized image.
+				
+			} else {
+				// Clear any existing image.
+				photoUrl = null;
+			}
+			((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(photoUrl);
+			
 		} else {
 			
 			switch (_state) {
