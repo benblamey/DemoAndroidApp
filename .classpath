@@ -8,6 +8,6 @@
 			<attribute name="javadoc_location" value="file:/D:/code/OHOW-Android/docs/httpcomponents-client-4.1.2/binaries/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="libs/acra-4.2.3/build/acra-4.2.3.jar" sourcepath="libs/acra-4.2.3/src/acra-4.2.3-sources.jar"/>
+	<classpathentry kind="lib" path="libs/acra-4.2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
