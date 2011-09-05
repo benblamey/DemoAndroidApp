@@ -3,9 +3,9 @@ package com.ml4d.ohow.activity;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
-import org.json.JSONArray;
+import java.util.List;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.ITaskFinished;
@@ -272,8 +272,17 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		// Show the particular moment.
+	
 		Intent i = new Intent(this, ShowMomentActivity.class);
-		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_ID, _moments.get(position).getId());
+		Moment moment = _moments.get(position);
+		// We want to show a moment with a particular ID.
+		i.putExtra(ShowMomentActivity.EXTRA_MODE_KEY, ShowMomentActivity.EXTRA_MODE_VALUE_MOMENT_ID);
+		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_ID_KEY, moment.getId());
+		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_LATITUDE_KEY, this._latitude);
+		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_LONGITUDE_KEY, this._longitude);
+		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_SEARCH_RADIUS_METRES, searchRadiusMetres);
+		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_CREATED_TIME_UTC_KEY, moment.getDateCreatedUTC());
+		
 		startActivity(i);
 	}
 	
@@ -282,29 +291,16 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		if (sender == _getMomentTask) {
 			assert _state == State.WAITING_FOR_API;
 			State state;
-			ArrayList<Moment> fetchedMoments = null;
+			List<Moment> fetchedMoments = null;
 			String ohowAPIError = "";
 			
 			try {
-				JSONArray resultArray = _getMomentTask.getResult();
+				fetchedMoments = _getMomentTask.getResult();
 				
-				if (resultArray.length() > 0) {
+				if (fetchedMoments.size() > 0) {
 
-					state = numberOfMomentsToGetAtAtime == resultArray.length() ?
+					state = numberOfMomentsToGetAtAtime == fetchedMoments.size() ?
 							State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE : State.HAVE_MOMENTS_THERE_ARE_NO_MORE; 
-
-					fetchedMoments = new ArrayList<Moment>();
-					for (int i = 0; i < resultArray.length(); i++) {
-						Object resultItem = resultArray.get(i);
-						if (resultItem instanceof JSONObject) {
-							JSONObject resultItemObject = (JSONObject)resultItem;
-							fetchedMoments.add(new Moment(resultItemObject));
-						} else {
-							Log.d("OHOW", "Result array item not an object..");
-							state = State.API_GARBAGE_RESPONSE;
-							break;
-						}
-					}
 				} else {
 					Log.d("OHOW", "Result array has zero moments.");
 					if (_moments != null) {

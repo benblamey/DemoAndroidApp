@@ -5,12 +5,11 @@ import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.ml4d.core.WebImageView;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
@@ -35,6 +34,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +73,10 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.show_moment_activity);
+
+		// We don't use the previous and next buttons for this activity.
+		findViewById(R.id.show_moment_activity_button_next).setVisibility(View.INVISIBLE);
+		findViewById(R.id.show_moment_activity_button_previous).setVisibility(View.INVISIBLE);
 
 		_state = State.WAITING_FOR_FIRST_LOCATION_UPDATE;
 		
@@ -393,18 +397,11 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 
 		if (sender == _getMomentTask) {
 			try {
-				JSONArray resultArray = _getMomentTask.getResult();
+				List<Moment> resultArray = _getMomentTask.getResult();
 				
-				if (resultArray.length() > 0) {
-					Object resultItem = resultArray.get(0);
-					
-					if (resultItem instanceof JSONObject) {
-						JSONObject resultItemObject = (JSONObject)resultItem;
-						_moment = new Moment(resultItemObject);
-						_state = State.HAVE_MOMENT;
-					} else {
-						throw new JSONException("Result array 1st item not an object..");
-					}
+				if (resultArray.size() > 0) {
+					_moment = resultArray.get(0);
+					_state = State.HAVE_MOMENT;
 				} else {
 					_moment = null;
 					_state = State.API_HAS_NO_MOMENTS;

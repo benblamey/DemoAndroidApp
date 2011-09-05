@@ -64,7 +64,8 @@ Note that deviation from this format will cause the app to throw an exception on
         </activity>
         
         <activity android:name=".activity.ShowMomentActivity"
-        		  android:label="@string/moment_activity_label">
+        		  android:label="@string/moment_activity_label"
+        		  android:noHistory="TRUE">
         </activity>
         
     </application>

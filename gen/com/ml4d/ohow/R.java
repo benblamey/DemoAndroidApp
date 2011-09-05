@@ -27,10 +27,10 @@ public final class R {
         public static final int local_timeline_text_view_body=0x7f060007;
         public static final int local_timeline_text_view_capture_location=0x7f060005;
         public static final int local_timeline_text_view_details=0x7f060008;
-        public static final int menu_item_capture=0x7f06001d;
-        public static final int menu_item_local_timeline=0x7f06001e;
-        public static final int menu_item_sign_out=0x7f060020;
-        public static final int menu_item_slideshow=0x7f06001f;
+        public static final int menu_item_capture=0x7f06001f;
+        public static final int menu_item_local_timeline=0x7f060020;
+        public static final int menu_item_sign_out=0x7f060022;
+        public static final int menu_item_slideshow=0x7f060021;
         public static final int register_checkbox_terms=0x7f06000e;
         public static final int register_edittext_email=0x7f06000b;
         public static final int register_edittext_first_name=0x7f060009;
@@ -39,18 +39,20 @@ public final class R {
         public static final int register_edittext_username=0x7f06000c;
         public static final int register_register_button=0x7f06000f;
         public static final int register_view_terms_and_conditions_button=0x7f060010;
-        public static final int show_moment_activity_activity_text_view_body=0x7f060014;
-        public static final int show_moment_activity_image_view_photo=0x7f060013;
+        public static final int show_moment_activity_activity_text_view_body=0x7f060016;
+        public static final int show_moment_activity_button_next=0x7f060013;
+        public static final int show_moment_activity_button_previous=0x7f060012;
+        public static final int show_moment_activity_image_view_photo=0x7f060015;
         public static final int show_moment_activity_text_view_capture_location=0x7f060011;
-        public static final int show_moment_activity_text_view_details=0x7f060012;
-        public static final int sign_in_register_button=0x7f060018;
-        public static final int sign_in_sign_in_button=0x7f060017;
-        public static final int signin_edittext_password=0x7f060016;
-        public static final int signin_edittext_username=0x7f060015;
-        public static final int slide_show_image_view=0x7f06001b;
-        public static final int slide_show_root_view=0x7f060019;
-        public static final int slide_show_text_view=0x7f06001a;
-        public static final int splash_text_view_version_number=0x7f06001c;
+        public static final int show_moment_activity_text_view_details=0x7f060014;
+        public static final int sign_in_register_button=0x7f06001a;
+        public static final int sign_in_sign_in_button=0x7f060019;
+        public static final int signin_edittext_password=0x7f060018;
+        public static final int signin_edittext_username=0x7f060017;
+        public static final int slide_show_image_view=0x7f06001d;
+        public static final int slide_show_root_view=0x7f06001b;
+        public static final int slide_show_text_view=0x7f06001c;
+        public static final int splash_text_view_version_number=0x7f06001e;
     }
     public static final class layout {
         public static final int capturetextphoto=0x7f030000;

@@ -2,11 +2,18 @@ package com.ml4d.ohow.activity;
 
 import java.io.IOException;
 import java.text.DateFormat;
+
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+
 import org.json.JSONException;
+
+import com.ml4d.core.String2;
 import com.ml4d.core.WebImageView;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
+import com.ml4d.core.exceptions.UnknownClickableItemException;
 
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.ITaskFinished;
@@ -15,38 +22,48 @@ import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.R;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
 import com.ml4d.ohow.exceptions.NoResponseAPIException;
+import com.ml4d.ohow.tasks.MomentLocationRecentSearchTask;
 import com.ml4d.ohow.tasks.ShowMomentTask;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
  * Interactive logic for the sign in activity.
  */
-public class ShowMomentActivity extends Activity implements ITaskFinished {
+public class ShowMomentActivity extends Activity implements ITaskFinished, View.OnClickListener {
 
 	// These fields are not persisted.
-	private ShowMomentTask _getMomentTask;
+	private AsyncTask<Void, Void, Void> _getMomentTask;
 	
 	// These fields are persisted.
 	private State _entryState;
 	private String _ohowAPIError; // If the state is 'API_ERROR_RESPONSE', details of the error.
-	private Moment _moment; 
-	private int _momentId;
+	private Moment _moment;
 
-	/**
-	 * The name of the intent extra that needs to be set to the ID of the moment to show when
-	 * starting the activity.
-	 */
-	public static String EXTRA_MOMENT_ID = "moment_id"; 
+	public static String EXTRA_MODE_KEY = "mode";
+	
+	public static String EXTRA_MODE_VALUE_MOMENT_ID = "show moment with id";
+	public static String EXTRA_MODE_VALUE_PREVIOUS = "show previous moment";
+	public static String EXTRA_MODE_VALUE_NEXT = "show next moment";
+	
+	public static String EXTRA_MOMENT_ID_KEY = "moment_id";
+	public static String EXTRA_MOMENT_LATITUDE_KEY = "latitude";
+	public static String EXTRA_MOMENT_LONGITUDE_KEY = "longitude";
+	public static String EXTRA_MOMENT_CREATED_TIME_UTC_KEY = "created time";
+	public static String EXTRA_MOMENT_SEARCH_RADIUS_METRES = "radius";
 
 	private enum State {
 		WAITING_FOR_API,
 		HAVE_MOMENT,
+		NO_MOMENT,
 		NO_API_RESPONSE, 
 		API_ERROR_RESPONSE, 
 		API_GARBAGE_RESPONSE };
@@ -57,31 +74,120 @@ public class ShowMomentActivity extends Activity implements ITaskFinished {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.show_moment_activity);
 
+		Button nextButton = (Button)findViewById(R.id.show_moment_activity_button_next);
+		nextButton.setOnClickListener(this);
+		
+		Button prevButton = (Button)findViewById(R.id.show_moment_activity_button_previous);
+		prevButton.setOnClickListener(this);
+		
+		boolean getMoment = true;
 		if (null != savedInstanceState) {
 			// The activity is being restored from serialised state.
-			_momentId = savedInstanceState.getInt("_momentId");
 			_moment = (Moment)savedInstanceState.getSerializable("_moment");
 			_entryState = Enum.valueOf(State.class, savedInstanceState.getString("_entryState"));
 			_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
-		} else {
+			
+			if (State.WAITING_FOR_API == _entryState) {
+				getMoment = true;
+			}
+		} 
+		
+		if (getMoment) {
 			// The activity is being started.
 			Intent startingIntent = getIntent();
-			_momentId = startingIntent.getIntExtra(EXTRA_MOMENT_ID, -1); // Moments always have positive IDs.
 			
-			if (-1 == _momentId) {
-				throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
-			}
-			
-			_getMomentTask = new ShowMomentTask(this, _momentId);
-			_getMomentTask.execute((Void[])null);
+			String mode = startingIntent.getStringExtra(EXTRA_MODE_KEY);
+			if (String2.areEqual(mode, EXTRA_MODE_VALUE_MOMENT_ID)) {
+				
+				int momentId = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
+				if (-1 == momentId) {
+					throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
+				}
+				
+				// We don't need these yet, but if we need to fetch a next or previous entry, we will need them.
+				double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
+				if (999 == latitude) {
+					throw new RuntimeException("latitude is mandatory for this mode");
+				}
+				
+				double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
+				if (999 == longitude) {
+					throw new RuntimeException("latitude is mandatory for this mode");
+				}
+				
+				int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+				if (-1 == radiusMetres) {
+					throw new RuntimeException("radius is mandatory for this mode.");
+				}
+ 				
+				_getMomentTask = new ShowMomentTask(this, momentId);
+				_getMomentTask.execute((Void[])null);
 
-			// Fetch the photo - there might not be one, but it is faster to try immediately and risk the wasted effort than
-			// wait until we have fetched the moment.
-			String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
-				+ "?" 
-				+ "id=" + Double.toString(_momentId)
-				+ "&thumbnail=false"; // Get the full-sized image.
-			((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(url);
+				// Fetch the photo - there might not be one, but it is faster to try immediately and risk the wasted effort than
+				// wait until we have fetched the moment.
+				String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+					+ "?" 
+					+ "id=" + Double.toString(momentId)
+					+ "&thumbnail=false"; // Get the full-sized image.
+				((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(url);
+
+			} else if (String2.areEqual(mode, EXTRA_MODE_VALUE_PREVIOUS)) {
+				
+				int momentID = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
+				if (-1 == momentID) {
+					throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
+				}
+				
+				double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
+				if (999 == latitude) {
+					throw new RuntimeException("latitude is mandatory for this mode");
+				}
+				
+				double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
+				if (999 == longitude) {
+					throw new RuntimeException("latitude is mandatory for this mode");
+				}
+				
+				int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+				if (-1 == radiusMetres) {
+					throw new RuntimeException("radius is mandatory for this mode.");
+				}
+				
+				Date dateCreatedUtc = (Date)startingIntent.getSerializableExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY);
+				
+				// public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, 
+				// int radiusMeters, Date dateCreatedUTCMax, int maxID) {
+				_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 1, radiusMetres, dateCreatedUtc, momentID);
+				_getMomentTask.execute((Void[])null);
+			} else if (String2.areEqual(mode, EXTRA_MODE_VALUE_NEXT)) {
+				
+				int momentID = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
+				if (-1 == momentID) {
+					throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
+				}
+				
+				double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
+				if (999 == latitude) {
+					throw new RuntimeException("latitude is mandatory for this mode");
+				}
+				
+				double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
+				if (999 == longitude) {
+					throw new RuntimeException("latitude is mandatory for this mode");
+				}
+				
+				int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+				if (-1 == radiusMetres) {
+					throw new RuntimeException("radius is mandatory for this mode.");
+				}
+				
+				Date dateCreatedUtc = (Date)startingIntent.getSerializableExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY);
+				
+				// public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, 
+				// int radiusMeters, Date dateCreatedUTCMax, int maxID) {
+				_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 1, radiusMetres, momentID, dateCreatedUtc);
+				_getMomentTask.execute((Void[])null);
+			}
 			
 			_entryState = State.WAITING_FOR_API;
 			_ohowAPIError = "";
@@ -137,7 +243,6 @@ public class ShowMomentActivity extends Activity implements ITaskFinished {
 		super.onSaveInstanceState(outState);
 		
 		if (null != outState) {
-			outState.putInt("_momentId", _momentId);
 			outState.putSerializable("_moment", _moment);
 			outState.putString("_entryState", _entryState.name());
 			outState.putString("_ohowAPIError", _ohowAPIError);
@@ -149,7 +254,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished {
 	 */
 	private void ensureTaskIsStopped() {
 		if (State.WAITING_FOR_API == _entryState) {
-			if (this._getMomentTask != null) {
+			if (_getMomentTask != null) {
 				_getMomentTask.cancel(false); // Don't interrupt the operation if
 												// it has started. The results
 												// are difficult to predict.
@@ -185,10 +290,31 @@ public class ShowMomentActivity extends Activity implements ITaskFinished {
 					DateFormat.MEDIUM); // Time.
 			localDateFormat.setTimeZone(TimeZone.getDefault());
 			// We format the string in the same way as the home activity.
-			details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC())); 
+			details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC()));
+			
+			// Get the photo associated with the moment.			
+			String photoUrl;
+			if (_moment.getHasPhoto()) {
+				photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+					+ "?" 
+					+ "id=" + Double.toString(_moment.getId())
+					+ "&thumbnail=false"; // Get the full-sized image.
+				
+			} else {
+				// Clear any existing image.
+				photoUrl = null;
+			}
+			((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(photoUrl);
+			
+			findViewById(R.id.show_moment_activity_button_next).setEnabled(true);
+			findViewById(R.id.show_moment_activity_button_previous).setEnabled(true);
+
 		} else {
 			
 			switch (_entryState) {
+				case NO_MOMENT:
+					body = "NO MOMENT!";
+					break;
 				case API_ERROR_RESPONSE:
 					body = _ohowAPIError;
 					break;
@@ -209,6 +335,10 @@ public class ShowMomentActivity extends Activity implements ITaskFinished {
 			
 			location = "";
 			details = "";
+			((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(null);
+
+			findViewById(R.id.show_moment_activity_button_next).setEnabled(false);
+			findViewById(R.id.show_moment_activity_button_previous).setEnabled(false);
 		}
 		
 		TextView textViewLocation = (TextView)findViewById(R.id.show_moment_activity_text_view_capture_location);
@@ -223,34 +353,125 @@ public class ShowMomentActivity extends Activity implements ITaskFinished {
 	@Override
 	public void CallMeBack(Object sender) {
 		if (sender == _getMomentTask) {
-			State error;
-			String apiErrorMessage = "";
-			Moment moment = null;
 			
-			try {
-				moment = _getMomentTask.getResult();
-				error = State.HAVE_MOMENT;
-			} catch (JSONException e) {
-				Log.d("OHOW", e.toString());
-				error = State.API_GARBAGE_RESPONSE;
-			} catch (ApiViaHttpException e) {
-				Log.d("OHOW", e.toString());
-				error = State.API_ERROR_RESPONSE;
-				apiErrorMessage = e.getLocalizedMessage();
-			} catch (NoResponseAPIException e) {
-				Log.d("OHOW", e.toString());
-				error = State.NO_API_RESPONSE;
-			} catch (IOException e) {
-				Log.d("OHOW", e.toString());
-				error = State.NO_API_RESPONSE;
+			if (sender instanceof ShowMomentTask) {
+				
+				ShowMomentTask getMomentTask = (ShowMomentTask)sender;
+				State error;
+				String apiErrorMessage = "";
+				Moment moment = null;
+				
+				try {
+					moment = getMomentTask.getResult();
+					error = State.HAVE_MOMENT;
+				} catch (JSONException e) {
+					Log.d("OHOW", e.toString());
+					error = State.API_GARBAGE_RESPONSE;
+				} catch (ApiViaHttpException e) {
+					Log.d("OHOW", e.toString());
+					error = State.API_ERROR_RESPONSE;
+					apiErrorMessage = e.getLocalizedMessage();
+				} catch (NoResponseAPIException e) {
+					Log.d("OHOW", e.toString());
+					error = State.NO_API_RESPONSE;
+				} catch (IOException e) {
+					Log.d("OHOW", e.toString());
+					error = State.NO_API_RESPONSE;
+				}
+	
+				_entryState = error;
+				_ohowAPIError = apiErrorMessage;
+				_moment = moment;
+				_getMomentTask = null;
+				showState();
+			} else if (sender instanceof MomentLocationRecentSearchTask) {
+			
+				MomentLocationRecentSearchTask getMomentTask = (MomentLocationRecentSearchTask)sender;
+				State error;
+				String apiErrorMessage = "";
+				Moment moment = null;
+				
+				try {
+					List<Moment> moments = getMomentTask.getResult();
+					if (moments.size() > 0) {
+						moment = moments.get(0);
+						error = State.HAVE_MOMENT;
+					} else {
+						error = State.NO_MOMENT;
+					}
+				} catch (JSONException e) {
+					Log.d("OHOW", e.toString());
+					error = State.API_GARBAGE_RESPONSE;
+				} catch (ApiViaHttpException e) {
+					Log.d("OHOW", e.toString());
+					error = State.API_ERROR_RESPONSE;
+					apiErrorMessage = e.getLocalizedMessage();
+				} catch (NoResponseAPIException e) {
+					Log.d("OHOW", e.toString());
+					error = State.NO_API_RESPONSE;
+				} catch (IOException e) {
+					Log.d("OHOW", e.toString());
+					error = State.NO_API_RESPONSE;
+				}
+	
+				_entryState = error;
+				_ohowAPIError = apiErrorMessage;
+				_moment = moment;
+				_getMomentTask = null;
+				showState();				
+				
+			} else {
+				throw new RuntimeException("Type of task is not expected. Programmer mistake!");
 			}
-
-			_entryState = error;
-			_ohowAPIError = apiErrorMessage;
-			_moment = moment;
-			_getMomentTask = null;
-			showState();
 		}
 	}
 
+	@Override
+	public void onClick(View v) {
+		
+		if (_moment != null) {
+		
+			switch (v.getId()) {
+				case R.id.show_moment_activity_button_next:
+					{
+						Intent i = new Intent(this, ShowMomentActivity.class);
+						// We want to show a moment with a particular ID.
+						i.putExtra(ShowMomentActivity.EXTRA_MODE_KEY, ShowMomentActivity.EXTRA_MODE_VALUE_NEXT);
+						
+						// These all need to be the same as before to ensure we are paginating through the same set of results.
+						i.putExtra(EXTRA_MOMENT_LATITUDE_KEY, getIntent().getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, -1));
+						i.putExtra(EXTRA_MOMENT_LONGITUDE_KEY, getIntent().getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, -1));
+						i.putExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, getIntent().getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1));
+						
+						i.putExtra(EXTRA_MOMENT_ID_KEY, _moment.getId());
+						i.putExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY, _moment.getDateCreatedUTC());
+						startActivity(i);
+						break;
+					}
+				case R.id.show_moment_activity_button_previous:
+					{
+						Intent i = new Intent(this, ShowMomentActivity.class);
+						// We want to show a moment with a particular ID.
+						i.putExtra(ShowMomentActivity.EXTRA_MODE_KEY, ShowMomentActivity.EXTRA_MODE_VALUE_PREVIOUS);
+						
+						// These all need to be the same as before to ensure we are paginating through the same set of results.
+						i.putExtra(EXTRA_MOMENT_LATITUDE_KEY, getIntent().getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, -1));
+						i.putExtra(EXTRA_MOMENT_LONGITUDE_KEY, getIntent().getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, -1));
+						i.putExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, getIntent().getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1));
+						
+						i.putExtra(EXTRA_MOMENT_ID_KEY, _moment.getId());
+						i.putExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY, _moment.getDateCreatedUTC());
+						startActivity(i);
+						break;
+					}
+				default:
+					throw new UnknownClickableItemException(v.getId());
+			}
+		} else  {
+			throw new RuntimeException("These buttons should be disabled when there is no moment.");
+		}
+		
+		
+	}
+		
 }

@@ -13,12 +13,27 @@
 	    android:textStyle="bold"
 		android:gravity="center_horizontal"
 		android:textSize="20dip"/>
-		
+	
+	<Button android:id="@+id/show_moment_activity_button_previous"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:text="Previous">
+	</Button>
+
+	<Button android:id="@+id/show_moment_activity_button_next"
+			android:layout_toRightOf="@+id/show_moment_activity_button_previous"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"
+			android:text="Next">
+	</Button>
+
 	<TextView
-		android:id="@+id/show_moment_activity_text_view_details" 
+		android:id="@+id/show_moment_activity_text_view_details"
+		android:layout_above="@+id/show_moment_activity_button_previous" 
 	    android:layout_height="wrap_content"
-	    android:layout_width="wrap_content"
-	    android:layout_alignParentBottom="true" 
+	    android:layout_width="wrap_content" 
 		android:layout_alignParentRight="true"
 		android:textSize="20dip"/>
 

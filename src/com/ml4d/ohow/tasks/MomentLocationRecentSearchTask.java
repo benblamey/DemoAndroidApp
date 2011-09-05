@@ -1,7 +1,9 @@
 package com.ml4d.ohow.tasks;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -10,9 +12,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.AsyncTask;
+
 import com.ml4d.ohow.App;
 import com.ml4d.ohow.ITaskFinished;
+import com.ml4d.ohow.Moment;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.exceptions.ApiViaHttpException;
 import com.ml4d.ohow.exceptions.NoResponseAPIException;
@@ -25,7 +31,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 	private WeakReference<ITaskFinished> _parent;		 
 	private HttpGet _get;
 	
-	private JSONArray _result;
+	private JSONArray _jsonMomentArray;
 	private NoResponseAPIException _noResponseAPIException;
 	private ApiViaHttpException _apiViaHttpException;
 	private JSONException _jsonException; 
@@ -33,29 +39,56 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 
 	public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, int radiusMeters) {
 		// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<ITaskFinished>(parent);
+		_parent = new WeakReference<ITaskFinished>(parent);
  
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
-				+ "?" + "latitude=" + Double.toString(latitude)
-				+ "&" + "longitude=" + Double.toString(longitude)
-				+ "&" + "max_results=" + Integer.toString(maxResults)
-				+ "&" + "radius_meters=" + Integer.toString(radiusMeters));
+		String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
+			+ "?" + "latitude=" + Double.toString(latitude)
+			+ "&" + "longitude=" + Double.toString(longitude)
+			+ "&" + "max_results=" + Integer.toString(maxResults)
+			+ "&" + "radius_meters=" + Integer.toString(radiusMeters); 
+		
+		_get = new HttpGet(url);
+		_get.setHeader("Accept", "application/json");
+	}
+
+	/**
+	 * For 'previous' pagination.
+	 */
+	public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, int radiusMeters, Date dateCreatedUTCMax, int maxID) {
+		// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
+		_parent = new WeakReference<ITaskFinished>(parent);
+ 
+		String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
+			+ "?" + "latitude=" + Double.toString(latitude)
+			+ "&" + "longitude=" + Double.toString(longitude)
+			+ "&" + "max_results=" + Integer.toString(maxResults)
+			+ "&" + "radius_meters=" + Integer.toString(radiusMeters)
+			+ "&" + "date_created_utc_max=" + Integer.toString((int)(dateCreatedUTCMax.getTime()/1000))
+			+ "&" + "max_id=" + Integer.toString(maxID)
+			+ "&" + "newest_first=true";
+			
+		_get = new HttpGet(url);
 		_get.setHeader("Accept", "application/json");
 	}
 	
-	public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, int radiusMeters, Date dateCreatedUTCMax, int maxID) {
-			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
-			_parent = new WeakReference<ITaskFinished>(parent);
- 
-			_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
-				+ "?" + "latitude=" + Double.toString(latitude)
-				+ "&" + "longitude=" + Double.toString(longitude)
-				+ "&" + "max_results=" + Integer.toString(maxResults)
-				+ "&" + "radius_meters=" + Integer.toString(radiusMeters)
-				+ "&" + "date_created_utc_max=" + Integer.toString((int)(dateCreatedUTCMax.getTime()/1000))
-				+ "&" + "max_id=" + Integer.toString(maxID));
-		_get.setHeader("Accept", "application/json");
-	}
+	/**
+	 * For 'next' pagination.
+	 */
+	public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, int radiusMeters, int minID, Date dateCreatedUTCMin) {
+		// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
+		_parent = new WeakReference<ITaskFinished>(parent);
+
+		_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
+			+ "?" + "latitude=" + Double.toString(latitude)
+			+ "&" + "longitude=" + Double.toString(longitude)
+			+ "&" + "max_results=" + Integer.toString(maxResults)
+			+ "&" + "radius_meters=" + Integer.toString(radiusMeters)
+			+ "&" + "date_created_utc_min=" + Integer.toString((int)(dateCreatedUTCMin.getTime()/1000))
+			+ "&" + "min_id=" + Integer.toString(minID)
+			+ "&" + "newest_first=false"); // Show oldest entries first.
+	_get.setHeader("Accept", "application/json");
+}
+
 
 	@Override
 	protected Void doInBackground(Void... arg0) {
@@ -71,7 +104,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 			Object result = OHOWAPIResponseHandler.ProcessJSONResponse(response);
 			
 			if (result instanceof JSONArray) {
-				_result = (JSONArray)result;
+				_jsonMomentArray = (JSONArray)result;
 			} else {
 				throw new JSONException("Result was not a JSONArray");
 			}
@@ -99,7 +132,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 		}
 	}
 	
-	public JSONArray getResult() throws NoResponseAPIException, ApiViaHttpException, JSONException, IOException {
+	public List<Moment> getResult() throws NoResponseAPIException, ApiViaHttpException, JSONException, IOException {
 		if (null != _noResponseAPIException) {
 			throw _noResponseAPIException;
 		} else if (null != _apiViaHttpException) {
@@ -109,7 +142,20 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 		} else if (null != _ioException) {
 			throw _ioException;
 		} else {
-			return _result;
+			
+			ArrayList<Moment> fetchedMoments = new ArrayList<Moment>();
+			for (int i = 0; i < _jsonMomentArray.length(); i++) {
+				Object resultItem = _jsonMomentArray.get(i);
+				if (resultItem instanceof JSONObject) {
+					JSONObject resultItemObject = (JSONObject)resultItem;
+					fetchedMoments.add(new Moment(resultItemObject));
+				} else {
+					throw new JSONException("Result array item not an object..");
+				}
+			}
+			
+			return fetchedMoments;
 		}    
 	}
+	
 }
