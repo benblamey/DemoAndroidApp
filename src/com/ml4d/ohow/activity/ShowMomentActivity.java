@@ -170,7 +170,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 				if (999 == latitude) {
 					throw new RuntimeException("latitude is mandatory for this mode");
 				}
-7				
+		
 				double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
 				if (999 == longitude) {
 					throw new RuntimeException("latitude is mandatory for this mode");
