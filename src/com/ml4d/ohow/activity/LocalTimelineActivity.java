@@ -81,6 +81,10 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		
 		startSignInActivityIfNotSignedIn();
 
+		Intent startingIntent = getIntent();		
+		_latitude = startingIntent.getDoubleExtra(EXTRA_LATITUDE, -1);
+		_longitude = startingIntent.getDoubleExtra(EXTRA_LONGITUDE, -1);
+
 		if (null != savedInstanceState) {
 			_moments = (ArrayList<Moment>)savedInstanceState.getSerializable("_moments");
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
@@ -94,9 +98,6 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 				getSomeMoments();
 			}
 		} else {
-			Intent startingIntent = getIntent();		
-			_latitude = startingIntent.getDoubleExtra(EXTRA_LATITUDE, -1);
-			_longitude = startingIntent.getDoubleExtra(EXTRA_LONGITUDE, -1);
 			getSomeMoments();
 		}
 
@@ -183,8 +184,6 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		outState.putSerializable("_moments", _moments);
 		outState.putString("_state", _state.name());
 		outState.putString("_ohowAPIError", _ohowAPIError);
-		outState.putDouble("_latitude", _latitude);
-		outState.putDouble("_longitude", _longitude);
 	}
 
 	private void tearEverythingDown() {
