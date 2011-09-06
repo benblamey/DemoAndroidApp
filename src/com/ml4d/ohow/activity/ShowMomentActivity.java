@@ -183,8 +183,6 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 				
 				Date dateCreatedUtc = (Date)startingIntent.getSerializableExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY);
 				
-				// public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, 
-				// int radiusMeters, Date dateCreatedUTCMax, int maxID) {
 				_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 1, radiusMetres, momentID, dateCreatedUtc);
 				_getMomentTask.execute((Void[])null);
 			}
