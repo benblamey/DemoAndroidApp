@@ -53,6 +53,11 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 		DATA_MOMENT, WAITING, SUCCESS, FAILED
 	}
 
+	/**
+	 * The request code for starting the slideshow activity prior to the register activity.
+	 */
+	private static final int preSlideShowRequestCode = 818548;
+	
 	private String _errorMessage;
 	private SignInTask _signInTask;
 	private State _state;
@@ -244,9 +249,22 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 	private void registerButtonClicked() {
 		// Start the 'SlideShow' activity. 
 		Intent intent = new Intent(this, SlideShowActivity.class);
-		// We want to direct the user to the register page after the slideshow is finished.
-		intent.putExtra(SlideShowActivity.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, RegisterActivity.class));
-		startActivity(intent);
+		startActivityForResult(intent, preSlideShowRequestCode);
+	}
+	
+	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
+		if (requestCode == preSlideShowRequestCode) {
+			if (RESULT_OK == resultCode) {
+				Intent intent = new Intent(this, RegisterActivity.class);
+				startActivity(intent);
+			} else if (RESULT_CANCELED == resultCode) {
+				// The slide show was cancelled (the user pressed 'back') - stay 
+				// where we are, the user must watch the slide show all the way through
+				// before registering.
+			} else {
+				throw new RuntimeException("Unexpected resultCode value.");
+			}
+		}
 	}
 	
 	private void signInButtonClicked() {

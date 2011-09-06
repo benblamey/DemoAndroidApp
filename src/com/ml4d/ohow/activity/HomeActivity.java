@@ -214,9 +214,8 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	}
 
 	private void showSlideShow() {
+		// The first activity will finish when all the slides have been shown.
 		Intent i = new Intent(this, SlideShowActivity.class);
-		// When the slide show is finished, come back to this activity.
-		i.putExtra(SlideShowActivity.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, HomeActivity.class));
 		startActivity(i);
 	}
 	

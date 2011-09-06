@@ -33,8 +33,7 @@ Note that deviation from this format will cause the app to throw an exception on
 		<!-- We set 'noHistory' true to ensure the splash screen is shown only once,
 			 this ensures it is not shown if the user has already logged in. -->
         <activity android:name=".activity.SignInActivity"
-                  android:label="@string/sign_in_activity_label"
-                  android:noHistory="TRUE">
+                  android:label="@string/sign_in_activity_label">
         </activity>
 
         <activity android:name=".activity.RegisterActivity"

@@ -285,8 +285,7 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 
 	private void showSlideShow() {
 		Intent intent = new Intent(this, SlideShowActivity.class);
-		// When the slide show is finished, come back to this activity.
-		intent.putExtra(SlideShowActivity.CALLBACK_INTENT_EXTRA_KEY, new Intent(this, RegisterActivity.class));
+		// The first will finish when all the slides have been shown.
 		startActivity(intent);
 	}
 	
