@@ -78,16 +78,18 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 		// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 		_parent = new WeakReference<ITaskFinished>(parent);
 
-		_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
+		String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "moment_location_recent_search.php"
 			+ "?" + "latitude=" + Double.toString(latitude)
 			+ "&" + "longitude=" + Double.toString(longitude)
 			+ "&" + "max_results=" + Integer.toString(maxResults)
 			+ "&" + "radius_meters=" + Integer.toString(radiusMeters)
 			+ "&" + "date_created_utc_min=" + Integer.toString((int)(dateCreatedUTCMin.getTime()/1000))
 			+ "&" + "min_id=" + Integer.toString(minID)
-			+ "&" + "newest_first=false"); // Show oldest entries first.
-	_get.setHeader("Accept", "application/json");
-}
+			+ "&" + "newest_first=false"; // Show oldest entries first.
+		
+		_get = new HttpGet(url);
+		_get.setHeader("Accept", "application/json");
+	}
 
 
 	@Override
