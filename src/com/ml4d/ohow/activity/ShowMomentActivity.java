@@ -127,7 +127,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 				// wait until we have fetched the moment.
 				String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" 
-					+ "id=" + Double.toString(momentId)
+					+ "id=" + Integer.toString(momentId)
 					+ "&photo_size=medium"; // Get the full-sized image.
 				((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(url);
 
@@ -297,7 +297,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 			if (_moment.getHasPhoto()) {
 				photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" 
-					+ "id=" + Double.toString(_moment.getId())
+					+ "id=" + Integer.toString(_moment.getId())
 					+ "&photo_size=medium"; // Get the full-sized image.
 				
 			} else {
