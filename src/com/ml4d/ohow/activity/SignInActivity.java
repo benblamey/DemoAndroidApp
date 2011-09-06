@@ -33,6 +33,7 @@ import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -295,6 +296,25 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 				throw new ImprobableCheckedExceptionException(e);
 			}
 		}
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// It is bad practice to override the behaviour of the 'back' button,
+		// but we do so here with good reason.
+		// If the user has arrived here by logging out they click back, they will
+		// be redirected back to this activity by the previous item in the stack.
+		// To workaround this, we explicitly send the user back to the home screen when
+		// they use the 'back' button from this activity.
+	    if (keyCode == KeyEvent.KEYCODE_BACK) {
+	        Intent startMain = new Intent(Intent.ACTION_MAIN);
+	        startMain.addCategory(Intent.CATEGORY_HOME);
+	        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        startActivity(startMain);
+	    	return true;
+	    } else {
+	    	return super.onKeyDown(keyCode, event);
+	    }
 	}
 
 	public void onClick(View view) {
