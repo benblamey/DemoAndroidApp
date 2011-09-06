@@ -133,21 +133,21 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	protected void onPause() {
 		super.onPause();
 		// Another activity is taking focus (this activity is about to be "paused").
-		ensureNotSubscribedToLocationUpdates();
+		tearEverythingDown();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 		// The activity is no longer visible (it is now "stopped").
-		ensureNotSubscribedToLocationUpdates();
+		tearEverythingDown();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		// The activity is about to be destroyed.
-		ensureNotSubscribedToLocationUpdates();
+		tearEverythingDown();
 	}
 	
 	@Override
@@ -297,11 +297,14 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 		}
 	}
 	
-	private void ensureNotSubscribedToLocationUpdates() {
+	private void tearEverythingDown() {
 		if (null != _multiLocationProvider) {
 			_multiLocationProvider.stop();
 			_multiLocationProvider = null;
 		}
+		
+		// We don't cancel() the task, as the results are difficult to predict.
+		_getMomentTask = null;
 	}
 	
 	private void showState() {
