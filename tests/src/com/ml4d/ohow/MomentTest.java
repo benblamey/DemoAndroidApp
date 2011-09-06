@@ -44,6 +44,8 @@ public class MomentTest extends TestCase {
 		cal.set(2011, Calendar.AUGUST, 9, 15, 17, 25); // Note that month and hour are zero-based.
 		cal.set(Calendar.MILLISECOND, 0);
 		assertEquals(0, cal.getTime().compareTo(moment.getDateCreatedUTC()));
+		
+		assertEquals(1312903045, cal.getTime().getTime()/1000);
 
 
 		assertEquals("CnRkAAAA1UOwHJEWG0PuZT7hTTpJKNa0lI2FsuvackvzyFJSfyRNRj0zH8jSAMGBN_cp2dJyDkogdWpgqxMkCfybCnCt6I9gEoJiicZoYNomWFoIEqTAj6DU6Sx_JaPSnBm1VtAArTU1DwXoOTHcNY58Ag9BGRIQvo2uW7A1BdOxmLaz-JwWnhoUc4oRxqRS5GP-eVveQfDaj5Fxods",
