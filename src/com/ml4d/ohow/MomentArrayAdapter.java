@@ -142,7 +142,7 @@ public class MomentArrayAdapter implements ListAdapter {
 				url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" 
 					+ "id=" + Double.toString(moment.getId())
-					+ "&thumbnail=true";
+					+ "&photo_size=thumbnail";
 			} else {
 				url = null;
 			}

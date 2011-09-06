@@ -342,7 +342,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 				photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" 
 					+ "id=" + Double.toString(_moment.getId())
-					+ "&thumbnail=false"; // Get the full-sized image.
+					+ "&photo_size=medium"; // Get the full-sized image.
 				
 			} else {
 				// Clear any existing image.

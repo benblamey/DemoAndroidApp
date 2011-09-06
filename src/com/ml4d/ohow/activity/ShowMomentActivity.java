@@ -128,7 +128,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 				String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" 
 					+ "id=" + Double.toString(momentId)
-					+ "&thumbnail=false"; // Get the full-sized image.
+					+ "&photo_size=medium"; // Get the full-sized image.
 				((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(url);
 
 			} else if (String2.areEqual(mode, EXTRA_MODE_VALUE_PREVIOUS)) {
@@ -170,7 +170,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 				if (999 == latitude) {
 					throw new RuntimeException("latitude is mandatory for this mode");
 				}
-				
+7				
 				double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
 				if (999 == longitude) {
 					throw new RuntimeException("latitude is mandatory for this mode");
@@ -298,7 +298,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 				photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" 
 					+ "id=" + Double.toString(_moment.getId())
-					+ "&thumbnail=false"; // Get the full-sized image.
+					+ "&photo_size=medium"; // Get the full-sized image.
 				
 			} else {
 				// Clear any existing image.
