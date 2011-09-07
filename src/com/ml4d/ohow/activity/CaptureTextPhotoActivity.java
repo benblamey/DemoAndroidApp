@@ -1,12 +1,10 @@
 package com.ml4d.ohow.activity;
 
 import java.io.*;
-import java.util.UUID;
 
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.APIConstants;
-import com.ml4d.ohow.CapturedMoments;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.ExternalStorageUtilities;
 import com.ml4d.ohow.MultiLocationProvider;
@@ -44,7 +42,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	private enum State {
 		DATA_MOMENT, 
 		FAILED_ALLOW_ACK, 
-		FAILED_ALREADY_CAPTURED, 
 		FAILED_INVALID_CREDENTIALS, 
 		FAILED_NO_LOCATION_PROVIDERS_ENABLED
 	}
@@ -57,7 +54,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	private DialogInterface _dialog;
 	//private Location _location;
 	private File _photoFile;
-	private String _captureUniqueID;
 	private MultiLocationProvider _multiLocationProvider;
 	
 	private static final String _jpegExtensionWithoutDot = "jpg";
@@ -76,7 +72,12 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 * The maximum age for a GPS fix allowed in a capture that we permit.
 	 */
 	private static final int _maximumGpsFixAgeMs = 3 * 60 * 1000;
-
+	
+	/**
+	 * The ID that identifies that activity request for the next capture step.
+	 */
+	private static final int captureLocationRequestCode = 454656;
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -92,7 +93,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
 			_photoFile = (File)savedInstanceState.getSerializable("_photoFile");
-			_captureUniqueID = savedInstanceState.getString("_captureUniqueID");
 			
 			if (State.FAILED_INVALID_CREDENTIALS == _state) {
 				// When the credentials are invalid, we immediately redirect to the sign in page.
@@ -121,8 +121,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 
 		} else {
 			_state = State.DATA_MOMENT;
-			// This is a new moment - generate a new unique ID to associate with it.
-			_captureUniqueID = UUID.randomUUID().toString();
 		}
 
 		showState();
@@ -151,7 +149,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 
 		outState.putString("_state", _state.name());
 		outState.putString("_errorMessage", _errorMessage);
-		outState.putString("_captureUniqueID", _captureUniqueID);
 		
 		if (null != _photoFile) {
 			outState.putSerializable("_photoFile", _photoFile);
@@ -221,10 +218,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 */
 	private void showState() {
 
-		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueID)) {
-			_state = State.FAILED_ALREADY_CAPTURED;
-		}
-		
 		// If a dialog is being displayed, remove it.
 		if (_dialog != null) {
 			_dialog.dismiss();
@@ -259,19 +252,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			failedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
 			failedDialog.show();
 			_dialog = failedDialog;
-			break;
-		case FAILED_ALREADY_CAPTURED:
-			// The user has navigated back in history - we need to prevent them re-capturing the moment.
-			// We can't show a dialog, because we would need to make it non-cancellable,
-			// and that prevents the user from navigating any further back using the back button.
-			// Neither do we re-direct to a different activity, because this prevents the user accessing previous items in the history stack.
-			// Instead, we disable all the controls on the page and show some toast.
-			findViewById(R.id.capture_text_photo_edittext_body).setEnabled(false);
-			findViewById(R.id.capture_text_photo_button_capture).setEnabled(false);
-			findViewById(R.id.capture_text_photo_button_toggle_photo).setEnabled(false);
-			
-			Toast alreadyCapturedToast = Toast.makeText(this, resources.getString(R.string.capture_already_captured), Toast.LENGTH_LONG);
-			alreadyCapturedToast.show();
 			break;
 		case FAILED_INVALID_CREDENTIALS:
 			
@@ -328,9 +308,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	}
 	
 	private void captureButtonClicked() {
-		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueID)) {
-			throw new IllegalStateException("This moment has already been captured.");
-		}
 		
 		Resources resources = getResources();
 
@@ -391,11 +368,10 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 					pickLocationIntent.putExtra("longitude", longitude);
 					pickLocationIntent.putExtra("latitude", latitude);
 					pickLocationIntent.putExtra("fixAccuracyMeters", fixAccuracyMeters);
-					pickLocationIntent.putExtra("captureUniqueID", _captureUniqueID);
 					if (null != _photoFile) {
 						pickLocationIntent.putExtra("photoFile", _photoFile);
 					}
-					startActivity(pickLocationIntent);
+					startActivityForResult(pickLocationIntent, captureLocationRequestCode);
 				}
 			}
 		}
@@ -431,7 +407,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			_state = State.DATA_MOMENT;
 			startActivity(new Intent(this, HomeActivity.class));
 			break;
-		case FAILED_ALREADY_CAPTURED:
 		case DATA_MOMENT:
 		case FAILED_INVALID_CREDENTIALS:
 			throw new IllegalStateException();
@@ -505,7 +480,20 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			// If the file exists, it will be displayed, and it will be uploaded when we perform the capture.
 			
 			showState();
+		} else if (requestCode == captureLocationRequestCode) {
+			if (RESULT_CANCELED == resultCode) {
+				// The user has pressed 'back' from the CaptureLocationActivity. Do nothing.
+			} else if (RESULT_OK == resultCode) {
+				// The CaptureLocationActivity has completed. Bubble the event.
+				setResult(RESULT_OK);
+				finish();				
+			} else {
+				throw new RuntimeException("unexpected result code.");
+			}
+		} else {
+			throw new RuntimeException("unexpected requestCode.");
 		}
+		
 	}
 
 }

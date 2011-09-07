@@ -22,7 +22,6 @@ import org.apache.http.params.HttpProtocolParams;
 import com.ml4d.core.Charset2;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
-import com.ml4d.ohow.CapturedMoments;
 import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.GooglePlacesAPI;
@@ -42,7 +41,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListAdapter;
@@ -86,7 +84,6 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 	private double _fixAccuracyMeters;
 	private File _photoFile;
 	private ArrayList<LocationForCapture> _locations;
-	private String _captureUniqueID;
 
 	
 	/** Called when the activity is first created. */
@@ -128,7 +125,6 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 			_longitude = savedInstanceState.getDouble("_longitude");
 			_fixAccuracyMeters = savedInstanceState.getDouble("_fixAccuracyMeters");
 			_photoFile = (File)(savedInstanceState.getSerializable("_photoFile"));
-			_captureUniqueID = savedInstanceState.getString("_captureUniqueID");
 
 		} else {
 			// The activity is being started.
@@ -145,7 +141,6 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 			_longitude = startingIntent.getDoubleExtra("longitude", 9999); // The default value will eventually be rejected by the API if it is used.
 			_photoFile = (File)startingIntent.getSerializableExtra("photoFile");
 			_fixAccuracyMeters = startingIntent.getDoubleExtra("fixAccuracyMeters", -1);
-			_captureUniqueID = startingIntent.getStringExtra("captureUniqueID");
 			
 			// Start the Async task to retrieve the list of places.
 			_state = State.WAITING_FOR_PLACES;
@@ -195,16 +190,12 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 					false); // Not cancellable.
 			break;
 		case SUCCESS:
-			_locations = null;
-			
-			// Start the 'home' activity.
-			// Credentials/session key has already been stored.
-			startActivity(new Intent(this, HomeActivity.class));
-			
 			// Show the user some toast to inform them of the success.
 			Toast.makeText(this, resources.getString(R.string.capture_location_waiting_dialog_success), Toast.LENGTH_LONG).show();
 			
-			_state = State.DATA_MOMENT;
+			// Start the 'home' activity.
+			setResult(RESULT_OK);
+			finish();
 			break;
 		case FAILED:
 			// Show a 'failed' dialog.
@@ -250,7 +241,6 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		outState.putDouble("_latitude", _latitude);
 		outState.putDouble("_longitude", _longitude);
 		outState.putDouble("_fixAccuracyMeters", _fixAccuracyMeters);
-		outState.putString("_captureUniqueID", _captureUniqueID);
 	}
 
 	@Override
@@ -314,13 +304,6 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 	}
 	
 	private void captureButtonClicked(LocationForCapture location) {
-		
-		// The 'CaptureLocation' activity is marked in the manifest XML as not appearing
-		// in history. Therefore, we should never arrive at this activity for a moment
-		// that has already been captured.
-		if (CapturedMoments.getInstance().hasMomentBeenCapturedRecently(_captureUniqueID)) {
-			throw new IllegalStateException("This moment has already been captured.");
-		}
 		
 		if (null == location) {
 			throw new IllegalArgumentException("location cannot be null.");
@@ -455,9 +438,6 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 
 					// To complete without error is a success.
 					parent._state = State.SUCCESS;
-					// We want to record the fact that this moment has been captured -
-					// This means we can prevent the user from capturing it again by going back through the activity history.
-					CapturedMoments.getInstance().momentHasBeenCaptured(parent._captureUniqueID);
 					
 				} catch (ApiViaHttpException e) {
 					parent._state = State.FAILED;

@@ -36,7 +36,5 @@
     <string name="capture_location_waiting_dialog_success">Your capture was successful, thank you for your contribution!</string>
     
     <string name="capture_location_google_no_response">Could not communicate with Google Places.</string>
-    
-    <string name="capture_already_captured">This moment has already been captured!</string>
 
 </resources>
