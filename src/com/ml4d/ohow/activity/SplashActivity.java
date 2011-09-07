@@ -3,7 +3,6 @@ package com.ml4d.ohow.activity;
 import java.lang.ref.WeakReference;
 
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
-import com.ml4d.ohow.CredentialStore;
 import com.ml4d.ohow.R;
 import android.app.Activity;
 import android.content.Intent;
@@ -59,17 +58,6 @@ public class SplashActivity extends Activity {
     	ensureTaskIsStopped();
     }
 
-	private void proceedToNextActivity() {
-		CredentialStore auth = CredentialStore.getInstance();
-		Intent nextActivityIntent;
-		if (auth.getHaveVerifiedCredentials()) {
-			nextActivityIntent = new Intent(this, HomeActivity.class);	
-		} else {
-			nextActivityIntent = new Intent(this, SignInActivity.class);
-		}
-		startActivity(nextActivityIntent);
-	}
-	
 	private void ensureTaskIsStopped() {
 		if (this._task != null) {
 			// false: Don't interrupt the operation if it has started. The results are difficult to predict.
@@ -113,8 +101,11 @@ public class SplashActivity extends Activity {
 			
 			// 'parent' will be null if it has already been garbage collected.
 			// We want to ensure we only take action if the parent is actually 'using' this instance of the task.
-			if (parent._task == this) {
-				parent.proceedToNextActivity();
+			if (this == parent._task) {
+				// We go to the SignIn activity - it handles redirection based on whether we have
+				// saved credentials.
+				Intent nextActivityIntent = new Intent(parent, SignInActivity.class);
+				parent.startActivity(nextActivityIntent);
 			}
 		}
 	}

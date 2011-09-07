@@ -83,41 +83,36 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.capturetextphoto);
 		
-		startSignInActivityIfNotSignedIn();
-
-		findViewById(R.id.capture_text_photo_button_capture).setOnClickListener(this);
-		findViewById(R.id.capture_text_photo_button_toggle_photo).setOnClickListener(this);
-
-		if (savedInstanceState != null) {
-			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
-			_errorMessage = savedInstanceState.getString("_errorMessage");
-			_photoFile = (File)savedInstanceState.getSerializable("_photoFile");
-			
-			if (State.FAILED_INVALID_CREDENTIALS == _state) {
-				// When the credentials are invalid, we immediately redirect to the sign in page.
-				// We don't want to do this automatically if the user reaches the activity from history.
-				_errorMessage = "";
-				_state = State.DATA_MOMENT;
-			} else if (State.FAILED_NO_LOCATION_PROVIDERS_ENABLED == _state) {
-				// There was a problem with GPS the last time this activity was running - that
-				// may no longer be the case.
-				_errorMessage = "";
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			findViewById(R.id.capture_text_photo_button_capture).setOnClickListener(this);
+			findViewById(R.id.capture_text_photo_button_toggle_photo).setOnClickListener(this);
+	
+			if (savedInstanceState != null) {
+				_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
+				_errorMessage = savedInstanceState.getString("_errorMessage");
+				_photoFile = (File)savedInstanceState.getSerializable("_photoFile");
+				
+				if (State.FAILED_INVALID_CREDENTIALS == _state) {
+					// When the credentials are invalid, we immediately redirect to the sign in page.
+					// We don't want to do this automatically if the user reaches the activity from history.
+					_errorMessage = "";
+					_state = State.DATA_MOMENT;
+				} else if (State.FAILED_NO_LOCATION_PROVIDERS_ENABLED == _state) {
+					// There was a problem with GPS the last time this activity was running - that
+					// may no longer be the case.
+					_errorMessage = "";
+					_state = State.DATA_MOMENT;
+				}
+	
+				ensureGettingGPSUpdates();
+	
+			} else {
 				_state = State.DATA_MOMENT;
 			}
-			
-			ensureGettingGPSUpdates();
-
-		} else {
-			_state = State.DATA_MOMENT;
-		}
-
-		showState();
-	}
-
-	private void startSignInActivityIfNotSignedIn() {
-		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
-			// Start the sign in activity.
-			startActivity(new Intent(this, SignInActivity.class));
+	
+			showState();
 		}
 	}
 	
@@ -133,19 +128,25 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	@Override
 	protected void onStart() {
 		super.onStart();
-		startSignInActivityIfNotSignedIn();
-		// The activity is about to become visible.
-		ensureGettingGPSUpdates();
-		showState();
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			// The activity is about to become visible.
+			ensureGettingGPSUpdates();
+			showState();
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		startSignInActivityIfNotSignedIn();
-		// The activity has become visible (it is now "resumed").
-		ensureGettingGPSUpdates();
-		showState();
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			// The activity has become visible (it is now "resumed").
+			ensureGettingGPSUpdates();
+			showState();
+		}
 	}
 
 	@Override
@@ -220,7 +221,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			CredentialStore.getInstance().clear();
 			
 			// Go back to the sign in activity.
-			startActivity(new Intent(this, SignInActivity.class));
+			SignInActivity.signInAgain(this);
 			
 			// Show the user some toast explaining why they have been redirected.
 			Toast.makeText(this, resources.getString(R.string.sign_in_redirected_because_credentials_invalid), Toast.LENGTH_LONG).show();

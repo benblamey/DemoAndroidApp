@@ -32,7 +32,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -49,19 +48,43 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		DATA_MOMENT, WAITING, SUCCESS, FAILED
+		INITIAL, DATA_MOMENT, WAITING, SUCCESS, FAILED
 	}
 
+	// Request codes for starting various activities.
+	private static final int preRegisterSlideShowRequestCode = 818548;
+	private static final int showHomeRequestCode = 6874314;
+	private static final int showRegisterRequestCode = 4167184;
+	
 	/**
-	 * The request code for starting the slideshow activity prior to the register activity.
+	 * Tracks whether the home activity has been started.
 	 */
-	private static final int preSlideShowRequestCode = 818548;
+	private boolean _homeActivityAtTopOfStack = false;
 	
 	private String _errorMessage;
 	private SignInTask _signInTask;
-	private State _state;
+	private State _state = State.INITIAL;
 	private DialogInterface _dialog;
 
+	/**
+	 * Removes any credentials from the credentials store, and then
+	 * navigates to the 'SignIn' activity.
+	 */
+	public static void signInAgain(Activity activity) {
+		CredentialStore.getInstance().clear();
+		
+		// We set some flags to ensure that if the user presses the 'back' button they 'quit' the app.
+		// (the sign in activity is always the first history item in the stack - we clear all items in front of it,
+		//  the splash screen activity is the first activity to be shown when starting the app, but it has the 'noHistory'
+		//  flag set).
+		Intent i = new Intent(activity, SignInActivity.class);
+		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		
+		activity.startActivity(i);
+		activity.finish();
+	}
+	
 	/*
 	 * Updates the user-interface to represent the state of this activity
 	 * object.
@@ -74,35 +97,36 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 			_dialog = null;
 		}
 
-		Resources resources = getResources();
-
-		switch (_state) {
-		case DATA_MOMENT:
-			// Nothing to do.
-			break;
-		case WAITING:
-			// Show a 'waiting' dialog.
-			_dialog = ProgressDialog.show(this, resources.getString(R.string.sign_in_waiting_dialog_title),
-					resources.getString(R.string.sign_in_waiting_dialog_body), true, // Indeterminate.
-					false); // Not cancellable.
-			break;
-		case SUCCESS:
-			// Start the 'home' activity.
-			// Credentials/session key has already been stored.
-			startActivity(new Intent(this, HomeActivity.class));
-			break;
-		case FAILED:
-			// Show a 'failed' dialog.
-			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
-			failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
-			failedDialog.setMessage(_errorMessage);
-			failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
-			failedDialog.setCancelable(false);
-			failedDialog.show();
-			_dialog = failedDialog;
-			break;
-		default:
-			throw new UnexpectedEnumValueException(_state);
+		if (CredentialStore.getInstance().getHaveVerifiedCredentials()) { 
+			startHomeActivity();
+		} else {
+			Resources resources = getResources();
+	
+			switch (_state) {
+			case DATA_MOMENT:
+				// Nothing to do.
+				break;
+			case WAITING:
+				// Show a 'waiting' dialog.
+				_dialog = ProgressDialog.show(this, resources.getString(R.string.sign_in_waiting_dialog_title),
+						resources.getString(R.string.sign_in_waiting_dialog_body), true, // Indeterminate.
+						false); // Not cancellable.
+				break;
+			case SUCCESS:
+				throw new RuntimeException("if we have been successful, we should have credentials");
+			case FAILED:
+				// Show a 'failed' dialog.
+				AlertDialog failedDialog = new AlertDialog.Builder(this).create();
+				failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
+				failedDialog.setMessage(_errorMessage);
+				failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+				failedDialog.setCancelable(false);
+				failedDialog.show();
+				_dialog = failedDialog;
+				break;
+			default:
+				throw new UnexpectedEnumValueException(_state);
+			}
 		}
 	}
 
@@ -110,32 +134,33 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.signin);
 		
 		if (CredentialStore.getInstance().getHaveVerifiedCredentials()) {
 			// Start the home activity.
-			startActivity(new Intent(this, HomeActivity.class));
-		}
-
-		findViewById(R.id.sign_in_sign_in_button).setOnClickListener(this);
-		findViewById(R.id.sign_in_register_button).setOnClickListener(this);
-
-		if (savedInstanceState != null) {
-			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
-			_errorMessage = savedInstanceState.getString("_errorMessage");
-			
-			// If we have previously successfully logged in, go back to the data-moment state.
-			// Otherwise we will redirect immediately back to the home activity.
-			if (State.SUCCESS == _state) {
-				_state = State.DATA_MOMENT;
-				_errorMessage = "";
-			}
-
+			startHomeActivity();
 		} else {
-			_state = State.DATA_MOMENT;
-		}
+			setContentView(R.layout.signin);
 
-		showState();
+			findViewById(R.id.sign_in_sign_in_button).setOnClickListener(this);
+			findViewById(R.id.sign_in_register_button).setOnClickListener(this);
+	
+			if (savedInstanceState != null) {
+				_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
+				_errorMessage = savedInstanceState.getString("_errorMessage");
+				
+				// If we have previously successfully logged in, go back to the data-moment state.
+				// Otherwise we will redirect immediately back to the home activity.
+				if (State.SUCCESS == _state) {
+					_state = State.DATA_MOMENT;
+					_errorMessage = "";
+				}
+	
+			} else {
+				_state = State.DATA_MOMENT;
+			}
+	
+			showState();
+		}
 	}
 
 	protected void onSaveInstanceState(Bundle outState) {
@@ -207,14 +232,14 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 	private void registerButtonClicked() {
 		// Start the 'SlideShow' activity. 
 		Intent intent = new Intent(this, SlideShowActivity.class);
-		startActivityForResult(intent, preSlideShowRequestCode);
+		startActivityForResult(intent, preRegisterSlideShowRequestCode);
 	}
 	
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
-		if (requestCode == preSlideShowRequestCode) {
+		if (requestCode == preRegisterSlideShowRequestCode) {
 			if (RESULT_OK == resultCode) {
 				Intent intent = new Intent(this, RegisterActivity.class);
-				startActivity(intent);
+				startActivityForResult(intent, showRegisterRequestCode);
 			} else if (RESULT_CANCELED == resultCode) {
 				// The slide show was cancelled (the user pressed 'back') - stay 
 				// where we are, the user must watch the slide show all the way through
@@ -222,6 +247,27 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 			} else {
 				throw new RuntimeException("Unexpected resultCode value.");
 			}
+		} else if (requestCode == showRegisterRequestCode) {
+			if (RESULT_CANCELED == resultCode) {
+				// The user has pressed 'back' from register - do nothing.
+			} else if (RESULT_OK == resultCode) {
+				// The registration completed successfully, we should now have credentials.
+				assert CredentialStore.getInstance().getHaveVerifiedCredentials();
+				startHomeActivity();
+			} else {
+				throw new RuntimeException("unexpected result code from activity 'Register'.");
+			}
+		} else if (requestCode == showHomeRequestCode) {
+			_homeActivityAtTopOfStack = false;
+			if (RESULT_CANCELED == resultCode) {
+				// The user has pressed 'back' from home - bubble back.
+				setResult(RESULT_CANCELED);
+				finish();
+			} else {
+				throw new RuntimeException("unexpected result code from activity 'Home'.");
+			}
+		}  else {
+			throw new RuntimeException("unexpected requestCode.");
 		}
 	}
 	
@@ -274,25 +320,6 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 		}
 	}
 
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// It is bad practice to override the behaviour of the 'back' button,
-		// but we do so here with good reason.
-		// If the user has arrived here by logging out they click back, they will
-		// be redirected back to this activity by the previous item in the stack.
-		// To workaround this, we explicitly send the user back to the home screen when
-		// they use the 'back' button from this activity.
-	    if (keyCode == KeyEvent.KEYCODE_BACK) {
-	        Intent startMain = new Intent(Intent.ACTION_MAIN);
-	        startMain.addCategory(Intent.CATEGORY_HOME);
-	        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	        startActivity(startMain);
-	    	return true;
-	    } else {
-	    	return super.onKeyDown(keyCode, event);
-	    }
-	}
-
 	public void onClick(View view) {
 		switch (view.getId()) {
 		case R.id.sign_in_register_button:
@@ -308,25 +335,35 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-
 		switch (_state) {
-
-		case FAILED:
-			// When the user clicks on the success confirmation, go back to the
-			// sign_in page.
-			if (DialogInterface.BUTTON_POSITIVE == which) {
-				_state = State.DATA_MOMENT;
-				showState();
-			} else {
+			case FAILED:
+				// When the user clicks on the success confirmation, go back to the
+				// sign_in page.
+				if (DialogInterface.BUTTON_POSITIVE == which) {
+					_state = State.DATA_MOMENT;
+					showState();
+				} else {
+					throw new IllegalStateException();
+				}
+				break;
+			case SUCCESS:
+			case DATA_MOMENT:
+			case WAITING:
 				throw new IllegalStateException();
-			}
-			break;
-		case SUCCESS:
-		case DATA_MOMENT:
-		case WAITING:
-			throw new IllegalStateException();
-		default:
-			throw new UnexpectedEnumValueException(_state);
+			default:
+				throw new UnexpectedEnumValueException(_state);
+		}
+	}
+	
+	/**
+	 * Start the home activity, unless it has already been started.
+	 */
+	private void startHomeActivity() {
+		// We need to ensure we don't create multiple instances of the 'Home' activity at the top of the stack.
+		if (!_homeActivityAtTopOfStack) {
+			_homeActivityAtTopOfStack = true;
+			Intent i = new Intent(this, HomeActivity.class);
+			startActivityForResult(i, showHomeRequestCode);
 		}
 	}
 

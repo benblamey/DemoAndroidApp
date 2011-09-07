@@ -74,34 +74,36 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		ListView listView = getListView();
-		listView.setTextFilterEnabled(false); // We don't support text-filtering for moments.
-		listView.setOnItemClickListener(this);
-		getListView().setOnScrollListener(this);
-		
-		startSignInActivityIfNotSignedIn();
-
-		Intent startingIntent = getIntent();		
-		_latitude = startingIntent.getDoubleExtra(EXTRA_LATITUDE, -1);
-		_longitude = startingIntent.getDoubleExtra(EXTRA_LONGITUDE, -1);
-
-		if (null != savedInstanceState) {
-			_moments = (ArrayList<Moment>)savedInstanceState.getSerializable("_moments");
-			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
-			_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
-			_latitude = savedInstanceState.getDouble("_latitude");
-			_longitude = savedInstanceState.getDouble("_longitude");
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			ListView listView = getListView();
+			listView.setTextFilterEnabled(false); // We don't support text-filtering for moments.
+			listView.setOnItemClickListener(this);
+			getListView().setOnScrollListener(this);
 			
-			if (State.WAITING_FOR_API == _state) {
-				_state = ((null != _moments) && (!_moments.isEmpty())) ?
-						State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE : State.INITIAL_STATE;
+			Intent startingIntent = getIntent();		
+			_latitude = startingIntent.getDoubleExtra(EXTRA_LATITUDE, -1);
+			_longitude = startingIntent.getDoubleExtra(EXTRA_LONGITUDE, -1);
+	
+			if (null != savedInstanceState) {
+				_moments = (ArrayList<Moment>)savedInstanceState.getSerializable("_moments");
+				_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
+				_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
+				_latitude = savedInstanceState.getDouble("_latitude");
+				_longitude = savedInstanceState.getDouble("_longitude");
+				
+				if (State.WAITING_FOR_API == _state) {
+					_state = ((null != _moments) && (!_moments.isEmpty())) ?
+							State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE : State.INITIAL_STATE;
+					getSomeMoments();
+				}
+			} else {
 				getSomeMoments();
 			}
-		} else {
-			getSomeMoments();
+	
+			showState();
 		}
-
-		showState();
 	}
 
 	private void getSomeMoments() {
@@ -133,27 +135,26 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		}
 	}
 	
-	private void startSignInActivityIfNotSignedIn() {
-		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
-			// Start the sign in activity.
-			startActivity(new Intent(this, SignInActivity.class));
-		}
-	}
-	
 	@Override
 	protected void onStart() {
 		super.onStart();
 		// The activity is about to become visible.
-		startSignInActivityIfNotSignedIn();
-		showState();
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			showState();
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		// The activity has become visible (it is now "resumed").
-		startSignInActivityIfNotSignedIn();
-		showState();
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			showState();
+		}
 	}
 
 	@Override

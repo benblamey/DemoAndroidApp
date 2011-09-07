@@ -97,8 +97,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		listView.setOnItemClickListener(this);
 		
 		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
-			// Start the sign in activity.
-			startActivity(new Intent(this, SignInActivity.class));
+			SignInActivity.signInAgain(this);
 		}
 
 		if (savedInstanceState != null) {
@@ -212,11 +211,8 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 			_errorMessage = "";
 			_state = State.DATA_MOMENT;
 			
-			// Clear credentials saved in the store.
-			CredentialStore.getInstance().clear();
-			
-			// Go back to the sign in activity.
-			startActivity(new Intent(this, SignInActivity.class));
+			// Sign out.
+			SignInActivity.signInAgain(this);
 			
 			// Show the user some toast explaining why they have been redirected.
 			Toast.makeText(this, resources.getString(R.string.sign_in_redirected_because_credentials_invalid), Toast.LENGTH_LONG).show();

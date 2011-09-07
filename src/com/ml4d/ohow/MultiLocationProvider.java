@@ -109,7 +109,6 @@ public class MultiLocationProvider implements LocationListener {
 	
 	@Override
 	public void onLocationChanged(android.location.Location location) {
-		// TODO Auto-generated method stub
 		updateLocation(location);
 	}
 	

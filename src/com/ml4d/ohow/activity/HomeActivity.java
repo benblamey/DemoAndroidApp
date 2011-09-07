@@ -73,37 +73,25 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.show_moment_activity);
-
-		// We don't use the previous and next buttons for this activity.
-		findViewById(R.id.show_moment_activity_button_next).setVisibility(View.INVISIBLE);
-		findViewById(R.id.show_moment_activity_button_previous).setVisibility(View.INVISIBLE);
-
-		_state = State.WAITING_FOR_FIRST_LOCATION_UPDATE;
 		
-		if (null != savedInstanceState) {
-			_momentTimestamp = (Date)savedInstanceState.getSerializable("_momentTimestamp");
-			_moment = (Moment)savedInstanceState.getSerializable("_moment");
-		}
-		
-		startSignInActivityIfNotSignedIn();
-		ensureSubscribedToLocationUpdates();
-		getMomentIfAppropriate();
-		showState();
-	}
-	
-	private void startSignInActivityIfNotSignedIn() {
 		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
-			// Start the sign in activity.
-			startActivity(new Intent(this, SignInActivity.class));
+			SignInActivity.signInAgain(this);
+		} else {
+			// We don't use the previous and next buttons for this activity.
+			findViewById(R.id.show_moment_activity_button_next).setVisibility(View.INVISIBLE);
+			findViewById(R.id.show_moment_activity_button_previous).setVisibility(View.INVISIBLE);
+	
+			_state = State.WAITING_FOR_FIRST_LOCATION_UPDATE;
+			
+			if (null != savedInstanceState) {
+				_momentTimestamp = (Date)savedInstanceState.getSerializable("_momentTimestamp");
+				_moment = (Moment)savedInstanceState.getSerializable("_moment");
+			}
+	
+			ensureSubscribedToLocationUpdates();
+			getMomentIfAppropriate();
+			showState();
 		}
-	}
-
-	private void signOutButtonClicked() {
-		// Clear the saved credentials.
-		CredentialStore.getInstance().clear();
-		
-		// Start the sign in activity.
-		startActivity(new Intent(this, SignInActivity.class));
 	}
 	
 	private void captureButtonClicked() {	
@@ -115,18 +103,24 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	protected void onStart() {
 		super.onStart();
 		// The activity is about to become visible.
-		startSignInActivityIfNotSignedIn();
-		ensureSubscribedToLocationUpdates();
-		showState();
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			ensureSubscribedToLocationUpdates();
+			showState();
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		// The activity has become visible (it is now "resumed").
-		startSignInActivityIfNotSignedIn();
-		ensureSubscribedToLocationUpdates();
-		showState();
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			// The activity has become visible (it is now "resumed").
+			ensureSubscribedToLocationUpdates();
+			showState();
+		}
 	}
 
 	@Override
@@ -201,7 +195,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	    	showLocalTimeline();
 	    	return true;
 	    case R.id.menu_item_sign_out:
-	    	signOutButtonClicked();
+	    	SignInActivity.signInAgain(this);
 	    	return true;
 	    case R.id.menu_item_capture:
 	    	captureButtonClicked();

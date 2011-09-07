@@ -58,6 +58,9 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 		DATA_MOMENT, WAITING, SUCCESS, FAILED
 	}
 
+	private static final int slideShowRequestCode = 8947654;
+	private static final int viewTermsAndConditionsRequestCode = 684353;
+
 	private String _errorMessage;
 	private RegisterApiTask _registerTask;
 	private State _state;
@@ -235,7 +238,7 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 	private void showSlideShow() {
 		Intent intent = new Intent(this, SlideShowActivity.class);
 		// The first will finish when all the slides have been shown.
-		startActivity(intent);
+		startActivityForResult(intent, slideShowRequestCode);
 	}
 	
 	private void registerButtonClicked() {
@@ -342,7 +345,7 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 
 	private void viewTermsAndConditionsClicked() {
 		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "terms.html"));
-		startActivity(browserIntent);
+		startActivityForResult(browserIntent, viewTermsAndConditionsRequestCode);
 	}
 
 	@Override
@@ -364,8 +367,9 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 			// When the user clicks on the success confirmation, go to the home activity 
 			// (we have already stored the credentials, and so are 'signed in').
 			if (DialogInterface.BUTTON_POSITIVE == which) {
-				Intent i = new Intent(this, HomeActivity.class);
-				startActivity(i);
+				// This activity is finished.
+				setResult(RESULT_OK);
+				finish();
 				break;
 			} else {
 				throw new IllegalStateException();

@@ -72,133 +72,131 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.show_moment_activity);
-
-		Button nextButton = (Button)findViewById(R.id.show_moment_activity_button_next);
-		nextButton.setOnClickListener(this);
 		
-		Button prevButton = (Button)findViewById(R.id.show_moment_activity_button_previous);
-		prevButton.setOnClickListener(this);
-		
-		boolean getMoment = true;
-		if (null != savedInstanceState) {
-			// The activity is being restored from serialised state.
-			_moment = (Moment)savedInstanceState.getSerializable("_moment");
-			_entryState = Enum.valueOf(State.class, savedInstanceState.getString("_entryState"));
-			_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
-			
-			if (State.WAITING_FOR_API == _entryState) {
-				getMoment = true;
-			}
-		} 
-		
-		if (getMoment) {
-			// The activity is being started.
-			Intent startingIntent = getIntent();
-			
-			String mode = startingIntent.getStringExtra(EXTRA_MODE_KEY);
-			if (String2.areEqual(mode, EXTRA_MODE_VALUE_MOMENT_ID)) {
-				
-				int momentId = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
-				if (-1 == momentId) {
-					throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
-				}
-				
-				// We don't need these yet, but if we need to fetch a next or previous entry, we will need them.
-				double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
-				if (999 == latitude) {
-					throw new RuntimeException("latitude is mandatory for this mode");
-				}
-				
-				double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
-				if (999 == longitude) {
-					throw new RuntimeException("latitude is mandatory for this mode");
-				}
-				
-				int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
-				if (-1 == radiusMetres) {
-					throw new RuntimeException("radius is mandatory for this mode.");
-				}
- 				
-				_getMomentTask = new ShowMomentTask(this, momentId);
-				_getMomentTask.execute((Void[])null);
-
-				// Fetch the photo - there might not be one, but it is faster to try immediately and risk the wasted effort than
-				// wait until we have fetched the moment.
-				String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
-					+ "?" 
-					+ "id=" + Integer.toString(momentId)
-					+ "&photo_size=medium"; // Get the full-sized image.
-				((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(url);
-
-			} else if (String2.areEqual(mode, EXTRA_MODE_VALUE_PREVIOUS)) {
-				
-				int momentID = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
-				if (-1 == momentID) {
-					throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
-				}
-				
-				double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
-				if (999 == latitude) {
-					throw new RuntimeException("latitude is mandatory for this mode");
-				}
-				
-				double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
-				if (999 == longitude) {
-					throw new RuntimeException("latitude is mandatory for this mode");
-				}
-				
-				int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
-				if (-1 == radiusMetres) {
-					throw new RuntimeException("radius is mandatory for this mode.");
-				}
-				
-				Date dateCreatedUtc = (Date)startingIntent.getSerializableExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY);
-				
-				// public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, 
-				// int radiusMeters, Date dateCreatedUTCMax, int maxID) {
-				_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 1, radiusMetres, dateCreatedUtc, momentID);
-				_getMomentTask.execute((Void[])null);
-			} else if (String2.areEqual(mode, EXTRA_MODE_VALUE_NEXT)) {
-				
-				int momentID = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
-				if (-1 == momentID) {
-					throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
-				}
-				
-				double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
-				if (999 == latitude) {
-					throw new RuntimeException("latitude is mandatory for this mode");
-				}
-		
-				double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
-				if (999 == longitude) {
-					throw new RuntimeException("latitude is mandatory for this mode");
-				}
-				
-				int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
-				if (-1 == radiusMetres) {
-					throw new RuntimeException("radius is mandatory for this mode.");
-				}
-				
-				Date dateCreatedUtc = (Date)startingIntent.getSerializableExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY);
-				
-				_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 1, radiusMetres, momentID, dateCreatedUtc);
-				_getMomentTask.execute((Void[])null);
-			}
-			
-			_entryState = State.WAITING_FOR_API;
-			_ohowAPIError = "";
-		}
-		
-		startSignInActivityIfNotSignedIn();
-		showState();
-	}
-	
-	private void startSignInActivityIfNotSignedIn() {
 		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
-			// Start the sign in activity.
-			startActivity(new Intent(this, SignInActivity.class));
+			SignInActivity.signInAgain(this);
+		} else {
+			setContentView(R.layout.show_moment_activity);
+	
+			Button nextButton = (Button)findViewById(R.id.show_moment_activity_button_next);
+			nextButton.setOnClickListener(this);
+			
+			Button prevButton = (Button)findViewById(R.id.show_moment_activity_button_previous);
+			prevButton.setOnClickListener(this);
+			
+			boolean getMoment = true;
+			if (null != savedInstanceState) {
+				// The activity is being restored from serialised state.
+				_moment = (Moment)savedInstanceState.getSerializable("_moment");
+				_entryState = Enum.valueOf(State.class, savedInstanceState.getString("_entryState"));
+				_ohowAPIError = savedInstanceState.getString("_ohowAPIError");
+				
+				if (State.WAITING_FOR_API == _entryState) {
+					getMoment = true;
+				}
+			} 
+			
+			if (getMoment) {
+				// The activity is being started.
+				Intent startingIntent = getIntent();
+				
+				String mode = startingIntent.getStringExtra(EXTRA_MODE_KEY);
+				if (String2.areEqual(mode, EXTRA_MODE_VALUE_MOMENT_ID)) {
+					
+					int momentId = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
+					if (-1 == momentId) {
+						throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
+					}
+					
+					// We don't need these yet, but if we need to fetch a next or previous entry, we will need them.
+					double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
+					if (999 == latitude) {
+						throw new RuntimeException("latitude is mandatory for this mode");
+					}
+					
+					double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
+					if (999 == longitude) {
+						throw new RuntimeException("latitude is mandatory for this mode");
+					}
+					
+					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+					if (-1 == radiusMetres) {
+						throw new RuntimeException("radius is mandatory for this mode.");
+					}
+	 				
+					_getMomentTask = new ShowMomentTask(this, momentId);
+					_getMomentTask.execute((Void[])null);
+	
+					// Fetch the photo - there might not be one, but it is faster to try immediately and risk the wasted effort than
+					// wait until we have fetched the moment.
+					String url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+						+ "?" 
+						+ "id=" + Integer.toString(momentId)
+						+ "&photo_size=medium"; // Get the full-sized image.
+					((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(url);
+	
+				} else if (String2.areEqual(mode, EXTRA_MODE_VALUE_PREVIOUS)) {
+					
+					int momentID = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
+					if (-1 == momentID) {
+						throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
+					}
+					
+					double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
+					if (999 == latitude) {
+						throw new RuntimeException("latitude is mandatory for this mode");
+					}
+					
+					double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
+					if (999 == longitude) {
+						throw new RuntimeException("latitude is mandatory for this mode");
+					}
+					
+					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+					if (-1 == radiusMetres) {
+						throw new RuntimeException("radius is mandatory for this mode.");
+					}
+					
+					Date dateCreatedUtc = (Date)startingIntent.getSerializableExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY);
+					
+					// public MomentLocationRecentSearchTask(ITaskFinished parent, double latitude, double longitude, int maxResults, 
+					// int radiusMeters, Date dateCreatedUTCMax, int maxID) {
+					_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 1, radiusMetres, dateCreatedUtc, momentID);
+					_getMomentTask.execute((Void[])null);
+				} else if (String2.areEqual(mode, EXTRA_MODE_VALUE_NEXT)) {
+					
+					int momentID = startingIntent.getIntExtra(EXTRA_MOMENT_ID_KEY, -1); // Moments always have positive IDs.
+					if (-1 == momentID) {
+						throw new RuntimeException("This activity should only be started by the with the intent extra set specifying the moment ID.");
+					}
+					
+					double latitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, 999);
+					if (999 == latitude) {
+						throw new RuntimeException("latitude is mandatory for this mode");
+					}
+			
+					double longitude = startingIntent.getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, 999);
+					if (999 == longitude) {
+						throw new RuntimeException("latitude is mandatory for this mode");
+					}
+					
+					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+					if (-1 == radiusMetres) {
+						throw new RuntimeException("radius is mandatory for this mode.");
+					}
+					
+					Date dateCreatedUtc = (Date)startingIntent.getSerializableExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY);
+					
+					_getMomentTask = new MomentLocationRecentSearchTask(this, latitude, longitude, 1, radiusMetres, momentID, dateCreatedUtc);
+					_getMomentTask.execute((Void[])null);
+				}
+				
+				_entryState = State.WAITING_FOR_API;
+				_ohowAPIError = "";
+			}
+			
+			
+			showState();
 		}
 	}
 	
@@ -206,16 +204,22 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 	protected void onStart() {
 		super.onStart();
 		// The activity is about to become visible.
-		startSignInActivityIfNotSignedIn();
-		showState();
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			showState();
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		// The activity has become visible (it is now "resumed").
-		startSignInActivityIfNotSignedIn();
-		showState();
+		if (!CredentialStore.getInstance().getHaveVerifiedCredentials()) {
+			SignInActivity.signInAgain(this);
+		} else {
+			showState();
+		}
 	}
 
 	@Override
