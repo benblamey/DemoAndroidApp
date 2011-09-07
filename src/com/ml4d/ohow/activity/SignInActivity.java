@@ -32,7 +32,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -132,18 +131,6 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 				_errorMessage = "";
 			}
 
-			// Because we have different layouts for portrait and landscape
-			// views, we need to manually save and restore the state of the
-			// TextViews.
-			restoreTextViewInstanceState(savedInstanceState, R.id.signin_edittext_username);
-			restoreTextViewInstanceState(savedInstanceState, R.id.signin_edittext_password);
-
-			// Restore the focused view.
-			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
-			if (null != focusTarget) {
-				focusTarget.requestFocus();
-			}
-
 		} else {
 			_state = State.DATA_MOMENT;
 		}
@@ -160,37 +147,8 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 			_state = State.FAILED;
 		}
 
-		// Because we have different layouts for portrait and landscape views,
-		// we need to manually save and restore the state of the TextViews.
-		saveTextViewInstanceState(outState, R.id.signin_edittext_username);
-		saveTextViewInstanceState(outState, R.id.signin_edittext_password);
-
-		// Save which view is focused.
-		View focusedView = getCurrentFocus();
-		if (null != focusedView) {
-			outState.putInt("focused_view", focusedView.getId());
-		}
-
 		outState.putString("_state", _state.name());
 		outState.putString("_errorMessage", _errorMessage);
-	}
-
-	/*
-	 * Saves the state of the specified TextView.
-	 */
-	private void saveTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = ((TextView) this.findViewById(textViewId)).onSaveInstanceState();
-		state.putParcelable("textView_id_" + Integer.toString(textViewId), instanceState);
-	}
-
-	/*
-	 * Restores the state of the specified TextView.
-	 */
-	private void restoreTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = state.getParcelable("textView_id_" + Integer.toString(textViewId));
-		if (null != instanceState) {
-			((TextView) this.findViewById(textViewId)).onRestoreInstanceState(instanceState);
-		}
 	}
 
 	@Override

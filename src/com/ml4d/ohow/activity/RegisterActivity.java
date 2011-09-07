@@ -33,7 +33,6 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -128,23 +127,6 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 		if (savedInstanceState != null) {
 			_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
 			_errorMessage = savedInstanceState.getString("_errorMessage");
-
-			// Because we have different layouts for portrait and landscape
-			// views, we need to manually save and restore the state of the
-			// TextViews.
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_first_name);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_last_name);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_email);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_username);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_edittext_password);
-			restoreTextViewInstanceState(savedInstanceState, R.id.register_checkbox_terms);
-
-			// Restore the focused view.
-			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
-			if (null != focusTarget) {
-				focusTarget.requestFocus();
-			}
-
 		} else {
 			_state = State.DATA_MOMENT;
 		}
@@ -174,41 +156,8 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 			throw new UnexpectedEnumValueException(_state);
 		}
 
-		// Because we have different layouts for portrait and landscape views,
-		// we need to manually save and restore the state of the TextViews.
-		saveTextViewInstanceState(outState, R.id.register_edittext_first_name);
-		saveTextViewInstanceState(outState, R.id.register_edittext_last_name);
-		saveTextViewInstanceState(outState, R.id.register_edittext_email);
-		saveTextViewInstanceState(outState, R.id.register_edittext_username);
-		saveTextViewInstanceState(outState, R.id.register_edittext_password);
-		saveTextViewInstanceState(outState, R.id.register_checkbox_terms);
-
-		// Save which view is focused.
-		View v = getCurrentFocus();
-		if (null != v) {
-			outState.putInt("focused_view", v.getId());
-		}
-
 		outState.putString("_state", _state.name());
 		outState.putString("_errorMessage", _errorMessage);
-	}
-
-	/*
-	 * Saves the state of the specified TextView.
-	 */
-	private void saveTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = ((TextView) this.findViewById(textViewId)).onSaveInstanceState();
-		state.putParcelable("textView_id_" + Integer.toString(textViewId), instanceState);
-	}
-
-	/*
-	 * Restores the state of the specified TextView.
-	 */
-	private void restoreTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = state.getParcelable("textView_id_" + Integer.toString(textViewId));
-		if (null != instanceState) {
-			((TextView) this.findViewById(textViewId)).onRestoreInstanceState(instanceState);
-		}
 	}
 
 	@Override

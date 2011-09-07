@@ -154,10 +154,8 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		if (null != outState) {
-			outState.putSerializable("_momentTimestamp", _momentTimestamp);
-			outState.putSerializable("_moment", _moment);
-		}
+		outState.putSerializable("_momentTimestamp", _momentTimestamp);
+		outState.putSerializable("_moment", _moment);
 	}
 	
 	// 'LocationListener' interface members.

@@ -21,7 +21,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -105,17 +104,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 				_errorMessage = "";
 				_state = State.DATA_MOMENT;
 			}
-
-			// Because we may have different layouts for portrait and landscape
-			// views, we need to manually save and restore the state of the
-			// TextViews.
-			restoreTextViewInstanceState(savedInstanceState, R.id.capture_text_photo_edittext_body);
-
-			// Restore the focused view.
-			View focusTarget = findViewById(savedInstanceState.getInt("focused_view"));
-			if (null != focusTarget) {
-				focusTarget.requestFocus();
-			}
 			
 			ensureGettingGPSUpdates();
 
@@ -137,40 +125,9 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 		super.onSaveInstanceState(outState);
 		tearEverythingDown();
 
-		// Because we have different layouts for portrait and landscape views,
-		// we need to manually save and restore the state of the TextViews.
-		saveTextViewInstanceState(outState, R.id.capture_text_photo_edittext_body);
-
-		// Save which view is focused.
-		View focusedView = getCurrentFocus();
-		if (null != focusedView) {
-			outState.putInt("focused_view", focusedView.getId());
-		}
-
 		outState.putString("_state", _state.name());
 		outState.putString("_errorMessage", _errorMessage);
-		
-		if (null != _photoFile) {
-			outState.putSerializable("_photoFile", _photoFile);
-		}
-	}
-
-	/**
-	 * Saves the state of the specified TextView.
-	 */
-	private void saveTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = ((TextView) findViewById(textViewId)).onSaveInstanceState();
-		state.putParcelable("textView_id_" + Integer.toString(textViewId), instanceState);
-	}
-
-	/**
-	 * Restores the state of the specified TextView.
-	 */
-	private void restoreTextViewInstanceState(Bundle state, int textViewId) {
-		Parcelable instanceState = state.getParcelable("textView_id_" + Integer.toString(textViewId));
-		if (null != instanceState) {
-			((TextView) findViewById(textViewId)).onRestoreInstanceState(instanceState);
-		}
+		outState.putSerializable("_photoFile", _photoFile);
 	}
 
 	@Override

@@ -240,11 +240,9 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		if (null != outState) {
-			outState.putSerializable("_moment", _moment);
-			outState.putString("_entryState", _entryState.name());
-			outState.putString("_ohowAPIError", _ohowAPIError);
-		}
+		outState.putSerializable("_moment", _moment);
+		outState.putString("_entryState", _entryState.name());
+		outState.putString("_ohowAPIError", _ohowAPIError);
 	}
 	
 	/**
