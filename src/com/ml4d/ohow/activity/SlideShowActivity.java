@@ -47,16 +47,12 @@ public class SlideShowActivity extends Activity implements OnClickListener {
 		try {
 			id = R.drawable.class.getField("slideshow_" + Integer.toString(_slideNumber)).getInt(null);
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
 			throw new ImprobableCheckedExceptionException(e);
 		} catch (SecurityException e) {
-			e.printStackTrace();
 			throw new ImprobableCheckedExceptionException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
 			throw new ImprobableCheckedExceptionException(e);
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
 			throw new ImprobableCheckedExceptionException(e);
 		}
 		
@@ -99,10 +95,5 @@ public class SlideShowActivity extends Activity implements OnClickListener {
 		}
 	}
 	
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putInt(SLIDE_NUMBER_INTENT_EXTRA_KEY, _slideNumber);
-	}
 	
 }

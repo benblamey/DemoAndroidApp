@@ -156,12 +156,6 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		showState();
 	}
 
-	@Override
-	protected void onNewIntent (Intent intent) {
-		Log.d("OHOW", "CaptureLocation.onNewIntent called - terminating");
-		throw new RuntimeException("onNewIntent called!");
-	}
-	
 	/**
 	 * Updates the user-interface to represent the state of this activity
 	 * object.
