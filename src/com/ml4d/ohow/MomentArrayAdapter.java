@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.time.FastDateFormat;
+
 import com.ml4d.core.WebImageView;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 
@@ -22,13 +24,23 @@ import android.widget.TextView;
  * An ArrayAdapter<T> specifically for 'Moment' objects for display the 'location_item_view'.
  */
 public class MomentArrayAdapter implements ListAdapter {
+
+	// As suggested in one of the SDK samples, for best performance of the 'getView' method,
+	// we set the tag of the item view to be an object holding references to the controls within it.
+	// This saves doing a view.findById(..) call.
+	class ViewHolder {
+		public TextView _bodyTextView;
+		public TextView _locationTextView;
+		public TextView _detailsTextView;
+		public WebImageView _imageView;
+	}
 	
 	private final DataSetObservable _dataSetObservable = new DataSetObservable();
-    
     private LayoutInflater _inflater;
-    private Context _context;
     private ArrayList<Moment> _moments;
     private EndState _endState = EndState.INITIAL;
+    private String _momentBodyFormat;
+    private String _momentDetailFormat;
         
 	// The state of the end of the list.
     public enum EndState 
@@ -57,14 +69,20 @@ public class MomentArrayAdapter implements ListAdapter {
     		throw new IllegalArgumentException("'endState' cannot be 'INITIAL'");
     	}
         _inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        _context = context;
         _moments = moments;
         _endState = endState;
+
+        // The 'getView' method needs to execute very quickly, to save a few mS, get the resource strings now.
+		Resources resources = context.getResources();
+		_momentBodyFormat = resources.getString(R.string.moment_body_format);
+		_momentDetailFormat = resources.getString(R.string.moment_detail_format);
 	}
 
     public void setEndState(EndState state) {
-    	_endState = state;
-    	_dataSetObservable.notifyChanged();
+    	if (_endState != state) {
+	    	_endState = state;
+	    	_dataSetObservable.notifyChanged();
+    	}
     }
     
 	@Override
@@ -100,12 +118,34 @@ public class MomentArrayAdapter implements ListAdapter {
 	        }
 	        
         } else {
-	        int _resource = R.layout.local_timeline_moment_item;
+	        
+            TextView bodyTextView;
+			TextView locationTextView;
+			TextView detailsTextView;
+			WebImageView photoImageView;
 	
 	        if (convertView == null) {
-	            view = _inflater.inflate(_resource, parent, false);
+	            view = _inflater.inflate(R.layout.local_timeline_moment_item, parent, false);
+	            bodyTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_body);
+				locationTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_capture_location);
+				detailsTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_details);
+				photoImageView = (WebImageView)view.findViewById(R.id.local_timeline_item_web_image_view);
+	            
+	            ViewHolder holder = new ViewHolder();
+	            holder._bodyTextView = bodyTextView;
+	            holder._locationTextView = locationTextView;
+	            holder._detailsTextView = detailsTextView;
+	            holder._imageView = photoImageView;
+	            
+	            view.setTag(holder);
 	        } else {
 	            view = convertView;
+	            
+	            ViewHolder holder = (ViewHolder)convertView.getTag();
+	            bodyTextView = holder._bodyTextView;
+				locationTextView = holder._locationTextView;
+				detailsTextView = holder._detailsTextView;
+				photoImageView = holder._imageView;
 	        }
 	
 	        Moment moment = (Moment)getItem(position);
@@ -116,22 +156,17 @@ public class MomentArrayAdapter implements ListAdapter {
 					Double.toString(moment.getLatitude());
 			}
 	
-			Resources resources = _context.getResources();
 			
-			// Not that the 'default' locale means the 'local culture'.
-			String body = String.format(Locale.getDefault(), resources.getString(R.string.moment_body_format), moment.getBody()); 
+			String body = String.format(Locale.getDefault(), _momentBodyFormat, moment.getBody()); 
 			
-			// The 'default' locale (used by getDateTimeInstance()) is suitable for the local culture, and should not be used for persistence, etc.
-			DateFormat localDateFormat = DateFormat.getDateTimeInstance(
+			// We use 'FastDateFormat' from the external library, because the 'java.text.DateFormat' class has really bad performance.
+			FastDateFormat localDateFormat = FastDateFormat.getDateTimeInstance(
 					DateFormat.SHORT, // Date.
-					DateFormat.MEDIUM); // Time.
-			localDateFormat.setTimeZone(TimeZone.getDefault());
-			String details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), moment.getUsername(), localDateFormat.format(moment.getDateCreatedUTC()));
+					DateFormat.MEDIUM, // Time.
+					TimeZone.getDefault(), // Convert times into the local timezone.
+					Locale.getDefault()); // Format the string according to the local culture.
 			
-			TextView bodyTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_body);
-			TextView locationTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_capture_location);
-			TextView detailsTextView = (TextView)view.findViewById(R.id.local_timeline_text_view_details);
-			
+			String details = String.format(Locale.getDefault(), _momentDetailFormat, moment.getUsername(), localDateFormat.format(moment.getDateCreatedUTC()));
 			bodyTextView.setText(body);
 			locationTextView.setText(location);
 			detailsTextView.setText(details);
@@ -146,7 +181,7 @@ public class MomentArrayAdapter implements ListAdapter {
 			} else {
 				url = null;
 			}
-			((WebImageView)view.findViewById(R.id.local_timeline_item_web_image_view)).setUrl(url);
+			photoImageView.setUrl(url);
         }
 		
         return view;
