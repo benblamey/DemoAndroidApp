@@ -26,6 +26,9 @@ import com.ml4d.ohow.tasks.MomentLocationRecentSearchTask;
 import com.ml4d.ohow.tasks.ShowMomentTask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
@@ -38,10 +41,11 @@ import android.widget.TextView;
 /**
  * Interactive logic for the sign in activity.
  */
-public class ShowMomentActivity extends Activity implements ITaskFinished, View.OnClickListener {
+public class ShowMomentActivity extends Activity implements DialogInterface.OnClickListener, ITaskFinished, View.OnClickListener {
 
 	// These fields are not persisted.
 	private AsyncTask<Void, Void, Void> _getMomentTask;
+	private Dialog _dialog;
 	
 	// These fields are persisted.
 	private State _entryState;
@@ -59,6 +63,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 	public static String EXTRA_MOMENT_LONGITUDE_KEY = "longitude";
 	public static String EXTRA_MOMENT_CREATED_TIME_UTC_KEY = "created time";
 	public static String EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY = "radius";
+	public static String EXTRA_NEXT_OR_PREVIOUS_INTENT = "intent";
 	
 	/**
 	 * This an intent with this key is set, the 'previous' button gets disabled.
@@ -276,7 +281,23 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 			_entryState = State.API_ERROR_RESPONSE;
 		}
 	}
-		
+	
+	@Override
+	public void onClick(DialogInterface dialog, int which) {
+		if (State.NO_MOMENT == this._entryState) {
+			if (null != _dialog) {
+				_dialog = null;
+			}
+
+			Intent i = getIntent().getParcelableExtra(EXTRA_NEXT_OR_PREVIOUS_INTENT);
+			startActivity(i);
+			finish();
+		} else {
+			throw new RuntimeException("This state doesn't show a dialog.");
+		}
+	}
+	
+
 	private void showState() {
 		Resources resources = getResources();
 			
@@ -324,8 +345,18 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 			
 			switch (_entryState) {
 				case NO_MOMENT:
-					body = "NO MOMENT!";
-					break;
+					// Show a 'failed' dialog.
+					AlertDialog failedDialog = new AlertDialog.Builder(this).create();
+					failedDialog.setTitle(resources.getString(R.string.error_dialog_title));
+					failedDialog.setMessage("No moment!");
+					failedDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", this);
+					failedDialog.setCancelable(false); // Prevent the user from cancelling the dialog with the back key.
+					failedDialog.show();
+					_dialog = failedDialog;
+
+					location = "";
+					body = "";
+					details = "";
 				case API_ERROR_RESPONSE:
 					body = _ohowAPIError;
 					break;
@@ -456,6 +487,13 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 						
 						i.putExtra(EXTRA_MOMENT_ID_KEY, _moment.getId());
 						i.putExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY, _moment.getDateCreatedUTC());
+
+						// This activity is marked as 'NoHistory', because we don't
+						// want to end up with a history of 100s of states of this activity.
+						// However, if the user reaches the end of the list, they will
+						// will want to go back - we implement this by simply starting the previous intent.
+						i.putExtra(EXTRA_NEXT_OR_PREVIOUS_INTENT, this.getIntent());
+						
 						startActivity(i);
 						break;
 					}
@@ -472,6 +510,13 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 						
 						i.putExtra(EXTRA_MOMENT_ID_KEY, _moment.getId());
 						i.putExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY, _moment.getDateCreatedUTC());
+
+						// This activity is marked as 'NoHistory', because we don't
+						// want to end up with a history of 100s of states of this activity.
+						// However, if the user reaches the end of the list, they will
+						// will want to go back - we implement this by simply starting the previous intent.
+						i.putExtra(EXTRA_NEXT_OR_PREVIOUS_INTENT, this.getIntent());
+
 						startActivity(i);
 						break;
 					}
