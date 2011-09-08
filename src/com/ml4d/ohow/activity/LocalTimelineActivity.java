@@ -61,8 +61,8 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 	private enum State {
 		INITIAL_STATE,
 		WAITING_FOR_API,
-    	HAVE_MOMENTS_THERE_ARE_NO_MORE,
-    	HAVE_MOMENTS_THERE_MIGHT_BE_MORE,
+    	HAVE_MOMENTS_THERE_ARE_NO_MORE_PREVIOUS,
+    	HAVE_MOMENTS_THERE_ARE_MORE,
 		API_HAS_NO_MOMENTS,
 		NO_API_RESPONSE, 
 		API_ERROR_RESPONSE, 
@@ -95,7 +95,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 				
 				if (State.WAITING_FOR_API == _state) {
 					_state = ((null != _moments) && (!_moments.isEmpty())) ?
-							State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE : State.INITIAL_STATE;
+							State.HAVE_MOMENTS_THERE_ARE_MORE : State.INITIAL_STATE;
 					getSomeMoments();
 				}
 			} else {
@@ -111,10 +111,10 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		{
 			assert _getMomentTask == null;
 			// Search for a maximum of 30 results in a radius of 1000 metres.
-			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime, searchRadiusMetres);
+			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime + 1, searchRadiusMetres);
 			_getMomentTask.execute((Void[])null);
 			_state = State.WAITING_FOR_API;
-		} else if (State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE == _state) {
+		} else if (State.HAVE_MOMENTS_THERE_ARE_MORE == _state) {
 			assert _moments != null;
 			assert !_moments.isEmpty();
 			assert _getMomentTask == null;
@@ -126,7 +126,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 			int maxID = oldestMoment.getId();
 			
 			// Search for a maximum of 30 results in a radius of 1000 metres.
-			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime, searchRadiusMetres, dateCreatedUTCMax, maxID);
+			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime + 1, searchRadiusMetres, dateCreatedUTCMax, maxID);
 			_getMomentTask.execute((Void[])null);
 			_state = State.WAITING_FOR_API;
 			
@@ -227,19 +227,19 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 					break;
 				}
 				// Fall through...
-			case HAVE_MOMENTS_THERE_ARE_NO_MORE:
-			case HAVE_MOMENTS_THERE_MIGHT_BE_MORE:
+			case HAVE_MOMENTS_THERE_ARE_NO_MORE_PREVIOUS:
+			case HAVE_MOMENTS_THERE_ARE_MORE:
 				assert null != _moments;
 				assert false;
 				
 				MomentArrayAdapter listAdapter = (MomentArrayAdapter)this.getListAdapter();
 				MomentArrayAdapter.EndState endState;
 				switch (_state) {
-					case HAVE_MOMENTS_THERE_ARE_NO_MORE:
+					case HAVE_MOMENTS_THERE_ARE_NO_MORE_PREVIOUS:
 						endState = MomentArrayAdapter.EndState.ARE_NO_MORE_MOMENTS; 
 						break;
-					case HAVE_MOMENTS_THERE_MIGHT_BE_MORE:
-						endState = MomentArrayAdapter.EndState.COULD_BE_MORE_MOMENTS;
+					case HAVE_MOMENTS_THERE_ARE_MORE:
+						endState = MomentArrayAdapter.EndState.THERE_ARE_MORE_MOMENTS;
 						break;
 					case WAITING_FOR_API:
 						endState = MomentArrayAdapter.EndState.WAITING;
@@ -280,8 +280,13 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_ID_KEY, moment.getId());
 		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_LATITUDE_KEY, this._latitude);
 		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_LONGITUDE_KEY, this._longitude);
-		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_SEARCH_RADIUS_METRES, searchRadiusMetres);
+		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, searchRadiusMetres);
 		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_CREATED_TIME_UTC_KEY, moment.getDateCreatedUTC());
+		
+		if (_moments.size() == position + 1) {
+			// This is the last moment in the list. If we flag this to the show moment activity, it will hide the 'previous' button.
+			i.putExtra(ShowMomentActivity.EXTRA_NO_PREVIOUS_MOMENT_KEY, true);
+		}
 		
 		startActivity(i);
 	}
@@ -299,13 +304,17 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 				
 				if (fetchedMoments.size() > 0) {
 
-					state = numberOfMomentsToGetAtAtime == fetchedMoments.size() ?
-							State.HAVE_MOMENTS_THERE_MIGHT_BE_MORE : State.HAVE_MOMENTS_THERE_ARE_NO_MORE; 
+					if (numberOfMomentsToGetAtAtime + 1 == fetchedMoments.size()) {
+						state = State.HAVE_MOMENTS_THERE_ARE_MORE;
+						fetchedMoments.remove(numberOfMomentsToGetAtAtime); // Discard the last moment.
+					} else {
+						state = State.HAVE_MOMENTS_THERE_ARE_NO_MORE_PREVIOUS;
+					}
 				} else {
 					Log.d("OHOW", "Result array has zero moments.");
 					if (_moments != null) {
 						// We were trying to fetch more moments - there are no more moments.
-						state = State.HAVE_MOMENTS_THERE_ARE_NO_MORE;
+						state = State.HAVE_MOMENTS_THERE_ARE_NO_MORE_PREVIOUS;
 					} else {
 						// We were fetching the initial set of moments.
 						state = State.API_HAS_NO_MOMENTS;
@@ -345,8 +354,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-		if (State.INITIAL_STATE != _state) { 
+		if (State.HAVE_MOMENTS_THERE_ARE_MORE == _state) { 
 	        boolean getMoreMoments = (firstVisibleItem + 2 * visibleItemCount) >= totalItemCount;
 
 	        if (getMoreMoments) {

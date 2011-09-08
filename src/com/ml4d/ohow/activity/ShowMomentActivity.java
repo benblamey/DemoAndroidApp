@@ -82,12 +82,19 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 			SignInActivity.signInAgain(this);
 		} else {
 			setContentView(R.layout.show_moment_activity);
+			
+			// The activity is being started.
+			Intent startingIntent = getIntent();
 	
 			Button nextButton = (Button)findViewById(R.id.show_moment_activity_button_next);
 			nextButton.setOnClickListener(this);
 			
 			Button prevButton = (Button)findViewById(R.id.show_moment_activity_button_previous);
-			prevButton.setOnClickListener(this);
+			if (!startingIntent.hasExtra(EXTRA_NO_PREVIOUS_MOMENT_KEY)) {			
+				prevButton.setOnClickListener(this);
+			} else {
+				prevButton.setVisibility(View.VISIBLE);
+			}
 			
 			boolean getMoment = true;
 			if (null != savedInstanceState) {
@@ -102,8 +109,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 			} 
 			
 			if (getMoment) {
-				// The activity is being started.
-				Intent startingIntent = getIntent();
+
 				
 				String mode = startingIntent.getStringExtra(EXTRA_MODE_KEY);
 				if (String2.areEqual(mode, EXTRA_MODE_VALUE_MOMENT_ID)) {

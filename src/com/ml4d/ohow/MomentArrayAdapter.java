@@ -35,7 +35,7 @@ public class MomentArrayAdapter implements ListAdapter {
     {
     	INITIAL,
     	NO_MOMENTS,
-    	COULD_BE_MORE_MOMENTS,
+    	THERE_ARE_MORE_MOMENTS,
     	ARE_NO_MORE_MOMENTS,
     	WAITING,
     }
@@ -80,7 +80,7 @@ public class MomentArrayAdapter implements ListAdapter {
 	        	case ARE_NO_MORE_MOMENTS:
 	        		resource = R.layout.local_timeline_end_item;
 	        		break;
-	        	case COULD_BE_MORE_MOMENTS:
+	        	case THERE_ARE_MORE_MOMENTS:
 	        		throw new RuntimeException("there is no view for this");
 	        	case INITIAL:
 					throw new RuntimeException("We should have left this state by now - programmer error.");
@@ -160,7 +160,7 @@ public class MomentArrayAdapter implements ListAdapter {
 			case ARE_NO_MORE_MOMENTS:
 				extraItems = 1;
 				break;
-			case COULD_BE_MORE_MOMENTS:
+			case THERE_ARE_MORE_MOMENTS:
 				extraItems = 0;
 				break;
 			case INITIAL:
@@ -189,7 +189,7 @@ public class MomentArrayAdapter implements ListAdapter {
 			case ARE_NO_MORE_MOMENTS:
 				item = viewType.ARE_NO_MORE_MOMENTS_LABEL;
 				break;
-			case COULD_BE_MORE_MOMENTS:
+			case THERE_ARE_MORE_MOMENTS:
 				throw new RuntimeException("There is no view for this endstate.");
 			case INITIAL:
 				throw new RuntimeException("We should have left this state by now - programmer error.");
@@ -245,7 +245,7 @@ public class MomentArrayAdapter implements ListAdapter {
 			case ARE_NO_MORE_MOMENTS:
 				id = viewType.ARE_NO_MORE_MOMENTS_LABEL.ordinal();
 				break;
-			case COULD_BE_MORE_MOMENTS:
+			case THERE_ARE_MORE_MOMENTS:
 				throw new RuntimeException("There is no view for this endstate.");
 			case INITIAL:
 				throw new RuntimeException("We should have left this state by now - programmer error.");
