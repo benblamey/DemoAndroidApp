@@ -28,7 +28,7 @@ import android.widget.ImageView;
 public class WebImageView extends ImageView {
 	
 	private String _url;
-	private boolean _isWaiting;
+	private GetImageTask _task;
 
     public WebImageView(Context context) {
         super(context);
@@ -44,15 +44,20 @@ public class WebImageView extends ImageView {
     
     public void setUrl(String url) {
     	if (!String2.areEqual(_url, url)) {
-    		
     		_url = url;
+    		
+			// Cancel any task that is already running.
+    		if (_task != null) {
+    			_task.cancel(true);
+    			_task = null;
+    		}
+
 	    	// If a different image is being shown, remove it.
 	    	setImageBitmap(null);
 	    	
 	    	if ((null != url) && ("" != url)) {
-	    		GetImageTask photoTask = new GetImageTask(this, url);
-	    		photoTask.execute((Void[])null);
-	    		_isWaiting = true;
+	    		_task = new GetImageTask(this, url);
+	    		_task.execute((Void[])null);
 	    	}
     	}
     }
@@ -61,22 +66,27 @@ public class WebImageView extends ImageView {
     	WebImageViewState state = new WebImageViewState();
     	state.url = _url;
     	state.parentState = super.onSaveInstanceState();
-    	state.isWaiting = _isWaiting;
+    	state.isWaiting = (null != this._task);
+    	
+    	if (_task != null) {
+	    	_task.cancel(true);
+	    	_task = null;
+    	}
     	return state;
     }
     
     protected void onRestoreInstanceState(Parcelable inState) {
     	WebImageViewState state = (WebImageViewState)inState;
-    	_isWaiting = state.isWaiting;
     	_url = state.url;
     	super.onRestoreInstanceState(state.parentState);
     	
-    	if (_isWaiting) {
+    	if (state.isWaiting) {
+			// A task to fetch a new image was in progress when we
+			// previously persisted our state.
 	    	// If a different image is being shown, remove it.
 	    	setImageBitmap(null);
-    		GetImageTask photoTask = new GetImageTask(this, _url);
-    		photoTask.execute((Void[])null);
-    		_isWaiting = true;
+	    	_task = new GetImageTask(this, _url);
+	    	_task.execute((Void[])null);
     	}
     }
 
@@ -88,12 +98,10 @@ public class WebImageView extends ImageView {
 		private WeakReference<WebImageView> _parent;
 		private HttpGet _httpGet;
 		private Bitmap _bitmap;
-		private String _url;
 
 		public GetImageTask(WebImageView parent, String url) {
 			// Use a weak-reference for the parent activity. This prevents a memory leak should the activity be destroyed.
 			_parent = new WeakReference<WebImageView>(parent);
-			_url = url;
 			
 			_httpGet = new HttpGet(url);
 			// We need to accept any kind of image, or JSON - so for simplicity just accept anything.
@@ -151,12 +159,11 @@ public class WebImageView extends ImageView {
 			// On the main thread.
 			WebImageView parent = _parent.get();
 			if (null != parent) {
-				
-				if (String2.areEqual(parent._url, _url)) {
+				if (parent._task == this) {
 					// 'parent' will be null if it has already been garbage collected.
 					// Display the image.
 					setImageBitmap(_bitmap);
-		    		parent._isWaiting = false;
+		    		parent._task = null;
 				}
 			}
 		}
