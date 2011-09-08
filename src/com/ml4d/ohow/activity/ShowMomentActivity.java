@@ -58,7 +58,12 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 	public static String EXTRA_MOMENT_LATITUDE_KEY = "latitude";
 	public static String EXTRA_MOMENT_LONGITUDE_KEY = "longitude";
 	public static String EXTRA_MOMENT_CREATED_TIME_UTC_KEY = "created time";
-	public static String EXTRA_MOMENT_SEARCH_RADIUS_METRES = "radius";
+	public static String EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY = "radius";
+	
+	/**
+	 * This an intent with this key is set, the 'previous' button gets disabled.
+	 */
+	public static String EXTRA_NO_PREVIOUS_MOMENT_KEY = "no_previous_moment";
 
 	private enum State {
 		WAITING_FOR_API,
@@ -119,7 +124,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 						throw new RuntimeException("latitude is mandatory for this mode");
 					}
 					
-					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, -1);
 					if (-1 == radiusMetres) {
 						throw new RuntimeException("radius is mandatory for this mode.");
 					}
@@ -152,7 +157,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 						throw new RuntimeException("latitude is mandatory for this mode");
 					}
 					
-					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, -1);
 					if (-1 == radiusMetres) {
 						throw new RuntimeException("radius is mandatory for this mode.");
 					}
@@ -180,7 +185,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 						throw new RuntimeException("latitude is mandatory for this mode");
 					}
 					
-					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1);
+					int radiusMetres = startingIntent.getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, -1);
 					if (-1 == radiusMetres) {
 						throw new RuntimeException("radius is mandatory for this mode.");
 					}
@@ -441,7 +446,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 						// These all need to be the same as before to ensure we are paginating through the same set of results.
 						i.putExtra(EXTRA_MOMENT_LATITUDE_KEY, getIntent().getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, -1));
 						i.putExtra(EXTRA_MOMENT_LONGITUDE_KEY, getIntent().getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, -1));
-						i.putExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, getIntent().getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1));
+						i.putExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, getIntent().getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, -1));
 						
 						i.putExtra(EXTRA_MOMENT_ID_KEY, _moment.getId());
 						i.putExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY, _moment.getDateCreatedUTC());
@@ -457,7 +462,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 						// These all need to be the same as before to ensure we are paginating through the same set of results.
 						i.putExtra(EXTRA_MOMENT_LATITUDE_KEY, getIntent().getDoubleExtra(EXTRA_MOMENT_LATITUDE_KEY, -1));
 						i.putExtra(EXTRA_MOMENT_LONGITUDE_KEY, getIntent().getDoubleExtra(EXTRA_MOMENT_LONGITUDE_KEY, -1));
-						i.putExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, getIntent().getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES, -1));
+						i.putExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, getIntent().getIntExtra(EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, -1));
 						
 						i.putExtra(EXTRA_MOMENT_ID_KEY, _moment.getId());
 						i.putExtra(EXTRA_MOMENT_CREATED_TIME_UTC_KEY, _moment.getDateCreatedUTC());
