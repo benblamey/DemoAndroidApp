@@ -15,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.location.Location;
@@ -51,16 +52,27 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	private String _errorMessage;
 	private State _state;
 	private DialogInterface _dialog;
-	//private Location _location;
 	private File _photoFile;
 	private MultiLocationProvider _multiLocationProvider;
 	
+	// JPEG is better than PNG for photos.
 	private static final String _jpegExtensionWithoutDot = "jpg";
 	
 	/**
 	 * The Mime-type that should be used for HTTP-posting photos created by this activity.
 	 */
 	public static final String MIME_TYPE_FOR_PHOTO = "image/jpeg";
+	
+	/**
+	 * The compression format for moment photos.
+	 */
+	public static CompressFormat PHOTO_COMPRESS_FORMAT = CompressFormat.JPEG;
+	
+	/**
+	 * The quality (out of 100) of the photo uploaded as part of the moment.
+	 * (on a roaming data connection uploading at full quality takes too long).
+	 */
+	public static final int PHOTO_COMPRESSION_QUALITY = 25;
 	
 	/**
 	 * The unique ID that this class uses to identify the task of obtaining a photo.

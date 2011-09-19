@@ -1,5 +1,6 @@
 package com.ml4d.ohow.activity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -15,7 +16,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.FormBodyPart;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpProtocolParams;
@@ -38,6 +39,8 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -346,7 +349,11 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 				}
 				
 				if (null != _photoFile) {
-					FileBody photoFilePart= new FileBody(_photoFile, _photoFile.getAbsolutePath(), CaptureTextPhotoActivity.MIME_TYPE_FOR_PHOTO, Charset2.getUtf8().name());
+					Bitmap image = BitmapFactory.decodeFile(_photoFile.getAbsolutePath());
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					image.compress(CaptureTextPhotoActivity.PHOTO_COMPRESS_FORMAT, CaptureTextPhotoActivity.PHOTO_COMPRESSION_QUALITY, baos);
+					
+					ByteArrayBody photoFilePart = new ByteArrayBody(baos.toByteArray(), CaptureTextPhotoActivity.MIME_TYPE_FOR_PHOTO, _photoFile.getName());
 					entity.addPart("photo", photoFilePart);
 				}
 				post.setEntity(entity);
