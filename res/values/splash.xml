@@ -3,7 +3,9 @@
 <!-- Resources for the splash screen activity. -->
 <resources>
 
-	<string name="splash_activity_label">Our History of the World</string>
+	<!-- The label of the main activity is also used as the app label in the launcher menu,
+	     we don't use 'Our History of the World' because it gets truncated when the app is shown in the matrix of available apps. -->
+	<string name="splash_activity_label">OHOW</string>
 	<string name="splash_text">Our History of the World</string>
 
 </resources>

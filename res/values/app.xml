@@ -3,9 +3,9 @@
 <!-- Resources for the app, excluding those defined by the API. -->
 <resources>
 
-	<!--  We don't use 'Our History of the World' because it 
-		gets truncated when the app is shown in the matrix of available apps. -->
-	<string name="app_name">OHOW</string>
+	<!-- This string is not used in the launcher menu (see the splash activity for that),
+		 instead, this string is used, for example, when installing the app. -->
+	<string name="app_name">Our History of the World</string>
 	
 	<string name="ok_button_label">OK</string>
 

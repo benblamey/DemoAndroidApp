@@ -91,8 +91,8 @@ public final class R {
         /**  406 - Not Acceptable 
          */
         public static final int api_error_406_1=0x7f04000a;
-        /**   We don't use 'Our History of the World' because it 
-		gets truncated when the app is shown in the matrix of available apps. 
+        /**  This string is not used in the launcher menu (see the splash activity for that),
+		 instead, this string is used, for example, when installing the app. 
          */
         public static final int app_name=0x7f04000b;
         /**  Strings used by the 'capturelocation' activity (it is this activity that actually does the capture API call. 
@@ -232,6 +232,9 @@ public final class R {
         public static final int sign_in_welcome=0x7f040056;
         public static final int slide_show_activity_label=0x7f040060;
         public static final int slide_show_instructions=0x7f040061;
+        /**  The label of the main activity is also used as the app label in the launcher menu,
+	     we don't use 'Our History of the World' because it gets truncated when the app is shown in the matrix of available apps. 
+         */
         public static final int splash_activity_label=0x7f040062;
         public static final int splash_text=0x7f040063;
         public static final int unfriendly_error_prefix=0x7f040014;
