@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 
 public class MomentTest extends TestCase {
 
-	private static final String _exampleJson = 
+	private static final String EXAMPLE_JSON = 
 		  "      {"
 		+ "         \"id\":157,"
 		+ "         \"username\":\"benb\","
@@ -27,7 +27,7 @@ public class MomentTest extends TestCase {
 	
 	public void test1() throws JSONException {
 		
-		JSONObject momentJson = new JSONObject(_exampleJson);
+		JSONObject momentJson = new JSONObject(EXAMPLE_JSON);
 
 		Moment moment = new Moment(momentJson);
 		
@@ -55,7 +55,7 @@ public class MomentTest extends TestCase {
 				moment.getGoogleLocationStableRef());
 	}
 	
-	private static final String _exampleJson2 = 
+	private static final String EXAMPLE_JSON_2 = 
 		  "      {"
 		+ "         \"id\":157,"
 		+ "         \"username\":\"benb\","
@@ -70,7 +70,7 @@ public class MomentTest extends TestCase {
 		+ "      }";
 	
 	public void test2() throws JSONException {
-		JSONObject momentJson = new JSONObject(_exampleJson2);
+		JSONObject momentJson = new JSONObject(EXAMPLE_JSON_2);
 		Moment moment = new Moment(momentJson);
 		
 		assertEquals(null, moment.getLocationName());

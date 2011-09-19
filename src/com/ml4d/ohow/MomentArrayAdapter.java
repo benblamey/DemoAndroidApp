@@ -61,7 +61,7 @@ public class MomentArrayAdapter implements ListAdapter {
     	WAITING_LABEL,    	
     }
 
-    private static final int viewTypeCount = viewType.values().length;
+    private static final int VIEW_TYPE_COUNT = viewType.values().length;
     
     public MomentArrayAdapter(Context context, ArrayList<Moment> moments, EndState endState) {
     	
@@ -300,7 +300,7 @@ public class MomentArrayAdapter implements ListAdapter {
 
 	@Override
 	public int getViewTypeCount() {
-		return viewTypeCount;
+		return VIEW_TYPE_COUNT;
 	}
 
 	@Override

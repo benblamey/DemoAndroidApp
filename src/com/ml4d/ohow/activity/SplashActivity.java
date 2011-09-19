@@ -18,7 +18,7 @@ import android.widget.TextView;
 public class SplashActivity extends Activity {
 
 	private SplashScreenWaitTask _task;
-	private static final Integer _delayMS = 1000; 
+	private static final Integer DELAY_MS = 1000; 
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -36,7 +36,7 @@ public class SplashActivity extends Activity {
 		// Show the version number in the TextView.
 		((TextView)findViewById(R.id.splash_text_view_version_number)).setText(packageInfo.versionName);
 		
-		_task = new SplashScreenWaitTask(this, _delayMS);
+		_task = new SplashScreenWaitTask(this, DELAY_MS);
 		_task.execute((Object[])null);
 	}
 	

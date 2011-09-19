@@ -56,7 +56,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	private MultiLocationProvider _multiLocationProvider;
 	
 	// JPEG is better than PNG for photos.
-	private static final String _jpegExtensionWithoutDot = "jpg";
+	private static final String JPEG_EXTENSION_WITHOUT_DOT = "jpg";
 	
 	/**
 	 * The Mime-type that should be used for HTTP-posting photos created by this activity.
@@ -77,17 +77,17 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	/**
 	 * The unique ID that this class uses to identify the task of obtaining a photo.
 	 */
-	private static final int _takePhotoIntentUId = 0x65C45B8;
+	private static final int TAKE_PHOTO_INTENT_UId = 0x65C45B8;
 	
 	/**
 	 * The maximum age for a GPS fix allowed in a capture that we permit.
 	 */
-	private static final int _maximumGpsFixAgeMs = 3 * 60 * 1000;
+	private static final int MAXIMUM_GPS_FIX_AGE_MS = 3 * 60 * 1000;
 	
 	/**
 	 * The ID that identifies that activity request for the next capture step.
 	 */
-	private static final int captureLocationRequestCode = 454656;
+	private static final int CAPTURE_LOCATION_REQUEST_CODE = 454656;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -302,7 +302,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 					fixAccuracyMeters = location.getAccuracy();
 					unixTimestampMs = location.getTime();
 					// Allow capture only if the fix is 'fresh'.
-					allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < _maximumGpsFixAgeMs);
+					allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < MAXIMUM_GPS_FIX_AGE_MS);
 				} else {
 					allowCapture = false;
 				}
@@ -322,9 +322,9 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 				
 				String validationMessage = "";
 		
-				if (APIConstants.captureBodyMinLength > body.length()) {
+				if (APIConstants.CAPTURE_BODY_MIN_LENGTH > body.length()) {
 					validationMessage = resources.getString(R.string.capture_text_photo_body_text_too_short);
-				} else if (APIConstants.captureBodyMaxLength < body.length()) {
+				} else if (APIConstants.CAPTURE_BODY_MAX_LENGTH < body.length()) {
 					validationMessage = resources.getString(R.string.capture_text_photo_body_text_too_long);
 				}
 				
@@ -341,7 +341,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 					if (null != _photoFile) {
 						pickLocationIntent.putExtra("photoFile", _photoFile);
 					}
-					startActivityForResult(pickLocationIntent, captureLocationRequestCode);
+					startActivityForResult(pickLocationIntent, CAPTURE_LOCATION_REQUEST_CODE);
 				}
 			}
 		}
@@ -418,11 +418,11 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			_photoFile = null;
 		} else {
 			try {
-				_photoFile = ExternalStorageUtilities.getTempFileOnExternalStorage(_jpegExtensionWithoutDot, getResources());
+				_photoFile = ExternalStorageUtilities.getTempFileOnExternalStorage(JPEG_EXTENSION_WITHOUT_DOT, getResources());
 				_photoFile.deleteOnExit();
 			    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			    cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, Uri.fromFile(_photoFile));
-			    startActivityForResult(cameraIntent, _takePhotoIntentUId);
+			    startActivityForResult(cameraIntent, TAKE_PHOTO_INTENT_UId);
 			} catch (IOException e) {
 				_state = State.FAILED_ALLOW_ACK;
 				_errorMessage = e.getLocalizedMessage();
@@ -436,7 +436,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		
-		if (_takePhotoIntentUId == requestCode) {
+		if (TAKE_PHOTO_INTENT_UId == requestCode) {
 			
 			// We are being called back for the photo task.
 			if (RESULT_CANCELED == resultCode) {
@@ -450,7 +450,7 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			// If the file exists, it will be displayed, and it will be uploaded when we perform the capture.
 			
 			showState();
-		} else if (requestCode == captureLocationRequestCode) {
+		} else if (requestCode == CAPTURE_LOCATION_REQUEST_CODE) {
 			if (RESULT_CANCELED == resultCode) {
 				// The user has pressed 'back' from the CaptureLocationActivity. Do nothing.
 			} else if (RESULT_OK == resultCode) {

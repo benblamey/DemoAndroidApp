@@ -24,7 +24,7 @@ public class LocationForCapture implements Serializable {
     private String _googleLocationRetrievalRef;
     private String _googleLocationStableRef;
     private boolean _isListed;
-    private static final LocationForCapture _unlisted = new LocationForCapture();  
+    private static final LocationForCapture UNLISTED_LOCATION = new LocationForCapture();  
 	
     /**
      * Creates an instance based on JSON received from the Google Places API.
@@ -50,7 +50,7 @@ public class LocationForCapture implements Serializable {
 	 * @return
 	 */
 	public static LocationForCapture getUnlisted() {
-		return _unlisted;
+		return UNLISTED_LOCATION;
 	}
 	
 	public String getLocationName() {

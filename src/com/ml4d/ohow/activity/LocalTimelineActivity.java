@@ -34,8 +34,8 @@ import android.widget.ListView;
  */
 public class LocalTimelineActivity extends ListActivity implements ITaskFinished, AdapterView.OnItemClickListener, OnScrollListener {
 
-	private static final int numberOfMomentsToGetAtAtime = 20;
-	private static final int searchRadiusMetres = 1000;
+	private static final int NUMBER_OF_MOMENTS_TO_GET_AT_A_TIME = 20;
+	private static final int SEARCH_RADIUS_METRES = 1000;
 	
 	/**
 	 * The required intent (double) extra for the latitude.
@@ -111,7 +111,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		{
 			assert _getMomentTask == null;
 			// Search for a maximum of 30 results in a radius of 1000 metres.
-			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime + 1, searchRadiusMetres);
+			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, NUMBER_OF_MOMENTS_TO_GET_AT_A_TIME + 1, SEARCH_RADIUS_METRES);
 			_getMomentTask.execute((Void[])null);
 			_state = State.WAITING_FOR_API;
 		} else if (State.HAVE_MOMENTS_THERE_ARE_MORE == _state) {
@@ -126,7 +126,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 			int maxID = oldestMoment.getId();
 			
 			// Search for a maximum of 30 results in a radius of 1000 metres.
-			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, numberOfMomentsToGetAtAtime + 1, searchRadiusMetres, dateCreatedUTCMax, maxID);
+			_getMomentTask = new MomentLocationRecentSearchTask(this, _latitude, _longitude, NUMBER_OF_MOMENTS_TO_GET_AT_A_TIME + 1, SEARCH_RADIUS_METRES, dateCreatedUTCMax, maxID);
 			_getMomentTask.execute((Void[])null);
 			_state = State.WAITING_FOR_API;
 			
@@ -280,7 +280,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_ID_KEY, moment.getId());
 		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_LATITUDE_KEY, this._latitude);
 		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_LONGITUDE_KEY, this._longitude);
-		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, searchRadiusMetres);
+		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, SEARCH_RADIUS_METRES);
 		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_CREATED_TIME_UTC_KEY, moment.getDateCreatedUTC());
 		
 		if (_moments.size() == position + 1) {
@@ -304,9 +304,9 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 				
 				if (fetchedMoments.size() > 0) {
 
-					if (numberOfMomentsToGetAtAtime + 1 == fetchedMoments.size()) {
+					if (NUMBER_OF_MOMENTS_TO_GET_AT_A_TIME + 1 == fetchedMoments.size()) {
 						state = State.HAVE_MOMENTS_THERE_ARE_MORE;
-						fetchedMoments.remove(numberOfMomentsToGetAtAtime); // Discard the last moment.
+						fetchedMoments.remove(NUMBER_OF_MOMENTS_TO_GET_AT_A_TIME); // Discard the last moment.
 					} else {
 						state = State.HAVE_MOMENTS_THERE_ARE_NO_MORE_PREVIOUS;
 					}

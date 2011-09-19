@@ -14,12 +14,12 @@ public class MultiLocationProvider implements LocationListener {
 	/** 
 	 * A hint for the GPS location update interval, in milliseconds.
 	 */
-	private static final int GpsSuggestedUpdateIntervalMS = 10000;
+	private static final int GPS_SUGGESTED_UPDATE_INTERVAL_MS = 10000;
 
 	/**
 	 * The minimum distance interval for update, in metres.
 	 */
-	private static final int GpsSuggestedUpdateDistanceMetres = 1;
+	private static final int GPS_SUGGESTED_UPDATE_INTERVAL_METRES = 1;
 	
 	/**
 	 * The name of this provider (used in some of the callback functions).
@@ -53,11 +53,11 @@ public class MultiLocationProvider implements LocationListener {
 		LocationManager locationManager = (LocationManager)_context.getSystemService(Context.LOCATION_SERVICE);
 
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,  
-				GpsSuggestedUpdateIntervalMS, 
-				GpsSuggestedUpdateDistanceMetres, this, App.Instance.getMainLooper());
+				GPS_SUGGESTED_UPDATE_INTERVAL_MS, 
+				GPS_SUGGESTED_UPDATE_INTERVAL_METRES, this, App.Instance.getMainLooper());
 		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,  
-				GpsSuggestedUpdateIntervalMS, 
-				GpsSuggestedUpdateDistanceMetres, this, App.Instance.getMainLooper());
+				GPS_SUGGESTED_UPDATE_INTERVAL_MS, 
+				GPS_SUGGESTED_UPDATE_INTERVAL_METRES, this, App.Instance.getMainLooper());
 		
 		updateLocation(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
 		updateLocation(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));

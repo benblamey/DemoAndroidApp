@@ -11,11 +11,11 @@ public class Parcel2 {
 
 	// We use more unlikely magic numbers to reduce the probability of misinterpreting data
 	// that wasn't originally written by the 'writeBoolean()' helper method.
-	private static final int trueValue = 1234;
-	private static final int falseValue = -4321;
+	private static final int TRUE_VALUE = 1234;
+	private static final int FALSE_VALUE = -4321;
 	
 	public static void writeBoolean(boolean value, Parcel parcel) {
-		parcel.writeInt(value ? trueValue : falseValue);
+		parcel.writeInt(value ? TRUE_VALUE : FALSE_VALUE);
 	}
 	
 	public static boolean readBoolean(Parcel parcel) throws IOException {
@@ -23,9 +23,9 @@ public class Parcel2 {
 		int value = parcel.readInt();
 		boolean result;
 		
-		if (trueValue == value) {
+		if (TRUE_VALUE == value) {
 			result = true;
-		} else if (falseValue == value) {
+		} else if (FALSE_VALUE == value) {
 			result = false;
 		} else {
 			throw new IOException("A boolean was not stored in the class at this position.");
@@ -36,9 +36,9 @@ public class Parcel2 {
 	
 	public void writeBoolean(Parcel parcel, boolean value) {	
 		if (value) {
-			parcel.writeInt(trueValue);
+			parcel.writeInt(TRUE_VALUE);
 		} else {
-			parcel.writeInt(falseValue);
+			parcel.writeInt(FALSE_VALUE);
 		}
 	}
 

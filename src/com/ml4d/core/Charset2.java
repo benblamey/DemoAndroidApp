@@ -7,13 +7,13 @@ import java.nio.charset.Charset;
  */
 public class Charset2 {
 
-	private static final Charset _utf8 = Charset.forName("UTF-8");
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
 	
 	/**
 	 * Get a java.nio.charset.Charset object for the UTF-8 character set.
 	 * @return
 	 */
 	public static Charset getUtf8() {
-		return _utf8;
+		return UTF_8;
 	}
 }

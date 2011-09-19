@@ -66,7 +66,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	/**
 	 * The minimum interval in seconds for fetching a new moment from OHOW.
 	 */
-	private static final int _minimumFetchMomentIntervalSeconds = 19;
+	private static final int MINIMUM_FETCH_MOMENT_INTERVAL_SECONDS = 19;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -262,7 +262,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 					needToGetMoment = true;
 				} else {
 					calendar.setTime(_momentTimestamp);
-					calendar.add(Calendar.SECOND, _minimumFetchMomentIntervalSeconds);
+					calendar.add(Calendar.SECOND, MINIMUM_FETCH_MOMENT_INTERVAL_SECONDS);
 					needToGetMoment = calendar.before(now);
 				}
 				

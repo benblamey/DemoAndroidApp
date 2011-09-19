@@ -58,8 +58,8 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 		DATA_MOMENT, WAITING, SUCCESS, FAILED
 	}
 
-	private static final int slideShowRequestCode = 8947654;
-	private static final int viewTermsAndConditionsRequestCode = 684353;
+	private static final int SLIDE_SHOW_REQUEST_CODE = 8947654;
+	private static final int VIEW_TERMS_AND_CONDITIONS_REQUEST_CODE = 684353;
 
 	private String _errorMessage;
 	private RegisterApiTask _registerTask;
@@ -238,7 +238,7 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 	private void showSlideShow() {
 		Intent intent = new Intent(this, SlideShowActivity.class);
 		// The first will finish when all the slides have been shown.
-		startActivityForResult(intent, slideShowRequestCode);
+		startActivityForResult(intent, SLIDE_SHOW_REQUEST_CODE);
 	}
 	
 	private void registerButtonClicked() {
@@ -251,28 +251,28 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 		String username = ((TextView) this.findViewById(R.id.register_edittext_username)).getText().toString();
 		String password = ((TextView) this.findViewById(R.id.register_edittext_password)).getText().toString();
 
-		Pattern emailAddressRegex = Pattern.compile(APIConstants.emailRegex);
+		Pattern emailAddressRegex = Pattern.compile(APIConstants.EMAIL_REGEX);
 		Matcher emailAddressRegexMatcher = emailAddressRegex.matcher(emailAddress);
 
-		Pattern usernameRegex = Pattern.compile(APIConstants.usernameRegex);
+		Pattern usernameRegex = Pattern.compile(APIConstants.USERNAME_REGEX);
 		Matcher usernameRegexMatcher = usernameRegex.matcher(username);
 
 		String validationMessage = "";
 
 		// First name.
-		if (firstName.length() < APIConstants.firstNameMinLength) {
+		if (firstName.length() < APIConstants.FIRST_NAME_MIN_LENGTH) {
 			validationMessage = resources.getString(R.string.register_first_name_too_short);
-		} else if (firstName.length() > APIConstants.firstNameMaxLength) {
+		} else if (firstName.length() > APIConstants.FIRST_NAME_MAX_LENGTH) {
 			validationMessage = String.format(resources.getString(R.string.register_first_name_too_long),
-					APIConstants.firstNameMaxLength);
+					APIConstants.FIRST_NAME_MAX_LENGTH);
 		}
 
 		// Last name.
-		else if (lastName.length() < APIConstants.lastNameMinLength) {
+		else if (lastName.length() < APIConstants.LAST_NAME_MIN_LENGTH) {
 			validationMessage = resources.getString(R.string.register_last_name_too_short);
-		} else if (lastName.length() > APIConstants.lastNameMaxLength) {
+		} else if (lastName.length() > APIConstants.LAST_NAME_MAX_LENGTH) {
 			validationMessage = String.format(resources.getString(R.string.register_last_name_too_long),
-					APIConstants.lastNameMaxLength);
+					APIConstants.LAST_NAME_MAX_LENGTH);
 		}
 
 		// Email address.
@@ -289,8 +289,8 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 		else if (!Pattern.compile("[0-9]").matcher(password).find()
 					|| !Pattern.compile("[a-z]").matcher(password).find()
 					|| !Pattern.compile("[A-Z]").matcher(password).find()
-					|| (APIConstants.passwordMinLength > password.length())
-					|| (APIConstants.passwordMaxLength < password.length())) {
+					|| (APIConstants.PASSWORD_MIN_LENGTH > password.length())
+					|| (APIConstants.PASSWORD_MAX_LENGTH < password.length())) {
 				validationMessage = resources.getString(R.string.register_invalid_password);
 		}
 		
@@ -345,7 +345,7 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 
 	private void viewTermsAndConditionsClicked() {
 		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "terms.html"));
-		startActivityForResult(browserIntent, viewTermsAndConditionsRequestCode);
+		startActivityForResult(browserIntent, VIEW_TERMS_AND_CONDITIONS_REQUEST_CODE);
 	}
 
 	@Override

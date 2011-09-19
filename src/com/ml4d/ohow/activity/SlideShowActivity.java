@@ -26,7 +26,7 @@ public class SlideShowActivity extends Activity implements OnClickListener {
 	/**
 	 * The unique ID that identifies the intents that show the slides.
 	 */
-	private static final int showNextSlideRequestCode = 1234;
+	private static final int SHOW_NEXT_SLIDE_REQUEST_CODE = 1234;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -75,7 +75,7 @@ public class SlideShowActivity extends Activity implements OnClickListener {
 		if (thereIsAnotherSlide) {
 			Intent intent = new Intent(this, SlideShowActivity.class);
 			intent.putExtra(SLIDE_NUMBER_INTENT_EXTRA_KEY, _slideNumber + 1);
-			startActivityForResult(intent, showNextSlideRequestCode);
+			startActivityForResult(intent, SHOW_NEXT_SLIDE_REQUEST_CODE);
 		} else {
 			setResult(Activity.RESULT_OK);
 			finish();
@@ -83,7 +83,7 @@ public class SlideShowActivity extends Activity implements OnClickListener {
 	}
 	
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
-		if (requestCode == showNextSlideRequestCode) {
+		if (requestCode == SHOW_NEXT_SLIDE_REQUEST_CODE) {
 			if (RESULT_CANCELED == resultCode) {
 				// Do nothing.
 			} else if (RESULT_OK == resultCode) {

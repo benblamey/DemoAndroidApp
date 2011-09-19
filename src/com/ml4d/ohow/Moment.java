@@ -48,11 +48,12 @@ public class Moment implements Serializable {
     private String _googleLocationRetrievalRef;
     private String _googleLocationStableRef;
     private boolean _hasPhoto;
-    private static final SimpleDateFormat _dateFormatterUTC;
+    
+    private static final SimpleDateFormat DATE_FORMATTER_UTC;
     
 	static {
-		_dateFormatterUTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		_dateFormatterUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+		DATE_FORMATTER_UTC = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		DATE_FORMATTER_UTC.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
     
     /**
@@ -73,7 +74,7 @@ public class Moment implements Serializable {
 
 		String dateCreatedUTCString = JSONHelper.getStringOrNull(json, "date_created_utc");
 	    try {
-			_dateCreatedUTC = (Date)_dateFormatterUTC.parse(dateCreatedUTCString);
+			_dateCreatedUTC = (Date)DATE_FORMATTER_UTC.parse(dateCreatedUTCString);
 		} catch (ParseException e) {
 			throw new JSONException("Could not parse date: " + dateCreatedUTCString);
 		}
