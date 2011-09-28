@@ -94,11 +94,6 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 		}
 	}
 	
-	private void captureButtonClicked() {	
-		// Start the sign in activity.
-		startActivity(new Intent(this, CaptureTextPhotoActivity.class));
-	}
-
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -230,12 +225,12 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 			longitude = -2.599488; // (Coordinates of Bristol Office.)
 			latitude = 51.453956;
 			Log.d("OHOW", "NO suitable fix - using dummy GPS coordinates instead (this feature is only enabled on developer builds).");
-				startActivity = true;
+			startActivity = true;
 		}
 
 		if (!startActivity) {
-				Toast.makeText(this, getResources().getString(R.string.error_no_location_fix), Toast.LENGTH_SHORT).show();
-				startActivity = false;
+			Toast.makeText(this, getResources().getString(R.string.error_no_location_fix), Toast.LENGTH_SHORT).show();
+			startActivity = false;
 		}
 		
 		if (startActivity) {
@@ -244,6 +239,11 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 			i.putExtra(LocalTimelineActivity.EXTRA_LONGITUDE, longitude);
 			startActivity(i);	
 		}
+	}
+	
+	private void captureButtonClicked() {	
+		// Start the sign in activity.
+		startActivity(new Intent(this, CaptureTextPhotoActivity.class));
 	}
 	
 	private void getMomentIfAppropriate() {
