@@ -9,50 +9,94 @@ package com.ml4d.ohow;
 
 public final class R {
     public static final class attr {
+        /**  This class allows an external font to be specified. 
+         <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int font_asset_name=0x7f010000;
+    }
+    public static final class color {
+        /**  the blue/green of the About button 
+         */
+        public static final int color_about_blue=0x7f050001;
+        /**  The red-like colour 
+         */
+        public static final int color_ohow_red=0x7f050000;
+        /**  grey text colour:
+	(for text which is written by us, such as on the About page)
+         */
+        public static final int color_our_copy_text=0x7f050003;
+        /**  lighter grey colour:
+	(for low-priority text, like the username, date and time of a moment/entry)
+         */
+        public static final int color_our_note_text=0x7f050004;
+        /**  standard black text colour 
+		(this applies to text that user's have inputted themselves, i.e. a moment/entry)
+         */
+        public static final int color_user_text=0x7f050002;
     }
     public static final class drawable {
-        public static final int icon=0x7f020000;
-        public static final int slideshow_0=0x7f020001;
-        public static final int slideshow_1=0x7f020002;
-        public static final int slideshow_2=0x7f020003;
-        public static final int slideshow_3=0x7f020004;
+        public static final int activity_title_bar=0x7f020000;
+        public static final int activity_title_bar_old=0x7f020001;
+        public static final int btn_default=0x7f020002;
+        public static final int btn_default_normal=0x7f020003;
+        public static final int btn_default_normal_disable=0x7f020004;
+        public static final int btn_default_normal_disable_focused=0x7f020005;
+        public static final int btn_default_pressed=0x7f020006;
+        public static final int btn_default_selected=0x7f020007;
+        public static final int edit_text=0x7f020008;
+        public static final int icon=0x7f020009;
+        public static final int slideshow_0=0x7f02000a;
+        public static final int slideshow_1=0x7f02000b;
+        public static final int slideshow_2=0x7f02000c;
+        public static final int slideshow_3=0x7f02000d;
+        public static final int textfield_default=0x7f02000e;
+        public static final int textfield_disabled=0x7f02000f;
+        public static final int textfield_disabled_selected=0x7f020010;
+        public static final int textfield_pressed=0x7f020011;
+        public static final int textfield_selected=0x7f020012;
+        public static final int title_bar=0x7f020013;
     }
     public static final class id {
-        public static final int capture_text_photo_button_capture=0x7f060000;
-        public static final int capture_text_photo_button_toggle_photo=0x7f060003;
-        public static final int capture_text_photo_edittext_body=0x7f060004;
-        public static final int capture_text_photo_imageview_frame=0x7f060001;
-        public static final int capture_text_photo_imageview_photo=0x7f060002;
-        public static final int local_timeline_item_web_image_view=0x7f060006;
-        public static final int local_timeline_text_view_body=0x7f060007;
-        public static final int local_timeline_text_view_capture_location=0x7f060005;
-        public static final int local_timeline_text_view_details=0x7f060008;
-        public static final int menu_item_capture=0x7f06001f;
-        public static final int menu_item_local_timeline=0x7f060020;
-        public static final int menu_item_sign_out=0x7f060022;
-        public static final int menu_item_slideshow=0x7f060021;
-        public static final int register_checkbox_terms=0x7f06000e;
-        public static final int register_edittext_email=0x7f06000b;
-        public static final int register_edittext_first_name=0x7f060009;
-        public static final int register_edittext_last_name=0x7f06000a;
-        public static final int register_edittext_password=0x7f06000d;
-        public static final int register_edittext_username=0x7f06000c;
-        public static final int register_register_button=0x7f06000f;
-        public static final int register_view_terms_and_conditions_button=0x7f060010;
-        public static final int show_moment_activity_activity_text_view_body=0x7f060016;
-        public static final int show_moment_activity_button_next=0x7f060013;
-        public static final int show_moment_activity_button_previous=0x7f060012;
-        public static final int show_moment_activity_image_view_photo=0x7f060015;
-        public static final int show_moment_activity_text_view_capture_location=0x7f060011;
-        public static final int show_moment_activity_text_view_details=0x7f060014;
-        public static final int sign_in_register_button=0x7f06001a;
-        public static final int sign_in_sign_in_button=0x7f060019;
-        public static final int signin_edittext_password=0x7f060018;
-        public static final int signin_edittext_username=0x7f060017;
-        public static final int slide_show_image_view=0x7f06001d;
-        public static final int slide_show_root_view=0x7f06001b;
-        public static final int slide_show_text_view=0x7f06001c;
-        public static final int splash_text_view_version_number=0x7f06001e;
+        public static final int capture_text_photo_button_capture=0x7f080000;
+        public static final int capture_text_photo_button_toggle_photo=0x7f080003;
+        public static final int capture_text_photo_edittext_body=0x7f080004;
+        public static final int capture_text_photo_imageview_frame=0x7f080001;
+        public static final int capture_text_photo_imageview_photo=0x7f080002;
+        public static final int local_timeline_item_web_image_view=0x7f080006;
+        public static final int local_timeline_text_view_body=0x7f080007;
+        public static final int local_timeline_text_view_capture_location=0x7f080005;
+        public static final int local_timeline_text_view_details=0x7f080008;
+        public static final int menu_item_capture=0x7f08001f;
+        public static final int menu_item_local_timeline=0x7f080020;
+        public static final int menu_item_sign_out=0x7f080022;
+        public static final int menu_item_slideshow=0x7f080021;
+        public static final int register_checkbox_terms=0x7f08000e;
+        public static final int register_edittext_email=0x7f08000b;
+        public static final int register_edittext_first_name=0x7f080009;
+        public static final int register_edittext_last_name=0x7f08000a;
+        public static final int register_edittext_password=0x7f08000d;
+        public static final int register_edittext_username=0x7f08000c;
+        public static final int register_register_button=0x7f08000f;
+        public static final int register_view_terms_and_conditions_button=0x7f080010;
+        public static final int show_moment_activity_activity_text_view_body=0x7f080016;
+        public static final int show_moment_activity_button_next=0x7f080013;
+        public static final int show_moment_activity_button_previous=0x7f080012;
+        public static final int show_moment_activity_image_view_photo=0x7f080015;
+        public static final int show_moment_activity_text_view_capture_location=0x7f080011;
+        public static final int show_moment_activity_text_view_details=0x7f080014;
+        public static final int sign_in_register_button=0x7f08001a;
+        public static final int sign_in_sign_in_button=0x7f080019;
+        public static final int signin_edittext_password=0x7f080018;
+        public static final int signin_edittext_username=0x7f080017;
+        public static final int slide_show_image_view=0x7f08001d;
+        public static final int slide_show_root_view=0x7f08001b;
+        public static final int slide_show_text_view=0x7f08001c;
+        public static final int splash_text_view_version_number=0x7f08001e;
     }
     public static final class layout {
         public static final int capturetextphoto=0x7f030000;
@@ -68,7 +112,7 @@ public final class R {
         public static final int splash=0x7f03000a;
     }
     public static final class menu {
-        public static final int menu=0x7f050000;
+        public static final int menu=0x7f070000;
     }
     public static final class string {
         /**  The strings here should be user friendly descriptions of the exceptions thrown by the API. 
@@ -239,4 +283,114 @@ public final class R {
         public static final int splash_text=0x7f040063;
         public static final int unfriendly_error_prefix=0x7f040014;
     }
+    public static final class style {
+        /**  For the parent theme: 
+             
+         <p>You can count on this being a dark
+         background with light text on top, but should try to make no
+         other assumptions about its appearance. In particular, the text
+         inside of widgets using this theme may be completely different,
+         with the widget container being a light color and the text on top
+         of it a dark color.
+    
+         <item name="expandableListViewStyle">@android:style/Widget.ExpandableListView</item> 
+         <item name="galleryStyle">@android:style/Widget.Gallery</item> 
+         <item name="gestureOverlayViewStyle">@android:style/Widget.GestureOverlayView</item> 
+         <item name="gridViewStyle">@android:style/Widget.GridView</item> 
+         <item name="imageButtonStyle">@android:style/Widget.ImageButton</item> 
+         <item name="imageWellStyle">@android:style/Widget.ImageWell</item> 
+         <item name="listViewStyle">@android:style/Widget.ListView</item> 
+         <item name="listViewWhiteStyle">@android:style/Widget.ListView.White</item> 
+         <item name="popupWindowStyle">@android:style/Widget.PopupWindow</item> 
+         <item name="progressBarStyle">@android:style/Widget.ProgressBar</item> 
+         <item name="progressBarStyleHorizontal">@android:style/Widget.ProgressBar.Horizontal</item> 
+         <item name="progressBarStyleSmall">@android:style/Widget.ProgressBar.Small</item> 
+         <item name="progressBarStyleSmallTitle">@android:style/Widget.ProgressBar.Small.Title</item> 
+         <item name="progressBarStyleLarge">@android:style/Widget.ProgressBar.Large</item> 
+         <item name="progressBarStyleInverse">@android:style/Widget.ProgressBar.Inverse</item> 
+ 		<item name="progressBarStyleSmallInverse">@android:style/Widget.ProgressBar.Small.Inverse</item> 
+ 	    <item name="progressBarStyleLargeInverse">@android:style/Widget.ProgressBar.Large.Inverse</item>  
+         <item name="seekBarStyle">@android:style/Widget.SeekBar</item> 
+         <item name="ratingBarStyle">@android:style/Widget.RatingBar</item> 
+         <item name="ratingBarStyleIndicator">@android:style/Widget.RatingBar.Indicator</item> 
+         <item name="ratingBarStyleSmall">@android:style/Widget.RatingBar.Small</item> 
+         <item name="radioButtonStyle">@android:style/Widget.CompoundButton.RadioButton</item> 
+         <item name="scrollViewStyle">@android:style/Widget.ScrollView</item> 
+         <item name="horizontalScrollViewStyle">@android:style/Widget.HorizontalScrollView</item> 
+         <item name="spinnerStyle">@android:style/Widget.Spinner</item> 
+         <item name="starStyle">@android:style/Widget.CompoundButton.Star</item> 
+         <item name="tabWidgetStyle">@android:style/Widget.TabWidget</item> 
+         <item name="textViewStyle">@android:style/Widget.TextView</item> 
+         <item name="webViewStyle">@android:style/Widget.WebView</item> 
+         <item name="dropDownItemStyle">@android:style/Widget.DropDownItem</item> 
+         <item name="spinnerDropDownItemStyle">@android:style/Widget.DropDownItem.Spinner</item> 
+         <item name="spinnerItemStyle">@android:style/Widget.TextView.SpinnerItem</item> 
+         <item name="dropDownHintAppearance">@android:style/TextAppearance.Widget.DropDownHint</item> 
+         <item name="keyboardViewStyle">@android:style/Widget.KeyboardView</item> 
+         <item name="quickContactBadgeStyleWindowSmall">@android:style/Widget.QuickContactBadge.WindowSmall</item> 
+         <item name="quickContactBadgeStyleWindowMedium">@android:style/Widget.QuickContactBadge.WindowMedium</item> 
+         <item name="quickContactBadgeStyleWindowLarge">@android:style/Widget.QuickContactBadge.WindowLarge</item> 
+         <item name="quickContactBadgeStyleSmallWindowSmall">@android:style/Widget.QuickContactBadgeSmall.WindowSmall</item> 
+         <item name="quickContactBadgeStyleSmallWindowMedium">@android:style/Widget.QuickContactBadgeSmall.WindowMedium</item> 
+         <item name="quickContactBadgeStyleSmallWindowLarge">@android:style/Widget.QuickContactBadgeSmall.WindowLarge</item> 
+ Preference styles 
+         <item name="preferenceScreenStyle">@android:style/Preference.PreferenceScreen</item> 
+         <item name="preferenceCategoryStyle">@android:style/Preference.Category</item> 
+         <item name="preferenceStyle">@android:style/Preference</item> 
+         <item name="preferenceInformationStyle">@android:style/Preference.Information</item> 
+         <item name="checkBoxPreferenceStyle">@android:style/Preference.CheckBoxPreference</item> 
+         <item name="yesNoPreferenceStyle">@android:style/Preference.DialogPreference.YesNoPreference</item> 
+         <item name="dialogPreferenceStyle">@android:style/Preference.DialogPreference</item> 
+         <item name="editTextPreferenceStyle">@android:style/Preference.DialogPreference.EditTextPreference</item> 
+         <item name="ringtonePreferenceStyle">@android:style/Preference.RingtonePreference</item> 
+         <item name="preferenceLayoutChild">@android:layout/preference_child</item> 
+ Search widget styles 
+         <item name="searchWidgetCorpusItemBackground">@android:color/search_widget_corpus_item_background</item> 
+         */
+        public static final int OHOW_Theme=0x7f06000b;
+        public static final int TextAppearance=0x7f060006;
+        public static final int TextAppearance_DialogWindowTitle=0x7f060009;
+        public static final int TextAppearance_Inverse=0x7f060007;
+        public static final int TextAppearance_Theme=0x7f060008;
+        public static final int TextAppearance_WindowTitle=0x7f06000a;
+        /**  Widget Styles 
+         */
+        public static final int Widget=0x7f060003;
+        public static final int Widget_Button=0x7f060004;
+        public static final int Widget_Button_OHOW_Important=0x7f060000;
+        public static final int Widget_EditText=0x7f060005;
+        public static final int WindowTitle=0x7f060002;
+        public static final int WindowTitleBackground=0x7f060001;
+    }
+    public static final class styleable {
+        /**  Custom attributes for the 'Button2' class. 
+           <p>Includes the following attributes:</p>
+           <table>
+           <colgroup align="left" />
+           <colgroup align="left" />
+           <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #Button2_font_asset_name com.ml4d.ohow:font_asset_name}</code></td><td> This class allows an external font to be specified.</td></tr>
+           </table>
+           @see #Button2_font_asset_name
+         */
+        public static final int[] Button2 = {
+            0x7f010000
+        };
+        /**
+          <p>
+          @attr description
+           This class allows an external font to be specified. 
+
+
+          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          <p>This is a private symbol.
+          @attr name android:font_asset_name
+        */
+        public static final int Button2_font_asset_name = 0;
+    };
 }

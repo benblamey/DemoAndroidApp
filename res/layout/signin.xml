@@ -33,18 +33,20 @@
     	android:freezesText="true">
     </EditText>
 	    
-	<Button
+	<com.ml4d.core.Button2
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/sign_in_sign_in_label"
-		android:id="@+id/sign_in_sign_in_button">
-	</Button>
+		android:id="@+id/sign_in_sign_in_button"
+		style="@style/Widget.Button.OHOW.Important">
+	</com.ml4d.core.Button2>
 
-	<Button
+	<com.ml4d.core.Button2
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/sign_in_register_label"
-		android:id="@+id/sign_in_register_button">
-	</Button>
+		android:id="@+id/sign_in_register_button"
+		style="@style/Widget.Button.OHOW.Important">
+	</com.ml4d.core.Button2>
 
 </LinearLayout>

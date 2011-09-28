@@ -16,6 +16,7 @@ Note that deviation from this format will cause the app to throw an exception on
 	<!-- The 'android:debuggable' attribute no longer needs to be set, 
 		 debug builds are debuggable, and release builds are not. -->
     <application
+    	android:theme="@style/OHOW_Theme"
     	android:name=".App"
     	android:icon="@drawable/icon" 
     	android:label="@string/app_name">

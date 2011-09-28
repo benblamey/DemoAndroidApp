@@ -1,0 +1,7 @@
+<resources>
+	<!-- Custom attributes for the 'Button2' class. -->
+    <declare-styleable name="Button2">
+    	<!-- This class allows an external font to be specified. -->
+        <attr name="font_asset_name" format="string"/>
+    </declare-styleable>
+</resources>

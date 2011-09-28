@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!-- The red-like colour -->
+	<color name="color_ohow_red">#7f1732</color>
+	
+	<!-- the blue/green of the About button -->
+	<color name="color_about_blue">#0678ac</color>
+	
+	<!-- standard black text colour 
+		(this applies to text that user's have inputted themselves, i.e. a moment/entry)-->
+	<color name="color_user_text">#000000</color>
+	
+	<!-- grey text colour:
+	(for text which is written by us, such as on the About page)-->
+	<color name="color_our_copy_text">#333333</color>
+	
+	<!-- lighter grey colour:
+	(for low-priority text, like the username, date and time of a moment/entry)-->
+	<color name="color_our_note_text">#555555</color>
+
+</resources>

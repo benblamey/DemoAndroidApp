@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:ml4d="http://www.ml4d.com/android/">
+	
+    <style name="Widget.Button.OHOW.Important" parent="Widget.Button">
+
+	    <item name="android:textSize">40dp</item>
+		<item name="font_asset_name">fonts/BebasNeue.otf</item>
+
+    </style>
+
+</resources>
