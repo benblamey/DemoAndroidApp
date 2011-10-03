@@ -45,13 +45,13 @@
 	        android:layout_weight="1">
         </TextView>
         
-        <View
-	        android:layout_width="fill_parent"
-	        android:layout_height="2dip"
-	        android:background="@color/color_ohow_red">
-        </View>
-	    
     </LinearLayout>
+    
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="11dip"
+	    android:background="@drawable/dropshadowred">
+    </View>
     
     <TextView 
         android:layout_width="wrap_content"
