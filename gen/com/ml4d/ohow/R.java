@@ -57,13 +57,14 @@ containing a value of this type.
         public static final int slideshow_1=0x7f02000e;
         public static final int slideshow_2=0x7f02000f;
         public static final int slideshow_3=0x7f020010;
-        public static final int splash_title=0x7f020011;
-        public static final int textfield_default=0x7f020012;
-        public static final int textfield_disabled=0x7f020013;
-        public static final int textfield_disabled_selected=0x7f020014;
-        public static final int textfield_pressed=0x7f020015;
-        public static final int textfield_selected=0x7f020016;
-        public static final int title_bar=0x7f020017;
+        public static final int splash_gradient=0x7f020011;
+        public static final int splash_title=0x7f020012;
+        public static final int textfield_default=0x7f020013;
+        public static final int textfield_disabled=0x7f020014;
+        public static final int textfield_disabled_selected=0x7f020015;
+        public static final int textfield_pressed=0x7f020016;
+        public static final int textfield_selected=0x7f020017;
+        public static final int title_bar=0x7f020018;
     }
     public static final class id {
         public static final int capture_text_photo_button_capture=0x7f080000;
@@ -93,14 +94,14 @@ containing a value of this type.
         public static final int show_moment_activity_image_view_photo=0x7f080015;
         public static final int show_moment_activity_text_view_capture_location=0x7f080011;
         public static final int show_moment_activity_text_view_details=0x7f080014;
-        public static final int sign_in_register_button=0x7f08001a;
-        public static final int sign_in_sign_in_button=0x7f080019;
-        public static final int signin_edittext_password=0x7f080018;
-        public static final int signin_edittext_username=0x7f080017;
-        public static final int slide_show_image_view=0x7f08001d;
-        public static final int slide_show_root_view=0x7f08001b;
-        public static final int slide_show_text_view=0x7f08001c;
-        public static final int splash_logo=0x7f08001e;
+        public static final int sign_in_register_button=0x7f08001b;
+        public static final int sign_in_sign_in_button=0x7f08001a;
+        public static final int signin_edittext_password=0x7f080019;
+        public static final int signin_edittext_username=0x7f080018;
+        public static final int slide_show_image_view=0x7f08001e;
+        public static final int slide_show_root_view=0x7f08001c;
+        public static final int slide_show_text_view=0x7f08001d;
+        public static final int splash_logo=0x7f080017;
         public static final int splash_text_view_version_number=0x7f080020;
         public static final int splash_title=0x7f08001f;
     }

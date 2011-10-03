@@ -5,23 +5,69 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/activity_background">
+    android:background="@drawable/activity_background"
+    android:weightSum="13">
 	    
-	<TextView
-		android:textSize="26dip"
-		android:layout_marginBottom="20dip"
-	    android:layout_width="fill_parent" 
-	    android:layout_height="wrap_content" 
-	    android:gravity="center"
-	    android:text="@string/sign_in_welcome"/>
-
+    <LinearLayout 
+        android:layout_weight="10"
+        android:weightSum="10"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF">
+	    
+	    <TextView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1">
+	    </TextView>
+	    
+		<ImageView 
+		    android:src="@drawable/logo"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_centerHorizontal="true"
+			android:id="@+id/splash_logo"
+			android:layout_weight="8">
+        </ImageView>
+    
+        <TextView
+			android:textSize="14dip"
+			android:textColor="#000000"
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content" 
+			android:gravity="center"
+			android:text="@string/sign_in_welcome"/>
+        
+        <TextView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1">
+        </TextView>
+        
+        <View
+	        android:layout_width="fill_parent"
+	        android:layout_height="2dip"
+	        android:background="@color/color_ohow_red">
+        </View>
+	    
+    </LinearLayout>
+    
+    <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+    </TextView>
+	    
 	<EditText
     	android:inputType="text|textNoSuggestions"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
     	android:id="@+id/signin_edittext_username"
     	android:hint="@string/sign_in_hint_username"
-    	android:freezesText="true">
+    	android:freezesText="true"
+    	android:layout_marginLeft="2dip"
+    	android:layout_marginRight="2dip">
 	</EditText>
 	
 	<EditText
@@ -31,23 +77,40 @@
     	android:id="@+id/signin_edittext_password"
     	android:hint="@string/sign_in_hint_password"
     	android:password="true"
-    	android:freezesText="true">
+    	android:freezesText="true"
+    	android:layout_marginLeft="2dip"
+        android:layout_marginRight="2dip">
     </EditText>
 	    
-	<com.ml4d.core.Button2
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:text="@string/sign_in_sign_in_label"
-		android:id="@+id/sign_in_sign_in_button"
-		style="@style/Widget.Button.OHOW.Important">
-	</com.ml4d.core.Button2>
+	<LinearLayout android:orientation="horizontal"
+	android:layout_height="wrap_content"
+	android:layout_width="fill_parent"
+	   android:weightSum="2">
+	
+	   <com.ml4d.core.Button2
+	        android:layout_width="0dip"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/sign_in_sign_in_label"
+	        android:id="@+id/sign_in_sign_in_button"
+	        style="@style/Widget.Button.OHOW.Important">
+	    </com.ml4d.core.Button2>
+	
+	    <com.ml4d.core.Button2
+	        android:layout_width="0dip"
+	        android:layout_weight="1"
+	        android:layout_height="wrap_content"
+	        android:text="@string/sign_in_register_label"
+	        android:id="@+id/sign_in_register_button"
+	        style="@style/Widget.Button.OHOW.Important">
+	    </com.ml4d.core.Button2>
+	
+	</LinearLayout>
 
-	<com.ml4d.core.Button2
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:text="@string/sign_in_register_label"
-		android:id="@+id/sign_in_register_button"
-		style="@style/Widget.Button.OHOW.Important">
-	</com.ml4d.core.Button2>
-
+    <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="2">
+    </TextView>
+        
 </LinearLayout>
