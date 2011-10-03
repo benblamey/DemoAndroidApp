@@ -42,29 +42,43 @@ containing a value of this type.
     public static final class drawable {
         public static final int activity_background=0x7f020000;
         public static final int activity_title_bar=0x7f020001;
-        public static final int btn_default=0x7f020002;
-        public static final int btn_default_normal=0x7f020003;
-        public static final int btn_default_normal_disable=0x7f020004;
-        public static final int btn_default_normal_disable_focused=0x7f020005;
-        public static final int btn_default_pressed=0x7f020006;
-        public static final int btn_default_selected=0x7f020007;
-        public static final int dropshadowred=0x7f020008;
-        public static final int edit_text=0x7f020009;
-        public static final int hatch=0x7f02000a;
-        public static final int icon=0x7f02000b;
-        public static final int logo=0x7f02000c;
-        public static final int slideshow_0=0x7f02000d;
-        public static final int slideshow_1=0x7f02000e;
-        public static final int slideshow_2=0x7f02000f;
-        public static final int slideshow_3=0x7f020010;
-        public static final int splash_gradient=0x7f020011;
-        public static final int splash_title=0x7f020012;
-        public static final int textfield_default=0x7f020013;
-        public static final int textfield_disabled=0x7f020014;
-        public static final int textfield_disabled_selected=0x7f020015;
-        public static final int textfield_pressed=0x7f020016;
-        public static final int textfield_selected=0x7f020017;
-        public static final int title_bar=0x7f020018;
+        public static final int btn_check=0x7f020002;
+        public static final int btn_check_buttonless_off=0x7f020003;
+        public static final int btn_check_buttonless_on=0x7f020004;
+        public static final int btn_check_label_background=0x7f020005;
+        public static final int btn_check_off=0x7f020006;
+        public static final int btn_check_off_disable=0x7f020007;
+        public static final int btn_check_off_disable_focused=0x7f020008;
+        public static final int btn_check_off_pressed=0x7f020009;
+        public static final int btn_check_off_selected=0x7f02000a;
+        public static final int btn_check_on=0x7f02000b;
+        public static final int btn_check_on_disable=0x7f02000c;
+        public static final int btn_check_on_disable_focused=0x7f02000d;
+        public static final int btn_check_on_pressed=0x7f02000e;
+        public static final int btn_check_on_selected=0x7f02000f;
+        public static final int btn_default=0x7f020010;
+        public static final int btn_default_normal=0x7f020011;
+        public static final int btn_default_normal_disable=0x7f020012;
+        public static final int btn_default_normal_disable_focused=0x7f020013;
+        public static final int btn_default_pressed=0x7f020014;
+        public static final int btn_default_selected=0x7f020015;
+        public static final int dropshadowred=0x7f020016;
+        public static final int edit_text=0x7f020017;
+        public static final int hatch=0x7f020018;
+        public static final int icon=0x7f020019;
+        public static final int logo=0x7f02001a;
+        public static final int slideshow_0=0x7f02001b;
+        public static final int slideshow_1=0x7f02001c;
+        public static final int slideshow_2=0x7f02001d;
+        public static final int slideshow_3=0x7f02001e;
+        public static final int splash_gradient=0x7f02001f;
+        public static final int splash_title=0x7f020020;
+        public static final int textfield_default=0x7f020021;
+        public static final int textfield_disabled=0x7f020022;
+        public static final int textfield_disabled_selected=0x7f020023;
+        public static final int textfield_pressed=0x7f020024;
+        public static final int textfield_selected=0x7f020025;
+        public static final int title_bar=0x7f020026;
     }
     public static final class id {
         public static final int capture_text_photo_button_capture=0x7f080000;
@@ -353,18 +367,20 @@ containing a value of this type.
  Search widget styles 
          <item name="searchWidgetCorpusItemBackground">@android:color/search_widget_corpus_item_background</item> 
          */
-        public static final int OHOW_Theme=0x7f06000b;
-        public static final int TextAppearance=0x7f060006;
-        public static final int TextAppearance_DialogWindowTitle=0x7f060009;
-        public static final int TextAppearance_Inverse=0x7f060007;
-        public static final int TextAppearance_Theme=0x7f060008;
-        public static final int TextAppearance_WindowTitle=0x7f06000a;
+        public static final int OHOW_Theme=0x7f06000d;
+        public static final int TextAppearance=0x7f060008;
+        public static final int TextAppearance_DialogWindowTitle=0x7f06000b;
+        public static final int TextAppearance_Inverse=0x7f060009;
+        public static final int TextAppearance_Theme=0x7f06000a;
+        public static final int TextAppearance_WindowTitle=0x7f06000c;
         /**  Widget Styles 
          */
         public static final int Widget=0x7f060003;
         public static final int Widget_Button=0x7f060004;
         public static final int Widget_Button_OHOW_Important=0x7f060000;
-        public static final int Widget_EditText=0x7f060005;
+        public static final int Widget_CompoundButton=0x7f060005;
+        public static final int Widget_CompoundButton_CheckBox=0x7f060006;
+        public static final int Widget_EditText=0x7f060007;
         public static final int WindowTitle=0x7f060002;
         public static final int WindowTitleBackground=0x7f060001;
     }

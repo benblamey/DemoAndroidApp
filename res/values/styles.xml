@@ -53,6 +53,18 @@ This file is our modified versions of the built in styles. For the custom styles
         <item name="android:gravity">center_vertical|center_horizontal</item>
     </style>
 
+    <style name="Widget.CompoundButton">
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textAppearance">?android:attr/textAppearance</item>
+        <item name="android:textColor">?android:attr/textColorPrimaryDisableOnly</item>
+        <item name="android:gravity">center_vertical|left</item>
+    </style>
+
+    <style name="Widget.CompoundButton.CheckBox">
+        <item name="android:background">@drawable/btn_check_label_background</item>
+        <item name="android:button">@drawable/btn_check</item>
+    </style>
 
     <style name="Widget.EditText">
         <item name="android:focusable">true</item>
