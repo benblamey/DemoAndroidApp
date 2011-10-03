@@ -40,26 +40,30 @@ containing a value of this type.
         public static final int color_user_text=0x7f050002;
     }
     public static final class drawable {
-        public static final int activity_title_bar=0x7f020000;
-        public static final int activity_title_bar_old=0x7f020001;
-        public static final int btn_default=0x7f020002;
-        public static final int btn_default_normal=0x7f020003;
-        public static final int btn_default_normal_disable=0x7f020004;
-        public static final int btn_default_normal_disable_focused=0x7f020005;
-        public static final int btn_default_pressed=0x7f020006;
-        public static final int btn_default_selected=0x7f020007;
-        public static final int edit_text=0x7f020008;
-        public static final int icon=0x7f020009;
-        public static final int slideshow_0=0x7f02000a;
-        public static final int slideshow_1=0x7f02000b;
-        public static final int slideshow_2=0x7f02000c;
-        public static final int slideshow_3=0x7f02000d;
-        public static final int textfield_default=0x7f02000e;
-        public static final int textfield_disabled=0x7f02000f;
-        public static final int textfield_disabled_selected=0x7f020010;
-        public static final int textfield_pressed=0x7f020011;
-        public static final int textfield_selected=0x7f020012;
-        public static final int title_bar=0x7f020013;
+        public static final int activity_background=0x7f020000;
+        public static final int activity_title_bar=0x7f020001;
+        public static final int activity_title_bar_old=0x7f020002;
+        public static final int btn_default=0x7f020003;
+        public static final int btn_default_normal=0x7f020004;
+        public static final int btn_default_normal_disable=0x7f020005;
+        public static final int btn_default_normal_disable_focused=0x7f020006;
+        public static final int btn_default_pressed=0x7f020007;
+        public static final int btn_default_selected=0x7f020008;
+        public static final int edit_text=0x7f020009;
+        public static final int hatch=0x7f02000a;
+        public static final int icon=0x7f02000b;
+        public static final int logo=0x7f02000c;
+        public static final int slideshow_0=0x7f02000d;
+        public static final int slideshow_1=0x7f02000e;
+        public static final int slideshow_2=0x7f02000f;
+        public static final int slideshow_3=0x7f020010;
+        public static final int splash_title=0x7f020011;
+        public static final int textfield_default=0x7f020012;
+        public static final int textfield_disabled=0x7f020013;
+        public static final int textfield_disabled_selected=0x7f020014;
+        public static final int textfield_pressed=0x7f020015;
+        public static final int textfield_selected=0x7f020016;
+        public static final int title_bar=0x7f020017;
     }
     public static final class id {
         public static final int capture_text_photo_button_capture=0x7f080000;
@@ -71,10 +75,10 @@ containing a value of this type.
         public static final int local_timeline_text_view_body=0x7f080007;
         public static final int local_timeline_text_view_capture_location=0x7f080005;
         public static final int local_timeline_text_view_details=0x7f080008;
-        public static final int menu_item_capture=0x7f08001f;
-        public static final int menu_item_local_timeline=0x7f080020;
-        public static final int menu_item_sign_out=0x7f080022;
-        public static final int menu_item_slideshow=0x7f080021;
+        public static final int menu_item_capture=0x7f080021;
+        public static final int menu_item_local_timeline=0x7f080022;
+        public static final int menu_item_sign_out=0x7f080024;
+        public static final int menu_item_slideshow=0x7f080023;
         public static final int register_checkbox_terms=0x7f08000e;
         public static final int register_edittext_email=0x7f08000b;
         public static final int register_edittext_first_name=0x7f080009;
@@ -96,7 +100,9 @@ containing a value of this type.
         public static final int slide_show_image_view=0x7f08001d;
         public static final int slide_show_root_view=0x7f08001b;
         public static final int slide_show_text_view=0x7f08001c;
-        public static final int splash_text_view_version_number=0x7f08001e;
+        public static final int splash_logo=0x7f08001e;
+        public static final int splash_text_view_version_number=0x7f080020;
+        public static final int splash_title=0x7f08001f;
     }
     public static final class layout {
         public static final int capturetextphoto=0x7f030000;
@@ -280,7 +286,6 @@ containing a value of this type.
 	     we don't use 'Our History of the World' because it gets truncated when the app is shown in the matrix of available apps. 
          */
         public static final int splash_activity_label=0x7f040062;
-        public static final int splash_text=0x7f040063;
         public static final int unfriendly_error_prefix=0x7f040014;
     }
     public static final class style {

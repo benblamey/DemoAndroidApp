@@ -49,7 +49,7 @@ This file is our modified versions of the built in styles. For the custom styles
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
         <item name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
-        <item name="android:textColor">@android:color/primary_text_light</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:gravity">center_vertical|center_horizontal</item>
     </style>
 

@@ -1,23 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:background="@drawable/activity_background"
+    android:weightSum="11"
+    android:gravity="center" android:orientation="vertical">
+
+
+    <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+    </TextView>
+     
 	    	    
-		<TextView
-			android:textSize="26dip"
-		    android:layout_height="wrap_content"
-		    android:layout_width="wrap_content" 
-		    android:layout_centerVertical="true"
-		    android:layout_centerHorizontal="true"
-		    android:text="@string/splash_text"/>
+	<ImageView android:src="@drawable/logo"
+	           android:layout_width="fill_parent"
+	           android:layout_height="wrap_content"
+	           android:layout_centerHorizontal="true"
+	           android:id="@+id/splash_logo"
+	           android:layout_weight="4">
+	</ImageView>
+	
+	<ImageView android:layout_marginTop="10dip" 
+	android:src="@drawable/splash_title"
+	           android:id="@+id/splash_title"
+	           android:layout_height="wrap_content"
+	           android:layout_width="fill_parent"
+	           android:layout_centerHorizontal="true"
+	           android:layout_weight="2">
+	</ImageView>
+	
 
-		<TextView
-			android:id="@+id/splash_text_view_version_number" 
-		    android:layout_height="wrap_content"
-		    android:layout_width="wrap_content" 
-			android:layout_alignParentBottom="true"
-			android:layout_centerHorizontal="true"
-			android:layout_marginBottom="10dip"/>
+	<TextView    
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="4">
+    </TextView>
+  
+  
+      <TextView
+        android:id="@+id/splash_text_view_version_number"
+        android:textColor="#000000" 
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content" 
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="1dip"/>
 
-</RelativeLayout>
+
+</LinearLayout>
