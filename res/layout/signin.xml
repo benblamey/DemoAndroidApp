@@ -82,9 +82,10 @@
         android:layout_marginRight="2dip">
     </EditText>
 	    
-	<LinearLayout android:orientation="horizontal"
-	android:layout_height="wrap_content"
-	android:layout_width="fill_parent"
+	<LinearLayout 
+	   android:orientation="horizontal"
+	   android:layout_height="wrap_content"
+	   android:layout_width="fill_parent"
 	   android:weightSum="2">
 	
 	   <com.ml4d.core.Button2

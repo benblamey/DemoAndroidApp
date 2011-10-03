@@ -100,8 +100,8 @@ containing a value of this type.
         public static final int register_edittext_last_name=0x7f08000a;
         public static final int register_edittext_password=0x7f08000d;
         public static final int register_edittext_username=0x7f08000c;
-        public static final int register_register_button=0x7f08000f;
-        public static final int register_view_terms_and_conditions_button=0x7f080010;
+        public static final int register_register_button=0x7f080010;
+        public static final int register_view_terms_and_conditions_button=0x7f08000f;
         public static final int show_moment_activity_activity_text_view_body=0x7f080016;
         public static final int show_moment_activity_button_next=0x7f080013;
         public static final int show_moment_activity_button_previous=0x7f080012;

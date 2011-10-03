@@ -14,7 +14,7 @@
     
     <string name="register_checkbox_terms_label">I accept the terms &amp; conditions</string>
     <string name="register_button_label">Register</string>
-    <string name="register_view_terms_and_conditions_button_label">View Terms and Conditions</string>
+    <string name="register_view_terms_and_conditions_button_label">Terms</string>
     <string name="register_view_terms_and_conditions_button_label_land">View T\'s &amp; C\'s</string>
     
     <!-- Messages regarding invalid registration fields -->
