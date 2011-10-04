@@ -2,53 +2,83 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    xmlns:ohow="http://schemas.android.com/apk/res/com.ml4d.ohow"
+    android:background="@drawable/activity_background">
 
-	<Button
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:text="@string/capture_text_photo_button_capture_text"
-		android:id="@+id/capture_text_photo_button_capture"/>
-		
-	<RelativeLayout 
-		android:id="@+id/capture_text_photo_imageview_frame"
-		android:layout_above="@+id/capture_text_photo_button_capture"
+    <ImageView
+		android:id="@+id/capture_text_photo_imageview_photo"
+		android:layout_height="fill_parent"
+		android:layout_width="fill_parent" 
+		android:scaleType="centerCrop"/>
+
+	<FrameLayout 
+		android:id="@+id/capture_text_photo_button_photo_frame"
+		android:layout_above="@+id/capture_text_photo_button_capture_frame"
 		android:layout_width="100dp"
-		android:layout_marginLeft="4dip"
+		android:layout_marginLeft="2dip"
 		android:layout_marginRight="1dip" 
-		android:layout_marginTop="2dip"
-		android:layout_marginBottom="5dip"
+		android:layout_marginBottom="0dip"
 		android:layout_height="fill_parent">
-		
-		<ImageView
-			android:id="@+id/capture_text_photo_imageview_photo"
-			android:layout_height="fill_parent"
-			android:layout_width="fill_parent" 
-			android:scaleType="centerCrop"/>
-			
-		<Button
+
+		<com.ml4d.core.Button2
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
-			android:layout_centerInParent="true"
-			android:id="@+id/capture_text_photo_button_toggle_photo"/>
+			android:layout_gravity="center_vertical"
+			android:text="@string/capture_text_photo_photo_button_toggle_add"
+			android:id="@+id/capture_text_photo_button_add_photo"
+			android:textSize="20sp"
+			ohow:font_asset_name="fonts/BebasNeue.otf"/>
+			
+		<com.ml4d.core.Button2
+            android:text="@string/capture_text_photo_photo_button_toggle_remove"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:id="@+id/capture_text_photo_button_remove_photo"
+            android:textSize="20sp"
+            ohow:font_asset_name="fonts/BebasNeue.otf"/>
 						
+	</FrameLayout>
+
+    <!-- 
+        An EditText control that forces the 'Done' action - there is a problem with 
+		multiline EditText controls (i.e. those for which text wrapping is enabled) 
+		that the 'return' action is always available. We use a custom control to 
+		work around this problem. 
+	-->
+    <com.ml4d.core.EditText2
+        android:gravity="top"
+        android:inputType="text|textLongMessage|textMultiLine"
+        android:layout_marginRight="2dip"
+        android:layout_marginTop="4dip"
+        android:layout_above="@id/capture_text_photo_button_capture_frame"
+        android:layout_toRightOf="@id/capture_text_photo_button_photo_frame"
+        android:scrollHorizontally="false"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/capture_text_photo_edittext_body"
+        android:hint="@string/capture_text_photo_body_hint"
+        android:freezesText="true"/>
+    
+    <RelativeLayout 
+		android:layout_alignParentBottom="true"
+		android:background="#50505050"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/capture_text_photo_button_capture_frame">
+	     
+	    <com.ml4d.core.Button2
+			android:layout_marginTop="5dip"
+			android:layout_marginLeft="2dip"
+			android:layout_marginRight="2dip"
+			android:layout_marginBottom="3dip"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/capture_text_photo_button_capture_text"
+	        android:id="@+id/capture_text_photo_button_capture"
+	        style="@style/Widget.Button.OHOW.Important"/>
+	        
     </RelativeLayout>
 		
-<!-- An EditText control that forces the 'Done' action - there is a problem with 
-	  multiline EditText controls (i.e. those for which text wrapping is enabled) 
-	  that the 'return' action is always available. We use a custom control to 
-	  work around this problem. -->
-	<com.ml4d.core.EditText2
-		android:gravity="top"
-    	android:inputType="text|textLongMessage|textMultiLine"
-    	android:layout_above="@+id/capture_text_photo_button_capture"
-    	android:layout_toRightOf="@+id/capture_text_photo_imageview_frame"
-    	android:scrollHorizontally="false"
-    	android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-    	android:id="@+id/capture_text_photo_edittext_body"
-    	android:hint="@string/capture_text_photo_body_hint"
-    	android:freezesText="true"/>
-
 </RelativeLayout>

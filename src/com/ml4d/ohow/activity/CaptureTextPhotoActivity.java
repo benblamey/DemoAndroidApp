@@ -2,6 +2,7 @@ package com.ml4d.ohow.activity;
 
 import java.io.*;
 
+import com.ml4d.core.Button2;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.APIConstants;
@@ -99,7 +100,8 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			SignInActivity.signInAgain(this);
 		} else {
 			findViewById(R.id.capture_text_photo_button_capture).setOnClickListener(this);
-			findViewById(R.id.capture_text_photo_button_toggle_photo).setOnClickListener(this);
+			findViewById(R.id.capture_text_photo_button_add_photo).setOnClickListener(this);
+			findViewById(R.id.capture_text_photo_button_remove_photo).setOnClickListener(this);
 	
 			if (savedInstanceState != null) {
 				_state = Enum.valueOf(State.class, savedInstanceState.getString("_state"));
@@ -196,18 +198,23 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 		
 		Resources resources = getResources();
 		
+		Button2 addPhotoButton = (Button2)(findViewById(R.id.capture_text_photo_button_add_photo));
+		Button2 removePhotoButton = (Button2)(findViewById(R.id.capture_text_photo_button_remove_photo));
+		
 		// Update the photo and the photo button.
-		String togglePhotoButtonText = resources.getString(R.string.capture_text_photo_photo_button_toggle_add);
 		if ((null != _photoFile) && (_photoFile.exists())) {
 			Options bitmapOptions = new Options();
 			bitmapOptions.inSampleSize = 4; // Open the bitmap as 1/4 its original size to save memory.
 			Bitmap photoBitmap = BitmapFactory.decodeFile(_photoFile.getAbsolutePath(), bitmapOptions);
 			((ImageView)findViewById(R.id.capture_text_photo_imageview_photo)).setImageBitmap(photoBitmap);
-			togglePhotoButtonText = resources.getString(R.string.capture_text_photo_photo_button_toggle_remove);
+			addPhotoButton.setVisibility(View.GONE);
+			removePhotoButton.setVisibility(View.VISIBLE);	
 		} else { 
 			((ImageView)findViewById(R.id.capture_text_photo_imageview_photo)).setImageBitmap(null);
+			addPhotoButton.setVisibility(View.VISIBLE);
+			removePhotoButton.setVisibility(View.GONE);	
+			
 		}
-		((android.widget.Button)findViewById(R.id.capture_text_photo_button_toggle_photo)).setText(togglePhotoButtonText); 
 
 		switch (_state) {
 		case DATA_MOMENT:
@@ -354,7 +361,8 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 		case R.id.capture_text_photo_button_capture:
 			captureButtonClicked();
 			break;
-		case R.id.capture_text_photo_button_toggle_photo:
+		case R.id.capture_text_photo_button_add_photo:
+		case R.id.capture_text_photo_button_remove_photo:
 			togglePhoto();
 			break;
 		default:
