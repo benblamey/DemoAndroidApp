@@ -78,8 +78,8 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 			SignInActivity.signInAgain(this);
 		} else {
 			// We don't use the previous and next buttons for this activity.
-			findViewById(R.id.show_moment_activity_button_next).setVisibility(View.INVISIBLE);
-			findViewById(R.id.show_moment_activity_button_previous).setVisibility(View.INVISIBLE);
+			findViewById(R.id.show_moment_activity_button_next).setVisibility(View.GONE);
+			findViewById(R.id.show_moment_activity_button_previous).setVisibility(View.GONE);
 	
 			_state = State.WAITING_FOR_FIRST_LOCATION_UPDATE;
 			

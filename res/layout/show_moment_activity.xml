@@ -1,59 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:background="@drawable/activity_background"
+    android:orientation="vertical"
+    android:weightSum="2">
 
-	<TextView
-		android:id="@+id/show_moment_activity_text_view_capture_location"
-		android:layout_centerHorizontal="true" 
-	    android:layout_height="wrap_content"
-	    android:layout_width="wrap_content"
-	    android:textStyle="bold"
-		android:gravity="center_horizontal"
-		android:textSize="20dip"/>
-	
-	<Button android:id="@+id/show_moment_activity_button_previous"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"
-			android:text="Previous">
-	</Button>
+	<FrameLayout 
+		android:layout_height="100dip"
+		android:layout_width="fill_parent"
+		android:layout_weight="1"
+		android:background="#FFFFFF">
+	    <com.ml4d.core.WebImageView
+	        android:id="@+id/show_moment_activity_image_view_photo"
+	        android:layout_height="fill_parent"
+	        android:layout_width="fill_parent"
+	        android:scaleType="centerCrop"/>
+   </FrameLayout>
+        
+    <View 
+        android:background="@color/color_ohow_red"
+        android:layout_height="1dip"
+        android:layout_width="fill_parent"/>
 
-	<Button android:id="@+id/show_moment_activity_button_next"
-			android:layout_toRightOf="@+id/show_moment_activity_button_previous"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"
-			android:text="Next">
-	</Button>
+	<LinearLayout 
+		android:orientation="vertical" 
+		android:background="#FFFFFF"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:baselineAligned="false"
+		android:layout_weight="1"
+		android:weightSum="1">
 
-	<TextView
-		android:id="@+id/show_moment_activity_text_view_details"
-		android:layout_above="@+id/show_moment_activity_button_previous" 
-	    android:layout_height="wrap_content"
-	    android:layout_width="wrap_content" 
-		android:layout_alignParentRight="true"
-		android:textSize="20dip"/>
+		<TextView
+			android:id="@+id/show_moment_activity_text_view_capture_location"
+			android:singleLine="true"
+			android:layout_marginLeft="1dip"
+	        android:layout_marginRight="1dip" 
+			android:layout_centerHorizontal="true"
+	        android:layout_height="wrap_content"
+		    android:layout_width="wrap_content"
+		    android:textColor="@color/color_ohow_red"
+		    android:textStyle="bold"
+			android:gravity="center_horizontal"
+			android:textSize="20dip"/>
+			
+		<ScrollView
+			android:layout_width="fill_parent"
+	        android:layout_height="10dip"
+	        android:layout_weight="1" 
+	        android:height="10dip">
+		    <TextView
+		        android:id="@+id/show_moment_activity_activity_text_view_body"
+		        android:layout_marginLeft="1dip"
+		        android:layout_marginRight="1dip" 
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:textColor="#000000"
+		        android:textSize="20dip"/>
+           </ScrollView>
+		
+	    <TextView
+	        android:id="@+id/show_moment_activity_text_view_details"
+	        android:singleLine="true"
+	        android:layout_marginRight="1dip" 
+	        android:layout_height="wrap_content"
+	        android:layout_width="fill_parent"
+	        android:textColor="#000000" 
+	        android:textSize="20dip"
+	        android:gravity="right"/>
+	        
+    </LinearLayout>
+        
+	<View 
+	   android:background="@drawable/dropshadowred"
+	   android:layout_width="fill_parent"
+	   android:layout_height="11dip">
+	</View>
 
-	<com.ml4d.core.WebImageView
-		android:id="@+id/show_moment_activity_image_view_photo"
-		android:layout_below="@+id/show_moment_activity_text_view_capture_location"
-	    android:layout_height="175dp"
-	    android:layout_width="175dp"
-		android:layout_alignParentLeft="true"
-		android:layout_marginTop="2dip"
-		android:layout_marginBottom="2dip"
-		android:scaleType="centerCrop"/>
+    <LinearLayout 
+       android:orientation="horizontal"
+       android:layout_height="wrap_content"
+       android:layout_width="fill_parent"
+       android:weightSum="2">
+    
+       <com.ml4d.core.Button2
+            android:layout_width="0dip"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Previous"
+            android:id="@+id/show_moment_activity_button_previous"
+            style="@style/Widget.Button.OHOW.Important">
+        </com.ml4d.core.Button2>
+   
+        <com.ml4d.core.Button2
+            android:layout_width="0dip"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:id="@+id/show_moment_activity_button_next"
+            style="@style/Widget.Button.OHOW.Important">
+        </com.ml4d.core.Button2>
+    
+    </LinearLayout>
 
-	<!-- Under testing, I couldn't get ellipsis for text trimming. I think this is an Android bug. -->
-	<TextView
-		android:id="@+id/show_moment_activity_activity_text_view_body" 
-	    android:layout_below="@+id/show_moment_activity_image_view_photo"
-	    android:layout_height="wrap_content"
-	    android:layout_width="wrap_content"
-	    android:gravity="center_horizontal"
-	    android:textSize="20dip"/>
-	
-</RelativeLayout>
+</LinearLayout>
