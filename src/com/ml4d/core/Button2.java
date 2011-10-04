@@ -40,6 +40,9 @@ public class Button2 extends Button {
 	        Typeface font = Typeface.createFromAsset(context.getAssets(), text);
 	        super.setTypeface(font);
 		}
+		
+		// We need to re-cycle the typed array.
+		ta.recycle();
     }
 
 }
