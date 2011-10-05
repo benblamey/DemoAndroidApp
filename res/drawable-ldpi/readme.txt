@@ -1,6 +1,7 @@
 It is not necessary to provide ldpi versions of all drawables.
 
 
+
 "However, when the system is looking for a density-specific resource and does not find it in 
 the density-specific directory, it won't always use the default resources. The system may 
 instead use one of the other density-specific resources in order to provide better results 
