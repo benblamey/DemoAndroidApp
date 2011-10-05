@@ -1,5 +1,7 @@
 package com.ml4d.ohow;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -11,6 +13,11 @@ import android.os.Bundle;
  */
 public class MultiLocationProvider implements LocationListener {
 
+	/**
+	 * The single instance of this class.
+	 */
+	private static MultiLocationProvider _instance;
+	
 	/** 
 	 * A hint for the GPS location update interval, in milliseconds.
 	 */
@@ -28,54 +35,80 @@ public class MultiLocationProvider implements LocationListener {
 	
 	private static final int TWO_MINUTES_IN_SECONDS = 1000 * 60 * 2;
 	
-	private LocationListener _listener;
+	private ArrayList<LocationListener> _listeners = new ArrayList<LocationListener>();
 	private Location _location;
-	private boolean _subscribedToLocationUpdates;
 	private Context _context;
 	private boolean _isProviderEnabled;
 	
-	public MultiLocationProvider(LocationListener listener, Context context) {
-		if (null == listener) {
-			throw new NullPointerException("listener");
+	public synchronized static MultiLocationProvider getInstance() {
+		if (null == _instance) {
+			_instance = new MultiLocationProvider();
 		}
-		if (null == context) {
-			throw new NullPointerException("context");
-		}
-		_listener = listener;
-		_context = context;
+		return _instance;
 	}
 
-	/**
-	 * Start the provider.
-	 */
-	public void start() {
-		// Get the most recent GPS fix (this might be null or out of date).
-		LocationManager locationManager = (LocationManager)_context.getSystemService(Context.LOCATION_SERVICE);
-
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,  
-				GPS_SUGGESTED_UPDATE_INTERVAL_MS, 
-				GPS_SUGGESTED_UPDATE_INTERVAL_METRES, this, App.Instance.getMainLooper());
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,  
-				GPS_SUGGESTED_UPDATE_INTERVAL_MS, 
-				GPS_SUGGESTED_UPDATE_INTERVAL_METRES, this, App.Instance.getMainLooper());
-		
-		updateLocation(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
-		updateLocation(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
-		_subscribedToLocationUpdates = true;
-		
-		notifyIsProviderEnabled();
+	private MultiLocationProvider() {
+		_context = App.Instance.getApplicationContext();
 	}
 	
 	/**
-	 * Stop the provider.
+	 * Adds a listener to this location provider.
+	 * If this method is called more than once with the same parameter, calls other than
+	 * the first will be silently ignored.
+	 * @param listener
 	 */
-	public void stop() {
-		if (_subscribedToLocationUpdates) {
+	public synchronized void addListener(LocationListener listener) {
+		if (null == listener) {
+			throw new IllegalArgumentException("'listener' cannot be null.");
+		} else if (this == listener) {
+			throw new IllegalArgumentException("The provider cannot listen to itself.");
+		} else if (!_listeners.contains(listener)) {
+
+			_listeners.add(listener);
+			
+			if (_listeners.size() == 1) {
+				// Start listening to the underlying location providers.			
+				
+				// Get the most recent GPS fix (this might be null or out of date).
+				LocationManager locationManager = (LocationManager)_context.getSystemService(Context.LOCATION_SERVICE);
+		
+				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,  
+						GPS_SUGGESTED_UPDATE_INTERVAL_MS, 
+						GPS_SUGGESTED_UPDATE_INTERVAL_METRES, this, App.Instance.getMainLooper());
+				locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,  
+						GPS_SUGGESTED_UPDATE_INTERVAL_MS, 
+						GPS_SUGGESTED_UPDATE_INTERVAL_METRES, this, App.Instance.getMainLooper());
+				
+				updateLocation(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+				updateLocation(locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER));
+				
+				notifyIsProviderEnabled();
+			}
+
+		}
+		
+	}
+	
+	/**
+	 * Remove a listener from this location provider.
+	 * An exception is not thrown if the item is not already subscribed.
+	 * @param listener
+	 */
+	public synchronized void removeListener(LocationListener listener) {
+		if (null == listener) {
+			throw new IllegalArgumentException("'listener' cannot be null.");
+		}
+		
+		// An exception is not thrown if the item is not in the list.
+		_listeners.remove(listener);
+		
+		if (_listeners.isEmpty()) {
 			LocationManager locationManager = (LocationManager)_context.getSystemService(Context.LOCATION_SERVICE);
 			if (null != locationManager) {
 				locationManager.removeUpdates(this);
 			}
-			_subscribedToLocationUpdates = false;
+			
+			notifyIsProviderEnabled();
 		}
 	}
 	
@@ -84,7 +117,7 @@ public class MultiLocationProvider implements LocationListener {
 	 * i.e. whether at least one of the underlying providers is enabled.
 	 * @return
 	 */
-	public boolean getIsEnabled() {
+	public synchronized boolean getIsEnabled() {
 		return _isProviderEnabled;
 	}
 	
@@ -100,26 +133,32 @@ public class MultiLocationProvider implements LocationListener {
 		
 		if (oldEnabled != _isProviderEnabled) {
 			if (_isProviderEnabled) {
-				_listener.onProviderEnabled(PROVIDER_NAME);
+			    for (LocationListener listener : _listeners) {
+			    	listener.onProviderEnabled(PROVIDER_NAME);
+			    }
 			} else {
-				_listener.onProviderDisabled(PROVIDER_NAME);
+			    for (LocationListener listener : _listeners) {
+			    	listener.onProviderDisabled(PROVIDER_NAME);
+			    }
 			}
 		}
 	}
 	
 	@Override
-	public void onLocationChanged(android.location.Location location) {
+	public synchronized void onLocationChanged(android.location.Location location) {
 		updateLocation(location);
 	}
 	
 	private void updateLocation(Location newLocation) {
 		if (isBetterLocation(newLocation, _location)) {
 			_location = newLocation;
-			_listener.onLocationChanged(_location);	
+		    for (LocationListener listener : _listeners) {
+		    	listener.onLocationChanged(_location);
+		    }
 		}
 	}
 	
-	public Location getLocation() {
+	public synchronized Location getLocation() {
 		return _location;
 	}
 	
@@ -187,17 +226,17 @@ public class MultiLocationProvider implements LocationListener {
 	}
 	
 	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
+	public synchronized void onStatusChanged(String provider, int status, Bundle extras) {
 		// Nothing to do.
 	}
 
 	@Override
-	public void onProviderEnabled(String provider) {
+	public synchronized void onProviderEnabled(String provider) {
 		notifyIsProviderEnabled();
 	}
 
 	@Override
-	public void onProviderDisabled(String provider) {
+	public synchronized void onProviderDisabled(String provider) {
 		notifyIsProviderEnabled();
 	}
 	

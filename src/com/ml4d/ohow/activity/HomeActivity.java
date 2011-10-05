@@ -47,7 +47,6 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	private State _state;
 	private String _ohowAPIError; // If the state is 'API_ERROR_RESPONSE', details of the error. 
 	private MomentLocationRecentSearchTask _getMomentTask;
-	private MultiLocationProvider _multiLocationProvider;
 	
 	// These fields are persisted.
 	private Moment _moment; 
@@ -211,13 +210,11 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 		double latitude = 999;
 		boolean startActivity = false;
 		
-		if (null != _multiLocationProvider) {
-			Location location = _multiLocationProvider.getLocation();
-			if (null != location) {
-				latitude = location.getLatitude();
-				longitude = location.getLongitude();
-				startActivity = true;
-			}
+		Location location = MultiLocationProvider.getInstance().getLocation();
+		if (null != location) {
+			latitude = location.getLatitude();
+			longitude = location.getLongitude();
+			startActivity = true;
 		}
 		
 		if (!startActivity && !OfficialBuild.getInstance().isOfficialBuild()) {
@@ -247,52 +244,39 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	}
 	
 	private void getMomentIfAppropriate() {
+		Location location = MultiLocationProvider.getInstance().getLocation();
 		
-		if (null != _multiLocationProvider) {
-			Location location = _multiLocationProvider.getLocation();
+		if ((null != location) && (null == _getMomentTask))
+		{
+			// Create a new culture-independent calendar initialised to the current date and time.
+			GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"), Locale.US); 
+			Date now = calendar.getTime();
 			
-			if ((null != location) && (null == _getMomentTask))
-			{
-				// Create a new culture-independent calendar initialised to the current date and time.
-				GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"), Locale.US); 
-				Date now = calendar.getTime();
-				
-				boolean needToGetMoment;
-				if ((null == _momentTimestamp)) {
-					needToGetMoment = true;
-				} else {
-					calendar.setTime(_momentTimestamp);
-					calendar.add(Calendar.SECOND, MINIMUM_FETCH_MOMENT_INTERVAL_SECONDS);
-					needToGetMoment = calendar.before(now);
-				}
-				
-				if (needToGetMoment) {
-					// Get a maximum of one moment, within 1000 metres. 
-					_getMomentTask = new MomentLocationRecentSearchTask(this, location.getLatitude(), location.getLongitude(), 1, 1000);
-					_getMomentTask.execute((Void[])null);
-					_state = State.WAITING_FOR_API;
-					_momentTimestamp = now;
-				}
+			boolean needToGetMoment;
+			if ((null == _momentTimestamp)) {
+				needToGetMoment = true;
+			} else {
+				calendar.setTime(_momentTimestamp);
+				calendar.add(Calendar.SECOND, MINIMUM_FETCH_MOMENT_INTERVAL_SECONDS);
+				needToGetMoment = calendar.before(now);
+			}
+			
+			if (needToGetMoment) {
+				// Get a maximum of one moment, within 1000 metres. 
+				_getMomentTask = new MomentLocationRecentSearchTask(this, location.getLatitude(), location.getLongitude(), 1, 1000);
+				_getMomentTask.execute((Void[])null);
+				_state = State.WAITING_FOR_API;
+				_momentTimestamp = now;
 			}
 		}
 	}
 	
 	private void ensureSubscribedToLocationUpdates() {
-		if (null == _multiLocationProvider) {
-			// We are both the listener and the context.
-			_multiLocationProvider = new MultiLocationProvider(this, this);
-			_multiLocationProvider.start();
-			if (!_multiLocationProvider.getIsEnabled()) {
-				_state = State.LOCATION_SERVICES_DISABLED;
-			}
-		}
+		MultiLocationProvider.getInstance().addListener(this);
 	}
 	
 	private void tearEverythingDown() {
-		if (null != _multiLocationProvider) {
-			_multiLocationProvider.stop();
-			_multiLocationProvider = null;
-		}
+		MultiLocationProvider.getInstance().removeListener(this);
 		
 		// We don't cancel() the task, as the results are difficult to predict.
 		_getMomentTask = null;

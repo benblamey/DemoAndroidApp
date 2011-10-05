@@ -54,7 +54,6 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	private State _state;
 	private DialogInterface _dialog;
 	private File _photoFile;
-	private MultiLocationProvider _multiLocationProvider;
 	
 	// JPEG is better than PNG for photos.
 	private static final String JPEG_EXTENSION_WITHOUT_DOT = "jpg";
@@ -266,22 +265,16 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 	 * Ensure we are getting GPS location updates.
 	 */
 	private void ensureGettingGPSUpdates() {
-		if (null == _multiLocationProvider) {
-			// This activity is both the context and the listener.
-			_multiLocationProvider = new MultiLocationProvider(this, this);
-			_multiLocationProvider.start();
-		}
+		// It doesn't do any harm if we call this method repeatedly - we only ever end up subscribing once.
+		MultiLocationProvider.getInstance().addListener(this);
 	}
 	
 	/**
 	 * Ensures that we are no longer watching GPS location updates.
 	 */
 	private void tearEverythingDown() {
-		// Ensure we no longer listen to GPS location updates.
-		if (null != _multiLocationProvider) {
-			_multiLocationProvider.stop();
-			_multiLocationProvider = null;
-		}
+		// It doesn't do any harm if we call this method repeatedly - we only ever end up subscribing once.
+		MultiLocationProvider.getInstance().addListener(this);
 	}
 	
 	private void captureButtonClicked() {
@@ -299,20 +292,16 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 			double fixAccuracyMeters = 0;
 			long unixTimestampMs = 0;
 
-			if (null == _multiLocationProvider) {
-				allowCapture = false;
+			Location location = MultiLocationProvider.getInstance().getLocation();
+			if (null != location) {
+				latitude = location.getLatitude();
+				longitude = location.getLongitude();
+				fixAccuracyMeters = location.getAccuracy();
+				unixTimestampMs = location.getTime();
+				// Allow capture only if the fix is 'fresh'.
+				allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < MAXIMUM_GPS_FIX_AGE_MS);
 			} else {
-				Location location = _multiLocationProvider.getLocation();
-				if (null != location) {
-					latitude = location.getLatitude();
-					longitude = location.getLongitude();
-					fixAccuracyMeters = location.getAccuracy();
-					unixTimestampMs = location.getTime();
-					// Allow capture only if the fix is 'fresh'.
-					allowCapture = ((System.currentTimeMillis() - unixTimestampMs) < MAXIMUM_GPS_FIX_AGE_MS);
-				} else {
-					allowCapture = false;
-				}
+				allowCapture = false;
 			}
 			
 			if (!allowCapture) {
