@@ -63,7 +63,7 @@
     
     <RelativeLayout 
 		android:layout_alignParentBottom="true"
-		android:background="#50505050"
+		android:background="@color/capture_bottom_area"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:id="@+id/capture_text_photo_button_capture_frame">

@@ -18,5 +18,8 @@
 	<!-- lighter grey colour:
 	(for low-priority text, like the username, date and time of a moment/entry)-->
 	<color name="color_our_note_text">#555555</color>
+	
+	<!-- Colour for the area at the bottom of the capture text photo activity. -->
+	<color name="capture_bottom_area">#80000000</color>
 
 </resources>
