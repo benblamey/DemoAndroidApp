@@ -78,6 +78,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 			SignInActivity.signInAgain(this);
 		} else {
 			ListView listView = getListView();
+			listView.setBackgroundResource(R.drawable.activity_background);
 			listView.setTextFilterEnabled(false); // We don't support text-filtering for moments.
 			listView.setOnItemClickListener(this);
 			getListView().setOnScrollListener(this);

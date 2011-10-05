@@ -96,6 +96,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		super.onCreate(savedInstanceState);
 		
 		ListView listView = getListView();
+		listView.setBackgroundResource(R.drawable.activity_background);
 		listView.setTextFilterEnabled(true);
 		listView.setOnItemClickListener(this);
 		
