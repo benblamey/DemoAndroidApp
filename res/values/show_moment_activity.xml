@@ -1,4 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 
-    <resources>
-        <string name="moment_activity_label">Show Moment</string>
-    </resources>
+<resources>
+
+    <string name="moment_activity_label">Show Moment</string>
+    
+    <!-- Labels for the buttons on the show moment layout. -->
+    <string name="show_moment_activity_previous">Previous</string>
+    <string name="show_moment_activity_next">Next</string>
+    
+</resources>
