@@ -304,6 +304,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 		String body;
 		String details;
 		Resources resources = getResources();
+		WebImageView photoImageView = ((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo));
 		
 		if (_state == State.LOCATION_SERVICES_DISABLED) {
 			// If the user has disabled GPS - tell them to turn it back on.
@@ -331,43 +332,52 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 			details = String.format(Locale.getDefault(), resources.getString(R.string.moment_detail_format), _moment.getUsername(), localDateFormat.format( _moment.getDateCreatedUTC()));
 
 			// Get the photo associated with the moment.			
-			String photoUrl;
+			
 			if (_moment.getHasPhoto()) {
-				photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+				String photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
 					+ "?" 
 					+ "id=" + Integer.toString(_moment.getId())
 					+ "&photo_size=medium"; // Get the full-sized image.
 				
+				photoImageView.setUrl(photoUrl);
 			} else {
 				// Clear any existing image.
-				photoUrl = null;
+				photoImageView.setUrl(null);
 			}
-			((WebImageView)findViewById(R.id.show_moment_activity_image_view_photo)).setUrl(photoUrl);
 			
 		} else {
 			
 			switch (_state) {
 				case API_ERROR_RESPONSE:
+					photoImageView.setUrl(null);
 					body = _ohowAPIError;
 					break;
 				case API_GARBAGE_RESPONSE:
+					photoImageView.setUrl(null);
 					body = resources.getString(R.string.error_ohow_garbage_response);
 					break;
 				case LOCATION_SERVICES_DISABLED:
+					photoImageView.setUrl(null);
 					throw new RuntimeException("This case has been handled further up (programmer mistake).");
 				case NO_API_RESPONSE:
+					photoImageView.setUrl(null);
 					body = resources.getString(R.string.comms_error);
 					break;
 				case API_HAS_NO_MOMENTS:
+					photoImageView.setUrl(null);
+					photoImageView.setImageResource(R.drawable.mock_map);
 					body = resources.getString(R.string.home_no_history_here);
 					break;
 				case WAITING_FOR_FIRST_LOCATION_UPDATE:
+					photoImageView.setUrl(null);
 					body = resources.getString(R.string.error_no_location_fix);
 					break;
 				case WAITING_FOR_API:
+					photoImageView.setUrl(null);
 					body = resources.getString(R.string.general_waiting);
 					break;
 				case HAVE_MOMENT:
+					photoImageView.setUrl(null);
 					throw new RuntimeException("We shouldn't be in the HAVE_MOMENT state if we have no moment (programmer mistake).");
 				default:
 					throw new UnexpectedEnumValueException(_state);
