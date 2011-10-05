@@ -7,7 +7,7 @@
 
 	<string name="capture_text_photo_activity_label">Capture</string>
 	<string name="capture_text_photo_button_capture_text">Capture</string>
-	<string name="capture_text_photo_body_hint">What\'s happening right now?</string>
+	<string name="capture_text_photo_body_hint">Capture the moment...</string>
 	    
     <!-- Validation errors -->
     <!-- The limits are such that the user won't actually care about their values. -->
