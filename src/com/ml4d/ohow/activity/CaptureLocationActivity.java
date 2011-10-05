@@ -70,7 +70,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 	 * http://en.wikipedia.org/wiki/State_machine
 	 */
 	private enum State {
-		WAITING_FOR_PLACES, DATA_MOMENT, WAITING_FOR_CAPTURE, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS 
+		WAITING_FOR_PLACES, HAVE_PLACES, WAITING_FOR_CAPTURE, SUCCESS, FAILED, FAILED_INVALID_CREDENTIALS 
 	}
 
 	/**
@@ -113,13 +113,13 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 			// If we have previously successfully logged in, go back to the data-moment state.
 			// Otherwise we will redirect immediately back to the home activity.
 			if (State.SUCCESS == _state) {
-				_state = State.DATA_MOMENT;
+				_state = State.HAVE_PLACES;
 				_errorMessage = "";
 			} else if (State.FAILED_INVALID_CREDENTIALS == _state) {
 				// When the credentials are invalid, we immediately redirect to the sign in page.
 				// We don't want to do this automatically if the user reaches the activity from history.
 				_errorMessage = "";
-				_state = State.DATA_MOMENT;
+				_state = State.HAVE_PLACES;
 			}
 			
 			_locations = (ArrayList<LocationForCapture>)(savedInstanceState.getSerializable("_locations"));
@@ -175,7 +175,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 					resources.getString(R.string.capture_location_places_waiting_dialog_body), true, // Indeterminate.
 					false); // Not cancellable.
 			break;			
-		case DATA_MOMENT:
+		case HAVE_PLACES:
 			if (null != _locations) {
 				ListAdapter locationAdapter = new LocationForCaptureArrayAdapter(this, 
 						R.layout.location_item, 
@@ -213,7 +213,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		case FAILED_INVALID_CREDENTIALS:
 			// Don't redirect more than once.
 			_errorMessage = "";
-			_state = State.DATA_MOMENT;
+			_state = State.HAVE_PLACES;
 			
 			// Sign out.
 			SignInActivity.signInAgain(this);
@@ -308,64 +308,67 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		if (null == location) {
 			throw new IllegalArgumentException("location cannot be null.");
 		}
-
-		CredentialStore store = CredentialStore.getInstance();
-		if (!store.getHaveVerifiedCredentials()) {
-			_errorMessage = "";
-			_state = State.FAILED_INVALID_CREDENTIALS;
-		} else {
-						
-			// Validate the user data the same as it will be validated by the OHOW API.
-			String validationMessage = "";
-			
-			if (validationMessage.length() > 0) {
-				Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
+		
+		// Just incase the UI is being slow, only allow one request.
+		if (_state == State.HAVE_PLACES) {
+			CredentialStore store = CredentialStore.getInstance();
+			if (!store.getHaveVerifiedCredentials()) {
+				_errorMessage = "";
+				_state = State.FAILED_INVALID_CREDENTIALS;
 			} else {
-
-				// The HttpClient will verify the certificate is signed by a trusted
-				// source.
-				HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "capture.php");
-				post.setHeader("Accept", "application/json");
-
-				// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 
-				MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-				final String textMimeType = "text/plain";
-				final Charset utf8 = Charset2.getUtf8();
-				 
-				try {
-					entity.addPart(new FormBodyPart("username", new StringBody(store.getUsername(), textMimeType, utf8))); 
-					entity.addPart(new FormBodyPart("password", new StringBody(store.getPassword(), textMimeType, utf8)));
-					entity.addPart(new FormBodyPart("body", new StringBody(_body, textMimeType, utf8))); // The 'body' was validated by the previous activity. We don't validate it again because the API is going to validate it anyway.
-					entity.addPart(new FormBodyPart("longitude", new StringBody(Double.toString(_longitude), textMimeType, utf8)));
-					entity.addPart(new FormBodyPart("latitude", new StringBody(Double.toString(_latitude), textMimeType, utf8)));
-					
-					if (location.getIsListed()) {
-						entity.addPart(new FormBodyPart("location_name", new StringBody(location.getLocationName(), textMimeType, utf8)));
-						entity.addPart(new FormBodyPart("google_location_stable_ref", new StringBody(location.getGoogleLocationStableRef(), textMimeType, utf8)));
-						entity.addPart(new FormBodyPart("google_location_retrieval_ref", new StringBody(location.getGoogleLocationRetrievalRef(), textMimeType, utf8)));
+							
+				// Validate the user data the same as it will be validated by the OHOW API.
+				String validationMessage = "";
+				
+				if (validationMessage.length() > 0) {
+					Toast.makeText(this, validationMessage, Toast.LENGTH_LONG).show();
+				} else {
+	
+					// The HttpClient will verify the certificate is signed by a trusted
+					// source.
+					HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "capture.php");
+					post.setHeader("Accept", "application/json");
+	
+					// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 
+					MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+					final String textMimeType = "text/plain";
+					final Charset utf8 = Charset2.getUtf8();
+					 
+					try {
+						entity.addPart(new FormBodyPart("username", new StringBody(store.getUsername(), textMimeType, utf8))); 
+						entity.addPart(new FormBodyPart("password", new StringBody(store.getPassword(), textMimeType, utf8)));
+						entity.addPart(new FormBodyPart("body", new StringBody(_body, textMimeType, utf8))); // The 'body' was validated by the previous activity. We don't validate it again because the API is going to validate it anyway.
+						entity.addPart(new FormBodyPart("longitude", new StringBody(Double.toString(_longitude), textMimeType, utf8)));
+						entity.addPart(new FormBodyPart("latitude", new StringBody(Double.toString(_latitude), textMimeType, utf8)));
+						
+						if (location.getIsListed()) {
+							entity.addPart(new FormBodyPart("location_name", new StringBody(location.getLocationName(), textMimeType, utf8)));
+							entity.addPart(new FormBodyPart("google_location_stable_ref", new StringBody(location.getGoogleLocationStableRef(), textMimeType, utf8)));
+							entity.addPart(new FormBodyPart("google_location_retrieval_ref", new StringBody(location.getGoogleLocationRetrievalRef(), textMimeType, utf8)));
+						}
+						
+					} catch (UnsupportedEncodingException e) {
+						throw new ImprobableCheckedExceptionException(e);
 					}
 					
-				} catch (UnsupportedEncodingException e) {
-					throw new ImprobableCheckedExceptionException(e);
-				}
-				
-				if (null != _photoFile) {
-					Bitmap image = BitmapFactory.decodeFile(_photoFile.getAbsolutePath());
-					ByteArrayOutputStream baos = new ByteArrayOutputStream();
-					image.compress(CaptureTextPhotoActivity.PHOTO_COMPRESS_FORMAT, CaptureTextPhotoActivity.PHOTO_COMPRESSION_QUALITY, baos);
+					if (null != _photoFile) {
+						Bitmap image = BitmapFactory.decodeFile(_photoFile.getAbsolutePath());
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						image.compress(CaptureTextPhotoActivity.PHOTO_COMPRESS_FORMAT, CaptureTextPhotoActivity.PHOTO_COMPRESSION_QUALITY, baos);
+						
+						ByteArrayBody photoFilePart = new ByteArrayBody(baos.toByteArray(), CaptureTextPhotoActivity.MIME_TYPE_FOR_PHOTO, _photoFile.getName());
+						entity.addPart("photo", photoFilePart);
+					}
+					post.setEntity(entity);
 					
-					ByteArrayBody photoFilePart = new ByteArrayBody(baos.toByteArray(), CaptureTextPhotoActivity.MIME_TYPE_FOR_PHOTO, _photoFile.getName());
-					entity.addPart("photo", photoFilePart);
+					_state = State.WAITING_FOR_CAPTURE;
+					_captureTask = new CaptureTask(this);
+					_captureTask.execute(post);
 				}
-				post.setEntity(entity);
-				
-				_state = State.WAITING_FOR_CAPTURE;
-				_captureTask = new CaptureTask(this);
-				_captureTask.execute(post);
 			}
+	
+			showState();
 		}
-
-		showState();
 	}
 
 	@Override
@@ -374,11 +377,11 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 		case FAILED:
 			// Something was wrong, go back to data-moment to let the user try again.
 			_errorMessage = "";
-			_state = State.DATA_MOMENT;
+			_state = State.HAVE_PLACES;
 			showState();
 			break;
 		case SUCCESS:
-		case DATA_MOMENT:
+		case HAVE_PLACES:
 		case WAITING_FOR_CAPTURE:
 		case FAILED_INVALID_CREDENTIALS:
 		case WAITING_FOR_PLACES:
@@ -540,7 +543,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 						locations.addAll(GooglePlacesAPI.ProcessJSONResponse(response, getResources()));
 		
 						// To complete without error is a success.
-						parent._state = State.DATA_MOMENT;
+						parent._state = State.HAVE_PLACES;
 						
 					} catch (ApiViaHttpException e) {
 						parent._locations = null;
