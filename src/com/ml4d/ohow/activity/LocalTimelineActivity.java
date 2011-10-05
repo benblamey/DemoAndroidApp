@@ -19,6 +19,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -32,7 +33,7 @@ import android.widget.ListView;
 /*
  * Interactive logic for the 'LocalTimeline' activity.
  */
-public class LocalTimelineActivity extends ListActivity implements ITaskFinished, AdapterView.OnItemClickListener, OnScrollListener {
+public class LocalTimelineActivity extends ListActivity implements ITaskFinished, AdapterView.OnItemClickListener, OnScrollListener, DialogInterface.OnDismissListener {
 
 	private static final int NUMBER_OF_MOMENTS_TO_GET_AT_A_TIME = 20;
 	private static final int SEARCH_RADIUS_METRES = 1000;
@@ -265,6 +266,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 			AlertDialog failedDialog = new AlertDialog.Builder(this).create();
 			failedDialog.setTitle(resources.getString(R.string.local_timeline_activity_label));
 			failedDialog.setMessage(message);
+			failedDialog.setOnDismissListener(this);
 			failedDialog.show();
 			_dialog = failedDialog;
 		}
@@ -363,6 +365,13 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 	        	showState();
 	        }
 		}
+	}
+
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		// The user has dismissed the failed dialog.
+		// Go back.
+		this.finish();
 	}
 
 }
