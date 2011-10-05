@@ -44,7 +44,7 @@ Portions have been commented out so that the original organisation of the file r
 <!--         <item name="backgroundDimAmount">0.6</item> -->
 
         <!-- Text styles -->
-<!--         <item name="textAppearance">@android:style/TextAppearance</item> -->
+        <item name="android:textAppearance">@style/TextAppearance</item> 
 <!--         <item name="textAppearanceInverse">@android:style/TextAppearance.Inverse</item> -->
 
 <!--         <item name="textColorPrimary">@android:color/primary_text_dark</item> -->
@@ -156,7 +156,7 @@ Portions have been commented out so that the original organisation of the file r
 <!--         <item name="gridViewStyle">@android:style/Widget.GridView</item> -->
 <!--         <item name="imageButtonStyle">@android:style/Widget.ImageButton</item> -->
 <!--         <item name="imageWellStyle">@android:style/Widget.ImageWell</item> -->
-<!--         <item name="listViewStyle">@android:style/Widget.ListView</item> -->
+        <item name="android:listViewStyle">@android:style/Widget.ListView</item>
 <!--         <item name="listViewWhiteStyle">@android:style/Widget.ListView.White</item> -->
 <!--         <item name="popupWindowStyle">@android:style/Widget.PopupWindow</item> -->
 <!--         <item name="progressBarStyle">@android:style/Widget.ProgressBar</item> -->

@@ -44,6 +44,11 @@ This file is our modified versions of the built in styles. For the custom styles
         <item name="android:textAppearance">?android:textAppearance</item>
     </style>
 
+    <style name="Widget.AbsListView">
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:fadingEdge">vertical</item>
+    </style>
+
     <style name="Widget.Button">
         <item name="android:background">@drawable/btn_default</item>
         <item name="android:focusable">true</item>
@@ -76,10 +81,20 @@ This file is our modified versions of the built in styles. For the custom styles
         <item name="android:gravity">center_vertical</item>
     </style>
     
-
+    <style name="Widget.ListView" parent="Widget.AbsListView">
+        <item name="android:listSelector">@drawable/list_selector_background</item>
+		<!-- "This is a hint for a solid color that can be used for caching rendered views." -->
+        <item name="android:cacheColorHint">?android:attr/colorBackgroundCacheHint</item>
+        <item name="android:divider">@drawable/divider_horizontal_dark_opaque</item>
+    </style>
+    
     <!-- Text Appearances -->
     <eat-comment />
 
+    <!-- 
+        These are included for reference, but since they are used by everything they should be left alone.
+        Define alternative styles as needed.
+    -->
     <style name="TextAppearance">
         <item name="android:textColor">?android:textColorPrimary</item>
         <item name="android:textColorHighlight">#FFFF9200</item>

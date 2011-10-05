@@ -2,7 +2,8 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF">
     
 	<TextView
 		android:id="@+id/local_timeline_text_view_capture_location"
@@ -13,6 +14,7 @@
 	    android:textStyle="bold"
 	    android:layout_alignParentTop="true"
 		android:layout_gravity="center"
+		android:textColor="#000000"
 		android:text="@string/local_timeline_label_empty"/>
 	
 </RelativeLayout>

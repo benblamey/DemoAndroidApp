@@ -3,8 +3,11 @@
 <!-- The layout for the item representing a location in the capturelocation activity 
 	 Root element must be a TextView, otherwise see: LocationForCaptureArrayAdapter class. -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#FFFFFF"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="10dp"
+    android:textColor="@color/color_ohow_red"
+    android:textStyle="bold"
     android:textSize="16sp" >
 </TextView>
