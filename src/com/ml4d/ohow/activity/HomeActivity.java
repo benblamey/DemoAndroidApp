@@ -182,9 +182,6 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
-	    case R.id.menu_item_slideshow:
-	    	showSlideShow();
-	        return true;
 	    case R.id.menu_item_local_timeline:
 	    	showLocalTimeline();
 	    	return true;
@@ -199,12 +196,6 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	    }
 	}
 
-	private void showSlideShow() {
-		// The first activity will finish when all the slides have been shown.
-		Intent i = new Intent(this, SlideShowActivity.class);
-		startActivity(i);
-	}
-	
 	private void showLocalTimeline() {
 		double longitude = 999;
 		double latitude = 999;

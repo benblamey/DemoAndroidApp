@@ -3,6 +3,7 @@
 The value should always be of the form: X.Y.Z.W where:
 X = major version number (public release, always matches android:versionCode).
 Y = minor version number.
+
 Z = more minor version number.
 W = Should be left alone. For server (official) builds the component is automatically replaced with the build number.  
 Note that deviation from this format will cause the app to throw an exception on startup!! 
@@ -56,11 +57,6 @@ Note that deviation from this format will cause the app to throw an exception on
         
         <activity android:name=".activity.CaptureLocationActivity"
                   android:label="@string/capture_location_activity_label"
-                  android:screenOrientation="portrait">
-        </activity>
-        
-        <activity android:name=".activity.SlideShowActivity"
-                  android:label="@string/slide_show_activity_label"
                   android:screenOrientation="portrait">
         </activity>
         
