@@ -58,7 +58,6 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 		DATA_MOMENT, WAITING, SUCCESS, FAILED
 	}
 
-	private static final int SLIDE_SHOW_REQUEST_CODE = 8947654;
 	private static final int VIEW_TERMS_AND_CONDITIONS_REQUEST_CODE = 684353;
 
 	private String _errorMessage;
@@ -227,20 +226,11 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
-	    case R.id.menu_item_slideshow:
-	    	showSlideShow();
-	        return true;
 	    default:
 	        return super.onOptionsItemSelected(item);
 	    }
 	}
 
-	private void showSlideShow() {
-		Intent intent = new Intent(this, SlideShowActivity.class);
-		// The first will finish when all the slides have been shown.
-		startActivityForResult(intent, SLIDE_SHOW_REQUEST_CODE);
-	}
-	
 	private void registerButtonClicked() {
 
 		Resources resources = this.getResources();

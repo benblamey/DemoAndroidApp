@@ -52,7 +52,6 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 	}
 
 	// Request codes for starting various activities.
-	private static final int PRE_REGISTER_SLIDE_SHOW_REQUEST_CODE = 818548;
 	private static final int SHOW_HOME_REQUEST_CODE = 6874314;
 	private static final int SHOW_REGISTER_REQUEST_CODE = 4167184;
 	
@@ -230,24 +229,13 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 	}
 
 	private void registerButtonClicked() {
-		// Start the 'SlideShow' activity. 
-		Intent intent = new Intent(this, SlideShowActivity.class);
-		startActivityForResult(intent, PRE_REGISTER_SLIDE_SHOW_REQUEST_CODE);
+		// Start the 'Register' activity. 
+		Intent intent = new Intent(this, RegisterActivity.class);
+		startActivityForResult(intent, SHOW_REGISTER_REQUEST_CODE);
 	}
 	
 	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
-		if (requestCode == PRE_REGISTER_SLIDE_SHOW_REQUEST_CODE) {
-			if (RESULT_OK == resultCode) {
-				Intent intent = new Intent(this, RegisterActivity.class);
-				startActivityForResult(intent, SHOW_REGISTER_REQUEST_CODE);
-			} else if (RESULT_CANCELED == resultCode) {
-				// The slide show was cancelled (the user pressed 'back') - stay 
-				// where we are, the user must watch the slide show all the way through
-				// before registering.
-			} else {
-				throw new RuntimeException("Unexpected resultCode value.");
-			}
-		} else if (requestCode == SHOW_REGISTER_REQUEST_CODE) {
+		if (requestCode == SHOW_REGISTER_REQUEST_CODE) {
 			if (RESULT_CANCELED == resultCode) {
 				// The user has pressed 'back' from register - do nothing.
 			} else if (RESULT_OK == resultCode) {

@@ -59,11 +59,6 @@ Note that deviation from this format will cause the app to throw an exception on
                   android:screenOrientation="portrait">
         </activity>
         
-        <activity android:name=".activity.SlideShowActivity"
-                  android:label="@string/slide_show_activity_label"
-                  android:screenOrientation="portrait">
-        </activity>
-        
         <activity android:name=".activity.LocalTimelineActivity"
         		  android:label="@string/local_timeline_activity_label"
         		  android:screenOrientation="portrait">
