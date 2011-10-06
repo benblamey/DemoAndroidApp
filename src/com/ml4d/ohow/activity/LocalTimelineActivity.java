@@ -35,7 +35,7 @@ import android.widget.ListView;
  */
 public class LocalTimelineActivity extends ListActivity implements ITaskFinished, AdapterView.OnItemClickListener, OnScrollListener, DialogInterface.OnDismissListener {
 
-	private static final int NUMBER_OF_MOMENTS_TO_GET_AT_A_TIME = 20;
+	private static final int NUMBER_OF_MOMENTS_TO_GET_AT_A_TIME = 10;
 	private static final int SEARCH_RADIUS_METRES = 1000;
 	
 	/**
