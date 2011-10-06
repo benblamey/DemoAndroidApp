@@ -140,9 +140,10 @@ public class OHOWAPIResponseHandler {
 			// All official builds that do not use the live server use the main dev server.
 			baseUrl = dommain + "dev/";
 		} else {
+			// From experimentation, the 'ANDROID_ID' is based on which google account the phone is linked with - it is not the ID of the phone.
 			String phoneID = Secure.getString(App.Instance.getContentResolver(), Secure.ANDROID_ID); 
 			if ("20013fc7bad6deee".equals(phoneID)) {
-				// Use Ben's dev server API stream for Ben's phone.
+				// Use Ben's dev server API stream when the phone is linked to Ben's ML4D google account.
 				baseUrl = dommain + "dev_ben/";	
 			} else {
 				baseUrl = dommain + "dev/";
