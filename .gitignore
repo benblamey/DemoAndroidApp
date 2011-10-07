@@ -1,6 +1,6 @@
-/local.properties
 /bin
 /gen
-/tests/local.properties
+/local.properties
+/tests/gen
 /tests/bin
-/gen
+/tests/local.properties
