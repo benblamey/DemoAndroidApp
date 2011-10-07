@@ -30,7 +30,7 @@
 		</ImageView>
 		
 		<ImageView 
-			android:layout_marginTop="10dip" 
+			android:layout_marginTop="10dp" 
 			android:src="@drawable/splash_title"
 			android:id="@+id/splash_title"
 			android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
 	        android:layout_width="wrap_content" 
 	        android:layout_alignParentBottom="true"
 	        android:layout_centerHorizontal="true"
-	        android:layout_marginBottom="1dip"/>
+	        android:layout_marginBottom="1dp"/>
 	
 	</LinearLayout>
 </FrameLayout>

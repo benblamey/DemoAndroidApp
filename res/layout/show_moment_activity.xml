@@ -29,7 +29,7 @@
 		        
 		   <View 
 		        android:background="@color/color_ohow_red"
-		        android:layout_height="1dip"
+		        android:layout_height="1dp"
 		        android:layout_width="fill_parent"/>
 		
 			<LinearLayout 
@@ -42,36 +42,36 @@
 				<TextView
 					android:id="@+id/show_moment_activity_text_view_capture_location"
 					android:singleLine="true"
-					android:layout_marginLeft="5dip"
-			        android:layout_marginRight="4dip"
-			        android:layout_marginTop="6dip"
-			        android:layout_marginBottom="2dip" 
+					android:layout_marginLeft="5dp"
+			        android:layout_marginRight="4dp"
+			        android:layout_marginTop="6dp"
+			        android:layout_marginBottom="2dp" 
 					android:layout_centerHorizontal="true"
 			        android:layout_height="wrap_content"
 				    android:layout_width="wrap_content"
 				    android:textColor="@color/color_ohow_red"
 				    android:textStyle="bold"
 					android:gravity="center_horizontal"
-					android:textSize="20dip"/>
+					android:textSize="20dp"/>
 					
 			    <TextView
 			        android:id="@+id/show_moment_activity_activity_text_view_body"
-	                android:layout_marginLeft="5dip"
-	                android:layout_marginRight="6dip" 
+	                android:layout_marginLeft="5dp"
+	                android:layout_marginRight="6dp" 
 			        android:layout_width="wrap_content"
 			        android:layout_height="wrap_content"
 			        android:textColor="#000000"
-			        android:textSize="20dip"/>
+			        android:textSize="20dp"/>
 				
 			    <TextView
 			        android:id="@+id/show_moment_activity_text_view_details"
 			        android:singleLine="true"
-			        android:layout_marginTop="2dip"
-			        android:layout_marginRight="8dip" 
+			        android:layout_marginTop="2dp"
+			        android:layout_marginRight="8dp" 
 			        android:layout_height="wrap_content"
 			        android:layout_width="fill_parent"
 			        android:textColor="#000000" 
-			        android:textSize="20dip"
+			        android:textSize="20dp"
 			        android:gravity="right"/>
 			        
 		    </LinearLayout>
@@ -79,7 +79,7 @@
 			<View 
 			   android:background="@drawable/dropshadowred"
 			   android:layout_width="fill_parent"
-			   android:layout_height="11dip">
+			   android:layout_height="11dp">
 			</View>
 		
 		    <LinearLayout 
