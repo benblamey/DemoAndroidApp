@@ -275,22 +275,32 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		// Show the particular moment.
-	
-		Intent i = new Intent(this, ShowMomentActivity.class);
 		Moment moment = _moments.get(position);
-		// We want to show a moment with a particular ID.
-		i.putExtra(ShowMomentActivity.EXTRA_MODE_KEY, ShowMomentActivity.EXTRA_MODE_VALUE_MOMENT_ID);
-		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_ID_KEY, moment.getId());
-		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_LATITUDE_KEY, this._latitude);
-		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_LONGITUDE_KEY, this._longitude);
-		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_SEARCH_RADIUS_METRES_KEY, SEARCH_RADIUS_METRES);
-		i.putExtra(ShowMomentActivity.EXTRA_MOMENT_CREATED_TIME_UTC_KEY, moment.getDateCreatedUTC());
 		
-		if (_moments.size() == position + 1) {
-			// This is the last moment in the list. If we flag this to the show moment activity, it will hide the 'previous' button.
-			i.putExtra(ShowMomentActivity.EXTRA_NO_PREVIOUS_MOMENT_KEY, true);
+		// Compute whether to enable the 'newer' and 'older' buttons should be enabled when showing the moment.
+		boolean haveNewer;
+		boolean haveOlder;
+		if (position + 1 == this._moments.size()) {
+			haveNewer = this._moments.size() > 1;
+			haveOlder = (State.HAVE_MOMENTS_THERE_ARE_MORE == this._state);
+		} else if (0 == position) {
+			haveNewer = false; // Assume no moments have been added since we obtained the local timeline results.
+			haveOlder = true;
+		} else {
+			haveNewer = true;
+			haveOlder = true;
 		}
 		
+		ShowMomentInstanceActivityInstruction instruction = new ShowMomentInstanceActivityInstruction(
+			_latitude,
+			_longitude,
+			SEARCH_RADIUS_METRES,
+			moment,
+			haveNewer,
+			haveOlder);
+		
+		Intent i = new Intent(this, ShowMomentActivity.class);
+		i.putExtra(ShowMomentActivity.EXTRA_INSTRUCTION_KEY, instruction);
 		startActivity(i);
 	}
 	
