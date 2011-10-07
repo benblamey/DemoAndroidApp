@@ -21,23 +21,21 @@
 		android:layout_marginBottom="0dip"
 		android:layout_height="fill_parent">
 
-		<com.ml4d.core.Button2
+		<ImageButton
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_vertical"
-			android:text="@string/capture_text_photo_photo_button_toggle_add"
 			android:id="@+id/capture_text_photo_button_add_photo"
 			android:textSize="20sp"
-			ohow:font_asset_name="fonts/BebasNeue.otf"/>
+			android:src="@drawable/camera"/>
 			
-		<com.ml4d.core.Button2
-            android:text="@string/capture_text_photo_photo_button_toggle_remove"
+		<ImageButton
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:id="@+id/capture_text_photo_button_remove_photo"
             android:textSize="20sp"
-            ohow:font_asset_name="fonts/BebasNeue.otf"/>
+            android:src="@drawable/bin"/>
 						
 	</FrameLayout>
 

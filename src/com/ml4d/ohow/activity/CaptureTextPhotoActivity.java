@@ -2,7 +2,6 @@ package com.ml4d.ohow.activity;
 
 import java.io.*;
 
-import com.ml4d.core.Button2;
 import com.ml4d.core.exceptions.UnexpectedEnumValueException;
 import com.ml4d.core.exceptions.UnknownClickableItemException;
 import com.ml4d.ohow.APIConstants;
@@ -26,6 +25,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -197,8 +197,8 @@ public class CaptureTextPhotoActivity extends Activity implements OnClickListene
 		
 		Resources resources = getResources();
 		
-		Button2 addPhotoButton = (Button2)(findViewById(R.id.capture_text_photo_button_add_photo));
-		Button2 removePhotoButton = (Button2)(findViewById(R.id.capture_text_photo_button_remove_photo));
+		ImageButton addPhotoButton = (ImageButton)(findViewById(R.id.capture_text_photo_button_add_photo));
+		ImageButton removePhotoButton = (ImageButton)(findViewById(R.id.capture_text_photo_button_remove_photo));
 		
 		// Update the photo and the photo button.
 		if ((null != _photoFile) && (_photoFile.exists())) {

@@ -12,11 +12,7 @@
     <!-- Validation errors -->
     <!-- The limits are such that the user won't actually care about their values. -->
     <string name="capture_text_photo_body_text_too_short">Your message is too short.</string>
-    <string name="capture_text_photo_body_text_too_long">Your message is too long.</string>
-    
-    <string name="capture_text_photo_photo_button_toggle_add">Add Photo</string>
-    <string name="capture_text_photo_photo_button_toggle_remove">Remove Photo</string>
-    
+    <string name="capture_text_photo_body_text_too_long">Your message is too long.</string>  
     
     
     <!-- Strings used by the 'capturelocation' activity (it is this activity that actually does the capture API call. -->
