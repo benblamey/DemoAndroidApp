@@ -92,6 +92,10 @@
 		       <com.ml4d.core.Button2
 		            android:layout_width="0dip"
 		            android:layout_weight="1"
+		            android:layout_marginLeft="8dp"
+		            android:layout_marginRight="4dp"
+		            android:layout_marginTop="0dp"
+		            android:layout_marginBottom="8dp"
 		            android:layout_height="wrap_content"
 		            android:text="@string/show_moment_activity_previous"
 		            android:id="@+id/show_moment_activity_button_previous"
@@ -102,6 +106,10 @@
 		            android:layout_width="0dip"
 		            android:layout_weight="1"
 		            android:layout_height="wrap_content"
+		            android:layout_marginRight="8dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="8dp"
 		            android:text="@string/show_moment_activity_next"
 		            android:id="@+id/show_moment_activity_button_next"
 		            style="@style/Widget.Button.OHOW.Important">
