@@ -81,6 +81,13 @@ This file is our modified versions of the built in styles. For the custom styles
         <item name="android:gravity">center_vertical</item>
     </style>
     
+    <style name="Widget.ImageButton">
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:background">@drawable/btn_default</item>
+    </style>
+
     <style name="Widget.ListView" parent="Widget.AbsListView">
         <item name="android:listSelector">@drawable/list_selector_background</item>
 		<!-- "This is a hint for a solid color that can be used for caching rendered views." -->
