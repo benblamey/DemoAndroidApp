@@ -340,7 +340,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 					break;
 				case API_HAS_NO_MOMENTS:
 					photoImageView.setUrl(null);
-					photoImageView.setImageResource(R.drawable.mock_map);
+					photoImageView.setImageResource(R.drawable.no_moment);
 					body = resources.getString(R.string.home_no_history_here);
 					break;
 				case WAITING_FOR_FIRST_LOCATION_UPDATE:
