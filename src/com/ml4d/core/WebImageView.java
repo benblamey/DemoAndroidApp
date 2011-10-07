@@ -12,6 +12,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpProtocolParams;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.ohow.App;
+import com.ml4d.ohow.R;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +26,7 @@ import android.widget.ImageView;
 
 /**
  * An ImageView that obtains its image asynchronously from the web.
+ * Shows a placeholder image if no URL is set, or if the image could not be downloaded from the URL.
  */
 public class WebImageView extends ImageView {
 	
@@ -32,14 +35,17 @@ public class WebImageView extends ImageView {
 
     public WebImageView(Context context) {
         super(context);
+        setImageResource(R.drawable.photo_placeholder);
     }
     
     public WebImageView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    	super(context, attrs);
+    	setImageResource(R.drawable.photo_placeholder);
     }
     
     public WebImageView(Context context, AttributeSet attrs, int defStyle) {
     	super(context, attrs, defStyle);
+    	setImageResource(R.drawable.photo_placeholder);
     }
     
     public void setUrl(String url) {
@@ -58,6 +64,8 @@ public class WebImageView extends ImageView {
 	    	if ((null != url) && ("" != url)) {
 	    		_task = new GetImageTask(this, url);
 	    		_task.execute((Void[])null);
+	    	} else {
+	    		setImageResource(R.drawable.photo_placeholder);
 	    	}
     	}
     }
@@ -159,15 +167,24 @@ public class WebImageView extends ImageView {
 			// On the main thread.
 			WebImageView parent = _parent.get();
 			if (null != parent) {
+				
 				if (parent._task == this) {
-					// 'parent' will be null if it has already been garbage collected.
-					// Display the image.
-					setImageBitmap(_bitmap);
-		    		parent._task = null;
+					
+					if (null == _bitmap) {						
+						setImageResource(R.drawable.photo_placeholder);
+					} else {
+						 // 'parent' will be null if it has already been garbage collected.
+						 // Display the image.
+						setImageBitmap(_bitmap);
+					}
+					
+					parent._task = null;
 				}
 			}
 		}
 	}
+	
+	private Context _context;
 
 }
 
