@@ -183,8 +183,6 @@ public class WebImageView extends ImageView {
 			}
 		}
 	}
-	
-	private Context _context;
 
 }
 
