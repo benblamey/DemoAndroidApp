@@ -133,7 +133,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 
 		// 'parent' will be null if it has already been garbage collected.
 		if (null != parent) {
-			parent.CallMeBack(this);
+			parent.callMeBack(this);
 		}
 	}
 	

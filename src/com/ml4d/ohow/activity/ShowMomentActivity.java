@@ -315,7 +315,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 	}
 
 	@Override
-	public void CallMeBack(Object sender) {
+	public void callMeBack(Object sender) {
 		if (sender == _getMomentTask) {
 			
 			if (sender instanceof ShowMomentTask) {

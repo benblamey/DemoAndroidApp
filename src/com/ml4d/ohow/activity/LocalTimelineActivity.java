@@ -305,7 +305,7 @@ public class LocalTimelineActivity extends ListActivity implements ITaskFinished
 	}
 	
 	@Override
-	public void CallMeBack(Object sender) {
+	public void callMeBack(Object sender) {
 		if (sender == _getMomentTask) {
 			assert _state == State.WAITING_FOR_API;
 			State state;

@@ -82,7 +82,7 @@ public class ShowMomentTask extends AsyncTask<Void, Void, Void> {
 		ITaskFinished parent = _parent.get();
 		
 		if (null != parent) {
-				parent.CallMeBack(this);
+				parent.callMeBack(this);
 		}
 	}
 

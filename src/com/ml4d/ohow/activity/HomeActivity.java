@@ -372,7 +372,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	}
 	
 	@Override
-	public void CallMeBack(Object sender) {
+	public void callMeBack(Object sender) {
 
 		if (sender == _getMomentTask) {
 			try {
