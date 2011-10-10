@@ -48,6 +48,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 			+ "&" + "radius_meters=" + Integer.toString(radiusMeters); 
 		
 		_get = new HttpGet(url);
+		_get.setParams(OHOWAPIResponseHandler.getHttpParams());
 		_get.setHeader("Accept", "application/json");
 	}
 
@@ -68,6 +69,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 			+ "&" + "newest_first=true";
 			
 		_get = new HttpGet(url);
+		_get.setParams(OHOWAPIResponseHandler.getHttpParams());
 		_get.setHeader("Accept", "application/json");
 	}
 	
@@ -88,6 +90,7 @@ public class MomentLocationRecentSearchTask extends AsyncTask<Void, Void, Void> 
 			+ "&" + "newest_first=false"; // Show oldest entries first.
 		
 		_get = new HttpGet(url);
+		_get.setParams(OHOWAPIResponseHandler.getHttpParams());
 		_get.setHeader("Accept", "application/json");
 	}
 

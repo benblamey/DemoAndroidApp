@@ -512,6 +512,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 					+ "&" + "sensor=true"
 					+ "&" + "types=" + Uri.encode(GooglePlacesAPI.getCapturePlaceTypes())
 					+ "&" + "key=AIzaSyBXytCoZm7Q5fecpiyMVPAup4zoc2a35VM");
+			get.setParams(OHOWAPIResponseHandler.getHttpParams());
 			get.setHeader("Accept", "application/json");
 			
 			// This is executed on a background thread.

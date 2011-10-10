@@ -6,6 +6,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +43,8 @@ public class ShowMomentTask extends AsyncTask<Void, Void, Void> {
 
 		_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "show_moment.php"
 				+ "?" + "id=" + Double.toString(_momentId));
+
+		_get.setParams(OHOWAPIResponseHandler.getHttpParams());
 		_get.setHeader("Accept", "application/json");
 	}
 

@@ -5,6 +5,9 @@ import java.lang.reflect.Field;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -159,4 +162,11 @@ public class OHOWAPIResponseHandler {
 		return baseUrl;
 	}
 
+	public static HttpParams getHttpParams() { 
+		HttpParams p = new BasicHttpParams();
+		p.setIntParameter(HttpConnectionParams.SO_TIMEOUT, 5000); // Defines the default socket timeout (SO_TIMEOUT) in milliseconds which is the timeout for waiting for data.
+		p.setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 5000); // Defines the default socket timeout (SO_TIMEOUT) in milliseconds which is the timeout for waiting for data.
+		return p;
+	}
+	
 }

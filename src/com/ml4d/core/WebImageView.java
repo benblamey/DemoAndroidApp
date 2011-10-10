@@ -12,6 +12,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpProtocolParams;
 import com.ml4d.core.exceptions.ImprobableCheckedExceptionException;
 import com.ml4d.ohow.App;
+import com.ml4d.ohow.OHOWAPIResponseHandler;
 import com.ml4d.ohow.R;
 
 import android.content.Context;
@@ -112,6 +113,7 @@ public class WebImageView extends ImageView {
 			_parent = new WeakReference<WebImageView>(parent);
 			
 			_httpGet = new HttpGet(url);
+			_httpGet.setParams(OHOWAPIResponseHandler.getHttpParams());
 			// We need to accept any kind of image, or JSON - so for simplicity just accept anything.
 			_httpGet.setHeader("Accept", "*/*");
 		}
