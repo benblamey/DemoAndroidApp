@@ -275,7 +275,7 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 
 			// The HttpClient will verify the certificate is signed by a trusted
 			// source.
-			HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "register.php");
+			HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash() + "register.php");
 			post.setHeader("Accept", "application/json");
 
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -314,7 +314,7 @@ public class RegisterActivity extends Activity implements OnClickListener, Dialo
 	}
 
 	private void viewTermsAndConditionsClicked() {
-		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "terms.html"));
+		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash() + "terms.html"));
 		startActivityForResult(browserIntent, VIEW_TERMS_AND_CONDITIONS_REQUEST_CODE);
 	}
 

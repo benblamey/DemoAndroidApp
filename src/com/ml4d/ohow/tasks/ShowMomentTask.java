@@ -38,7 +38,7 @@ public class ShowMomentTask extends AsyncTask<Void, Void, Void> {
 		_parent = new WeakReference<ITaskFinished>(parent);
 		_momentId = momentId;
 
-		_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "show_moment.php"
+		_get = new HttpGet(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash() + "show_moment.php"
 				+ "?" + "id=" + Double.toString(_momentId));
 
 		_get.setParams(OHOWAPIResponseHandler.getHttpParams());

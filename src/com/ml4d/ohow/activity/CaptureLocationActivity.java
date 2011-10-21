@@ -326,7 +326,7 @@ public class CaptureLocationActivity extends ListActivity implements DialogInter
 	
 					// The HttpClient will verify the certificate is signed by a trusted
 					// source.
-					HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "capture.php");
+					HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash() + "capture.php");
 					post.setHeader("Accept", "application/json");
 	
 					// PHP doesn't seem to accept the post if we specify a character set in the 'MultipartEntity' constructor. 

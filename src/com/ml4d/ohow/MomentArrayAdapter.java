@@ -174,7 +174,7 @@ public class MomentArrayAdapter implements ListAdapter {
 			// Note - views get re-used. We need to explicitly clear the image if there isn't one for this moment. 
 			String url;
 			if (moment.getHasPhoto()) {
-				url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+				url = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash() + "photo.php"
 					+ "?" 
 					+ "id=" + Integer.toString(moment.getId())
 					+ "&photo_size=thumbnail";

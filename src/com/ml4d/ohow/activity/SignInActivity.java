@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -283,7 +284,7 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 
 			// The HttpClient will verify the certificate is signed by a trusted
 			// source.
-			HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(true) + "check_credentials.php");
+			HttpPost post = new HttpPost(OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash() + "check_credentials.php");
 			post.setHeader("Accept", "application/json");
 
 			List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -380,6 +381,7 @@ public class SignInActivity extends Activity implements OnClickListener, DialogI
 			} catch (ClientProtocolException e) {
 				return null;
 			} catch (IOException e) {
+				Log.d("OHOW", e.getLocalizedMessage());
 				return null;
 			}
 		}

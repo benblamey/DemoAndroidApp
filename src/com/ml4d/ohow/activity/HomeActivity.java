@@ -309,7 +309,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 			// Get the photo associated with the moment.			
 			
 			if (_moment.getHasPhoto()) {
-				String photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+				String photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash() + "photo.php"
 					+ "?" 
 					+ "id=" + Integer.toString(_moment.getId())
 					+ "&photo_size=medium"; // Get the full-sized image.

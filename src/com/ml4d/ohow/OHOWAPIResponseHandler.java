@@ -1,3 +1,4 @@
+
 package com.ml4d.ohow;
 
 import java.io.IOException;
@@ -131,11 +132,12 @@ public class OHOWAPIResponseHandler {
 		return friendlyMessage;
 	}
 	
-	public static String getBaseUrlIncludingTrailingSlash(boolean secure) {
+	public static String getBaseUrlIncludingTrailingSlash() {
 
 		String baseUrl;
 		OfficialBuild officialBuild = OfficialBuild.getInstance();
-		String dommain = "cpanel02.lhc.uk.networkeq.net/~soberfun/";
+		// Our hosting package does not currently support HTTPS.
+		String dommain = "http://www.ourhistoryoftheworld.com/";
 		
 		if (officialBuild.useLiveOHOWApi()) {
 			baseUrl = dommain + "live_v1/"; 
@@ -151,12 +153,6 @@ public class OHOWAPIResponseHandler {
 			} else {
 				baseUrl = dommain + "dev/";
 			}
-		}
-		
-		if (secure) {
-			baseUrl = "https://" + baseUrl;
-		} else {
-			baseUrl = "http://" + baseUrl;
 		}
 		
 		return baseUrl;

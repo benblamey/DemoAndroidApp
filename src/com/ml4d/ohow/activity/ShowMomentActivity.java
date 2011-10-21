@@ -256,7 +256,7 @@ public class ShowMomentActivity extends Activity implements ITaskFinished, View.
 			// Get the photo associated with the moment.			
 			String photoUrl;
 			if (_moment.getHasPhoto()) {
-				photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash(false) + "photo.php"
+				photoUrl = OHOWAPIResponseHandler.getBaseUrlIncludingTrailingSlash() + "photo.php"
 					+ "?" 
 					+ "id=" + Integer.toString(_moment.getId())
 					+ "&photo_size=medium"; // Get the full-sized image.
