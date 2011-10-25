@@ -88,19 +88,19 @@
 
 		<!-- Create a directory to hold the output file -->
 		<ftp action="mkdir"
-			server="soberfun.co.uk"
+			server="ftp.ourhistoryoftheworld.com"
 			port="21"
 			userid="${ml4d.ohow.ftp.username}"
 			password="${ml4d.ohow.ftp.password}"
 			passive="yes"
 			depends="yes"
-			remotedir="/ei95hc83hs84hfgh59wj2iaoclr496uhshx/android/${ml4d-packageversion}"/>
+			remotedir="/androidbuilds/${ml4d-packageversion}"/>
 	
 		<!-- Upload the output file to the FTP server. -->
 		<ftp 
-			server="soberfun.co.uk"
+			server="ftp.ourhistoryoftheworld.com"
 			port="21"
-			remotedir="/ei95hc83hs84hfgh59wj2iaoclr496uhshx/android/${ml4d-packageversion}"
+			remotedir="/androidbuilds/${ml4d-packageversion}"
 			userid="${ml4d.ohow.ftp.username}"
 			password="${ml4d.ohow.ftp.password}"
 			passive="yes"
