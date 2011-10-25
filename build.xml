@@ -94,13 +94,13 @@
 			password="${ml4d.ohow.ftp.password}"
 			passive="yes"
 			depends="yes"
-			remotedir="/androidbuilds/${ml4d-packageversion}"/>
+			remotedir="public_html/androidbuilds/${ml4d-packageversion}"/>
 	
 		<!-- Upload the output file to the FTP server. -->
 		<ftp 
 			server="ftp.ourhistoryoftheworld.com"
 			port="21"
-			remotedir="/androidbuilds/${ml4d-packageversion}"
+			remotedir="public_html/androidbuilds/${ml4d-packageversion}"
 			userid="${ml4d.ohow.ftp.username}"
 			password="${ml4d.ohow.ftp.password}"
 			passive="yes"
