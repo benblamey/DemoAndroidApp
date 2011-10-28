@@ -2,7 +2,7 @@
 
 <resources>
 
-    <string name="moment_activity_label">Show Moment</string>
+    <string name="moment_activity_label">Moment</string>
     
     <!-- Labels for the buttons on the show moment layout. -->
     <string name="show_moment_activity_previous">Older</string>
