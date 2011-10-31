@@ -102,9 +102,8 @@ public class SplashActivity extends Activity {
 			// 'parent' will be null if it has already been garbage collected.
 			// We want to ensure we only take action if the parent is actually 'using' this instance of the task.
 			if (this == parent._task) {
-				// We go to the SignIn activity - it handles redirection based on whether we have
-				// saved credentials.
-				Intent nextActivityIntent = new Intent(parent, SignInActivity.class);
+				// Now show the second splash screen.
+				Intent nextActivityIntent = new Intent(parent, SecondSplashActivity.class);
 				parent.startActivity(nextActivityIntent);
 			}
 		}

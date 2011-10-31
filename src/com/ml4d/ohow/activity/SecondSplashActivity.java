@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 /**
  * Logic for the second splash screen activity.
@@ -16,7 +17,8 @@ public class SecondSplashActivity extends Activity implements View.OnClickListen
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.second_splash);
-		
+		Button OKbutton = (Button)this.findViewById(R.id.second_splash_ok_button);
+		OKbutton.setOnClickListener(this);
 	}
 
 	@Override

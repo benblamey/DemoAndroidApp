@@ -33,7 +33,7 @@ import android.widget.TextView;
 /**
  * Interactive logic for the sign in activity.
  */
-public class ShowMomentActivity extends Activity implements ITaskFinished, View.OnClickListener { //DialogInterface.OnClickListener, 
+public class ShowMomentActivity extends Activity implements ITaskFinished, View.OnClickListener { 
 
 	// These fields are not persisted.
 	private AsyncTask<Void, Void, Void> _getMomentTask;

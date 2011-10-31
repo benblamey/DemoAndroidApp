@@ -5,8 +5,9 @@
 
     <string name="second_splash_activity_label">Capture 100 moments to Win!</string>
     
-    <string name="second_splash_message">Capture 100 moments and win a Photobook!</string>
+    <string name="second_splash_message_a">*Capture 100 moments</string>
+    <string name="second_splash_message_b">WIN A PHOTO BOOK!</string>
     
-    <string name="second_splash_button_text">OK</string>
+    <string name="second_splash_button_text">Continue</string>
 
 </resources>
