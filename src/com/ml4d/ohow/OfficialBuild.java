@@ -30,7 +30,7 @@ public class OfficialBuild {
 		String versionName = packageInfo.versionName;
 		
 		_isOfficialBuild = Pattern.matches(("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+.*"), versionName);
-		_isLiveOfficialBuild = Pattern.matches(("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+ (Live)"), versionName);
+		_isLiveOfficialBuild = !Pattern.matches(("[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+ \\(Live\\)"), versionName);
 	}
 
 	/**
