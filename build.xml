@@ -115,7 +115,7 @@
 			passive="yes"
 			depends="yes"
 			binary="yes">
-			<fileset file="${out.release.file}"/>
+			<fileset file="${out.final.file}"/>
 		</ftp>
 
 	</target>
