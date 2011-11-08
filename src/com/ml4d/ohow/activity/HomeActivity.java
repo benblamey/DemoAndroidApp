@@ -88,7 +88,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 			}
 	
 			ensureSubscribedToLocationUpdates();
-			getMomentIfAppropriate();
+			getMomentIfAppropriate(true);
 			showState();
 		}
 	}
@@ -101,6 +101,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 			SignInActivity.signInAgain(this);
 		} else {
 			ensureSubscribedToLocationUpdates();
+			getMomentIfAppropriate(true);
 			showState();
 		}
 	}
@@ -113,6 +114,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 		} else {
 			// The activity has become visible (it is now "resumed").
 			ensureSubscribedToLocationUpdates();
+			getMomentIfAppropriate(true);
 			showState();
 		}
 	}
@@ -151,7 +153,7 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 	@Override
 	public void onLocationChanged(Location location) {
 		// A GPS fix has been obtained - fetch a moment from the API.
-		getMomentIfAppropriate();
+		getMomentIfAppropriate(true);
 		showState();
 	}
 
@@ -234,22 +236,27 @@ public class HomeActivity extends Activity implements ITaskFinished, LocationLis
 		startActivity(new Intent(this, CaptureTextPhotoActivity.class));
 	}
 	
-	private void getMomentIfAppropriate() {
+	private void getMomentIfAppropriate(boolean force) {
 		Location location = MultiLocationProvider.getInstance().getLocation();
 		
 		if ((null != location) && (null == _getMomentTask))
 		{
+			boolean needToGetMoment;
+
 			// Create a new culture-independent calendar initialised to the current date and time.
 			GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"), Locale.US); 
 			Date now = calendar.getTime();
 			
-			boolean needToGetMoment;
-			if ((null == _momentTimestamp)) {
-				needToGetMoment = true;
+			if (!force) {
+				if ((null == _momentTimestamp)) {
+					needToGetMoment = true;
+				} else {
+					calendar.setTime(_momentTimestamp);
+					calendar.add(Calendar.SECOND, MINIMUM_FETCH_MOMENT_INTERVAL_SECONDS);
+					needToGetMoment = calendar.before(now);
+				}
 			} else {
-				calendar.setTime(_momentTimestamp);
-				calendar.add(Calendar.SECOND, MINIMUM_FETCH_MOMENT_INTERVAL_SECONDS);
-				needToGetMoment = calendar.before(now);
+				needToGetMoment = true;
 			}
 			
 			if (needToGetMoment) {
