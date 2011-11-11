@@ -137,7 +137,7 @@ public class OHOWAPIResponseHandler {
 		String baseUrl;
 		OfficialBuild officialBuild = OfficialBuild.getInstance();
 		// Our hosting package does not currently support HTTPS.
-		String dommain = "http://www.ourhistoryoftheworld.com/";
+		String dommain = "http://www.ourhistoryoftheworld.com/api/";
 		
 		if (officialBuild.useLiveOHOWApi()) {
 			baseUrl = dommain + "live_v1/"; 
